@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ANCHOR: NASA Space Apps 2026 (Team ANCHOR)</title>
+<style>
+  @font-face { font-family: "Atkinson Hyperlegible"; src: url("../app/fonts/AtkinsonHyperlegible-Regular.woff2") format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Atkinson Hyperlegible"; src: url("../app/fonts/AtkinsonHyperlegible-Bold.woff2") format("woff2"); font-weight: 700; }
+  @page { size: 1920px 1080px; margin: 0; }
+  :root { --ground: #0d0904; --surface: #1a1209; --line: #3a2b14; --amber: #ffb858; --text: #ffe2bd; --muted: #d39548; --moss: #6f6a1f; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--ground); color: var(--text); font-family: "Atkinson Hyperlegible", sans-serif; font-variant-numeric: tabular-nums slashed-zero; }
+  .slide { width: 1920px; height: 1080px; padding: 96px 120px 80px; position: relative; overflow: hidden; page-break-after: always; break-after: page;
+    background: radial-gradient(120% 90% at 50% 40%, #241a0e 0%, var(--ground) 70%); display: flex; flex-direction: column; gap: 36px; }
+  .eyebrow { font-size: 26px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  h1 { font-size: 96px; line-height: 1.02; margin: 0; color: var(--amber); letter-spacing: -.01em; }
+  h2 { font-size: 72px; line-height: 1.05; margin: 0; color: var(--amber); }
+  h3 { font-size: 34px; margin: 0 0 10px; color: var(--amber); }
+  p, li { font-size: 30px; line-height: 1.4; margin: 0; }
+  .muted { color: var(--muted); }
+  .foot { position: absolute; left: 120px; right: 120px; bottom: 36px; display: flex; justify-content: space-between; font-size: 20px; color: var(--muted); }
+  .grid { display: grid; gap: 28px; }
+  .g2 { grid-template-columns: 1fr 1fr; } .g3 { grid-template-columns: repeat(3, 1fr); } .g4 { grid-template-columns: repeat(4, 1fr); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 30px 32px; }
+  .shot { width: 100%; border-radius: 18px; border: 1px solid var(--line); display: block; }
+  .big { font-size: 180px; font-weight: 700; color: var(--amber); line-height: 1; }
+  .num { font-size: 120px; font-weight: 700; color: var(--amber); line-height: 1; }
+  table { border-collapse: collapse; width: 100%; font-size: 25px; }
+  td, th { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-size: 21px; text-transform: uppercase; letter-spacing: .08em; }
+  td:first-child { color: var(--amber); font-weight: 700; width: 30%; }
+  .line { position: relative; height: 120px; margin: 10px 0 0; }
+  .line .track { position: absolute; left: 60px; right: 60px; top: 40px; border-top: 6px dashed var(--amber); }
+  .line .dot { position: absolute; top: 22px; width: 42px; height: 42px; border-radius: 50%; border: 6px solid var(--text); background: var(--ground); }
+  .line .lab { position: absolute; top: 76px; font-size: 30px; font-weight: 700; }
+  ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 12px; }
+  .pill { display: inline-block; padding: 8px 18px; border-radius: 999px; border: 1px solid var(--line); font-size: 22px; color: var(--muted); margin-right: 10px; }
+  .flow { display: flex; align-items: stretch; gap: 18px; }
+  .flow .card { flex: 1; }
+  .s3 p { font-size: 26px; } .s3 { gap: 28px; }
+  .arrow { align-self: center; font-size: 40px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- 1 Title -->
+<section class="slide">
+  <p class="eyebrow">Team ANCHOR · NASA Space Apps Challenge 2026 · Create Health Monitoring Software for Astronauts on Space Missions</p>
+  <div class="grid g2" style="align-items:center; flex:1">
+    <div style="display:flex; flex-direction:column; gap:30px">
+      <h1>ANCHOR</h1>
+      <p style="font-size:44px">A personal baseline for long missions.</p>
+      <p class="muted">A daily wellbeing companion that learns each astronaut's own normal, notices sustained change calmly, never diagnoses, and keeps them in control of what is shared.</p>
+      <p><span class="pill">Live app: agcpr.github.io/nasa-space-apps-2026-anchor</span></p>
+      <p><span class="pill">Code and evidence: github.com/AGCpr/nasa-space-apps-2026-anchor</span></p>
+    </div>
+    <img class="shot" src="../docs/img/course.jpg" alt="ANCHOR Course view: the personal range over 150 days">
+  </div>
+  <div class="foot"><span>Synthetic demo data in all screenshots · no astronaut data</span><span>1 / 7</span></div>
+</section>
+
+<!-- 2 Problem -->
+<section class="slide">
+  <p class="eyebrow">The problem</p>
+  <h2>On the way to Mars, help is up to 22 minutes away. Each way.</h2>
+  <div class="line">
+    <div class="track"></div>
+    <div class="dot" style="left:40px"></div><div class="lab" style="left:20px">Earth</div>
+    <div class="dot" style="right:40px"></div><div class="lab" style="right:24px">Mars</div>
+  </div>
+  <div class="grid g3">
+    <div class="card"><h3>Isolation takes a toll</h3><p>NASA's Human Research Program names behavioural health under isolation and confinement as a spaceflight risk, and notes that Mars-distance delays weaken the ground support the ISS relies on.</p></div>
+    <div class="card"><h3>Saying how you feel can feel risky</h3><p>Crews value privacy (HRP calls it a top priority). When monitoring feels like surveillance, honest self-report is the first thing lost.</p></div>
+    <div class="card"><h3>Alarms are not support</h3><p>Single-reading alerts on noisy wellbeing data cry wolf. Crews learn to ignore them, and the one that matters is missed.</p></div>
+  </div>
+  <div class="foot"><span>Sources: NASA HRP risk pages (behavioural health, sleep, teamwork); docs/HRP_MAPPING.md</span><span>2 / 7</span></div>
+</section>
+
+<!-- 3 Solution -->
+<section class="slide s3">
+  <p class="eyebrow">What ANCHOR does</p>
+  <h2>Your own normal, noticed calmly, shared on your terms.</h2>
+  <div class="grid g4">
+    <div class="card"><h3>Personal baseline</h3><p>Anchored on pre-flight days. The astronaut can say "this is my new normal", which is reversible and limited.</p></div>
+    <div class="card"><h3>Calm by construction</h3><p>A sustained-change detector with a false-alert budget of one note per 30 days, verified end to end.</p></div>
+    <div class="card"><h3>Disclosure contract</h3><p>Private by default, consent per category, a sharing log shown before anything is sent, exclusions without exception.</p></div>
+    <div class="card"><h3>Safety lines always work</h3><p>Pre-agreed lines, such as SpO2, are checked by two independently written safety kernels. During loss of signal they re-route to the CMO on board.</p></div>
+  </div>
+  <img class="shot" src="../docs/img/today-why.jpg" alt="Today view: a calm note with its explanation open" style="height:250px; object-fit:cover; object-position:50% 62%">
+  <div class="foot"><span>Every note answers "Why this note?": the data, the rule, what closes it, the NASA research area</span><span>3 / 7</span></div>
+</section>
+
+<!-- 4 How it works -->
+<section class="slide">
+  <p class="eyebrow">The astronaut's evening, 90 seconds</p>
+  <div class="flow">
+    <div class="card"><h3>1 · Rate first</h3><p>Three bipolar sliders: mood, energy, calm. Words, not smileys. The data is shown only after rating.</p></div>
+    <div class="arrow">→</div>
+    <div class="card"><h3>2 · Tonight in range</h3><p>Tonight against their own usual range, with confidence and coverage. No composite score.</p></div>
+    <div class="arrow">→</div>
+    <div class="card"><h3>3 · Notes that explain</h3><p>One calm note per episode, with a step and an owner, never a diagnosis.</p></div>
+    <div class="arrow">→</div>
+    <div class="card"><h3>4 · You decide</h3><p>A sharing log, per-person exclusions, and a private conference or a crewmate one tap away.</p></div>
+  </div>
+  <div class="grid g2" style="flex:1">
+    <div class="card"><h3>Built for a floating tablet at night</h3><ul>
+      <li>NASA-STD-3001 App. F display rules: red, yellow and blue reserved, contrast at least 6:1, 15–20 mm touch targets</li>
+      <li>Evening rendering follows the ISS pre-sleep lighting: no colour bluer than 2700 K</li>
+      <li>iPadOS conventions; fully offline</li></ul></div>
+    <div class="card"><h3>Engineered to be trusted</h3><ul>
+      <li>Deterministic Rust engine compiled to WebAssembly; every screen can be replayed from a hash-chained log</li>
+      <li>Safety kernel in Rust plus an independent TypeScript version, compared on every value</li>
+      <li>About 70 automated tests, Python reference oracles, a machine audit of every sentence the astronaut can read</li></ul></div>
+  </div>
+  <div class="foot"><span>Design decisions argued with alternatives in ten ADRs (docs/adr)</span><span>4 / 7</span></div>
+</section>
+
+<!-- 5 NASA -->
+<section class="slide">
+  <p class="eyebrow">NASA data and resources</p>
+  <h2>Every feature traces to a NASA HRP risk.</h2>
+  <table>
+    <tr><th>NASA HRP risk</th><th>ANCHOR mechanism</th></tr>
+    <tr><td>Behavioural changes</td><td>Mood, energy and calm check-in; calm detection without diagnosis; privacy by design, a priority named on the HRP page</td></tr>
+    <tr><td>Sleep and irregular schedules</td><td>Sleep indicator; workload days excluded from learning; 2700 K evening rendering modelled on the ISS LED lighting schedule</td></tr>
+    <tr><td>Hypoxia</td><td>SpO2 safety line for partially depressurised exploration cabins</td></tr>
+    <tr><td>Inadequate teamwork</td><td>Trusted-crewmate route; per-person exclusions, including the CMO</td></tr>
+    <tr><td>Systems operations support</td><td>Offline, explainable, deterministic, auditable outputs</td></tr>
+    <tr><td>Space radiation</td><td>Triple redundancy against bit flips in commercial tablets (NASA NTRS 20060015096)</td></tr>
+  </table>
+  <div class="foot"><span>Plus NASA-STD-3001 Vol. 2 App. F for every display rule · full mapping with quotes: docs/HRP_MAPPING.md</span><span>5 / 7</span></div>
+</section>
+
+<!-- 6 Evidence -->
+<section class="slide">
+  <p class="eyebrow">Evidence on real people · LifeSnaps · 71 adults · 4 months · CC BY 4.0</p>
+  <div class="grid g3">
+    <div class="card"><div class="num">79%</div><p>of mood days inside the 80% personal range</p></div>
+    <div class="card"><div class="num">78%</div><p>of sleep days inside it, as designed</p></div>
+    <div class="card"><div class="num">4×</div><p>fewer notes than a naive single-day rule (one per 179 days against one per 45)</p></div>
+  </div>
+  <div class="grid g2">
+    <div class="card"><h3>Injected change, real noise</h3><p>A 1 SD drop in real sleep was noticed within 4 weeks in 52% of people, against 13% by chance (n = 23, wide intervals). 13,376 real records, 0 errors, 6.7 ms per record.</p></div>
+    <div class="card"><h3>We report what didn't work</h3><p>For device-smoothed resting heart rate the band holds only 58%. Two fixes were tested and rejected with numbers, and such signals are now shown as trends only (ADR-0010).</p></div>
+  </div>
+  <div class="foot"><span>Synthetic end-to-end budget: one false note per 39 days (target 30) · docs/VALIDATION.md</span><span>6 / 7</span></div>
+</section>
+
+<!-- 7 Next -->
+<section class="slide">
+  <p class="eyebrow">Impact and next steps</p>
+  <h2>A companion crews want to use, built for the delay to Mars.</h2>
+  <div class="grid g3">
+    <div class="card"><h3>Next</h3><ul><li>Trial in an analogue mission, for example HERA</li><li>Clinician-validated screener wording</li><li>A local-level band for smoothed signals</li><li>A Russian catalogue: the structure and language audit are ready</li></ul></div>
+    <div class="card"><h3>Why it matters on Earth</h3><ul><li>Remote and isolated crews: Antarctic stations, submarines, offshore</li><li>Any self-monitoring that should help without becoming surveillance</li></ul></div>
+    <div class="card"><h3>Try it</h3><ul><li>Live app with a guided 150-day synthetic replay</li><li>30-second video</li><li>Open source, with every decision documented</li></ul></div>
+  </div>
+  <p class="muted" style="font-size:24px">Team ANCHOR · agcpr.github.io/nasa-space-apps-2026-anchor · Software built with AI assistance (Claude, Anthropic); see AI_ASSISTANCE.md. No NASA logos are used. All app data shown is synthetic.</p>
+  <div class="foot"><span>Not a medical device: it informs and never diagnoses</span><span>7 / 7</span></div>
+</section>
+
+</body>
+</html>

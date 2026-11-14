@@ -24,6 +24,8 @@ On 71 real people's wearable and mood data, the personal range held 79 % of mood
 
 ## Link to Project Demo
 
+A 7-slide deck is also available: https://agcpr.github.io/nasa-space-apps-2026-anchor/demo/anchor-deck.pdf
+
 https://agcpr.github.io/nasa-space-apps-2026-anchor/demo/anchor-demo.mp4 (30 seconds, 4K, narrated, English subtitles, real app footage)
 
 ## Link to Final Project

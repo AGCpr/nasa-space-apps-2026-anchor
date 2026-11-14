@@ -8,6 +8,8 @@ In the replay, a short guide on the Today screen links straight to the three mom
 
 **30-second demo video (4K, narrated):** https://agcpr.github.io/nasa-space-apps-2026-anchor/demo/anchor-demo.mp4
 
+**7-slide deck (PDF):** https://agcpr.github.io/nasa-space-apps-2026-anchor/demo/anchor-deck.pdf
+
 Direct links into the replay:
 - [the personal range on day 150](https://agcpr.github.io/nasa-space-apps-2026-anchor/app/#view=course&day=150)
 - [a note with its explanation, day 110](https://agcpr.github.io/nasa-space-apps-2026-anchor/app/#view=today&day=110&light=day&why=open)
