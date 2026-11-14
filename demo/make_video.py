@@ -1,142 +1,238 @@
-"""Compose the 30-second demo video (demo/anchor-demo.mp4).
+"""Render the 30-second demo video (demo/anchor-demo.mp4, 3840x2160, 30 fps).
 
-Structure follows what the 2025 Global Winners' demos share (studied 14 Nov 2026): a concrete stake
-in the first seconds, the working product in motion, evidence, a closing card; one idea per scene,
-narrated, with large type. Every app shot is a real capture of the running app (demo/record.mjs);
-text cards are typeset here. Voice: Microsoft Edge neural TTS (synthetic, disclosed on the end card).
+Story: what the 2025 Global Winners' demos share (studied 14 Nov 2026) - a concrete stake first,
+the product in motion, evidence, a closing card; one idea per scene, narrated. Every app shot is a
+4K frame-by-frame capture of the running app (demo/record.mjs); a virtual camera eases into the
+part that matters so interface text reads at full size. Cards are typeset in the app's own font.
+Voice: Kokoro (open-weights neural TTS, voice af_heart), disclosed on the end card and in metadata.
+The background tone is synthesised here; no third-party audio or imagery is used.
 
-Usage (from the repository root, after `node demo/record.mjs` and encoding its frames to <rec>/<scene>.mp4):
-  python demo/make_video.py <recordings dir> <work dir>
-needs ffmpeg, the edge-tts package, and Atkinson Hyperlegible converted to TTF in <work dir>/fonts.
+Usage: python demo/make_video.py <4K recordings dir> <work dir>
+<work dir> holds fonts/atk-{Regular,Bold}.ttf and kokoro/{kokoro-v1.0.onnx,voices-v1.0.bin}.
 """
 import pathlib
 import subprocess
 import sys
+import wave
 
-REC = pathlib.Path(sys.argv[1])
-WORK = pathlib.Path(sys.argv[2])
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+
+REC, WORK = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
 OUT = pathlib.Path(__file__).with_name("anchor-demo.mp4")
-REG = (WORK / "fonts" / "atk-Regular.ttf").as_posix().replace(":", "\\:")
-BOLD = (WORK / "fonts" / "atk-Bold.ttf").as_posix().replace(":", "\\:")
-AMBER, TEXT, MUTED = "0xffb858", "0xffe2bd", "0xd39548"
-VOICE, RATE = "en-US-AvaNeural", "+14%"
-LIMIT = 30.0
-# Height of the subtitle band; in app shots it replaces the replay toolbar strip (150 px at 1.5x).
-BAND = 150
+W, H, FPS, SR = 3840, 2160, 30, 48000
+AMBER, TEXT, MUTED, GROUND = (255, 184, 88), (255, 226, 189), (211, 149, 72), (13, 9, 4)
+LEAD, GAP, LIMIT = 0.25, 0.28, 29.95
+BAND = 300  # subtitle band height at 4K
+FONT = {b: str(WORK / "fonts" / f"atk-{'Bold' if b else 'Regular'}.ttf") for b in (True, False)}
+_fonts: dict = {}
 
-# (voice line, scene): a scene is ("card", [text items]) or ("app", recording name).
-# A text item is (text, size, y, colour, bold, appear-at seconds[, x expression]); x is centred by default.
-SCENES = [
-    ("On the way to Mars, help is up to twenty-two minutes away.",
-     ("card", [("TEAM ANCHOR  ·  NASA SPACE APPS 2026  ·  HEALTH MONITORING FOR ASTRONAUTS", 26, 150, MUTED, True, 0.0),
-               ("Up to 22 minutes", 132, 360, AMBER, True, 0.15),
-               ("between a Mars crew and help from Earth. Each way.", 46, 540, TEXT, False, 0.7)])),
-    ("Crews can under-report when monitoring feels like surveillance.",
-     ("card", [("Crews can under-report", 112, 380, AMBER, True, 0.0),
-               ("when monitoring feels like surveillance.", 46, 540, TEXT, False, 0.5)])),
-    ("ANCHOR is a ninety-second check-in. You rate first; your data stays yours.", ("app", "s3_checkin")),
-    ("It learns your normal before flight, and notices sustained change, calmly.", ("app", "s4_course")),
-    ("Every note explains itself, grounded in NASA research.", ("app", "s5_why")),
-    ("Nothing leaves unless you see it first. Safety lines always get through.", ("app", "s6_sharing")),
-    ("On seventy-one real people, its range held eight days in ten.",
-     ("card", [("TESTED ON REAL PEOPLE  ·  LIFESNAPS  ·  71 ADULTS  ·  CC BY 4.0", 26, 170, MUTED, True, 0.0),
-               ("79%", 170, 330, AMBER, True, 0.2, "(w/2-text_w)/2+60"),
-               ("78%", 170, 330, AMBER, True, 0.45, "w/2+(w/2-text_w)/2-60"),
-               ("of mood days in the 80% range", 34, 540, TEXT, False, 0.35, "(w/2-text_w)/2+60"),
-               ("of sleep days in the 80% range", 34, 540, TEXT, False, 0.6, "w/2+(w/2-text_w)/2-60"),
-               ("and 2 to 5 times fewer notes than a naive single-day rule", 38, 680, TEXT, False, 1.1)])),
-    ("ANCHOR. Team ANCHOR.",
-     ("card", [("ANCHOR", 150, 330, AMBER, True, 0.0),
-               ("A personal baseline for long missions", 46, 520, TEXT, False, 0.25),
-               ("Team ANCHOR  ·  NASA Space Apps 2026", 34, 610, MUTED, False, 0.4),
-               ("agcpr.github.io/nasa-space-apps-2026-anchor", 34, 665, TEXT, True, 0.5),
-               ("Synthetic demo data  ·  Software built with AI assistance (Claude)  ·  Synthetic voice (Microsoft neural TTS)", 24, 860, MUTED, False, 0.6)])),
+
+def font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
+    return _fonts.setdefault((size, bold), ImageFont.truetype(FONT[bold], size))
+
+
+def ease(t: float) -> float:
+    t = min(1.0, max(0.0, t))
+    return 1 - (1 - t) ** 3
+
+
+def text(img, s, size, y, color, bold=False, t=1.0, t0=0.0, cx=W / 2, track=0):
+    """Centred text that fades and rises in from t0 over 0.45 s."""
+    e = ease((t - t0) / 0.45)
+    if e <= 0:
+        return
+    f = font(size, bold)
+    layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    dy = 40 * (1 - e)
+    if track:
+        widths = [d.textlength(ch, font=f) + track for ch in s]
+        x = cx - (sum(widths) - track) / 2
+        for ch, w in zip(s, widths):
+            d.text((x, y + dy), ch, font=f, fill=(*color, int(255 * e)))
+            x += w
+    else:
+        d.text((cx - d.textlength(s, font=f) / 2, y + dy), s, font=f, fill=(*color, int(255 * e)))
+    img.alpha_composite(layer)
+
+
+def background() -> Image.Image:
+    yy, xx = np.mgrid[0:H, 0:W]
+    r = np.sqrt(((xx - W / 2) / (W * 0.62)) ** 2 + ((yy - H * 0.45) / (H * 0.75)) ** 2)
+    k = np.clip(1 - r, 0, 1) ** 1.6
+    base = np.array(GROUND, float) + k[..., None] * np.array([22, 14, 6], float)
+    return Image.fromarray(base.astype(np.uint8)).convert("RGBA")
+
+
+BG: Image.Image
+
+
+def subtitle(img, s):
+    img.alpha_composite(Image.new("RGBA", (W, BAND), (*GROUND, 236)), (0, H - BAND))
+    f = font(78)
+    d = ImageDraw.Draw(img)
+    d.text(((W - d.textlength(s, font=f)) / 2, H - BAND / 2 - 50), s, font=f, fill=TEXT)
+
+
+# ---------------- scenes ----------------
+
+def hook(t):
+    img = BG.copy()
+    text(img, "TEAM ANCHOR   ·   NASA SPACE APPS 2026   ·   HEALTH MONITORING FOR ASTRONAUTS", 54, 290, MUTED, True, t, 0.0, track=6)
+    text(img, "Up to 22 minutes away", 210, 560, AMBER, True, t, 0.1)
+    # Earth to Mars: the light-time line draws itself, a signal pulse travels along it.
+    d = ImageDraw.Draw(img)
+    x0, x1, y = 760, 3080, 1260
+    p = ease((t - 0.45) / 1.6)
+    for x in range(x0, int(x0 + (x1 - x0) * p), 60):
+        d.line([(x, y), (min(x + 34, x1), y)], fill=(*AMBER, 255), width=8)
+    for x, name in ((x0, "Earth"), (x1, "Mars")):
+        d.ellipse([x - 34, y - 34, x + 34, y + 34], outline=(*TEXT, 255), width=8, fill=(*GROUND, 255))
+        f = font(64, True)
+        d.text((x - d.textlength(name, font=f) / 2, y + 70), name, font=f, fill=TEXT)
+    if 0 < p < 1:
+        px = x0 + (x1 - x0) * p
+        d.ellipse([px - 22, y - 22, px + 22, y + 22], fill=(*AMBER, 255))
+    text(img, "each way, at the speed of light", 64, 1030, MUTED, False, t, 1.3)
+    return img
+
+
+def risk(t):
+    img = BG.copy()
+    text(img, "Out there, saying how you feel", 170, 700, AMBER, True, t, 0.0)
+    text(img, "can feel risky.", 170, 930, AMBER, True, t, 0.35)
+    return img
+
+
+def evidence(t):
+    img = BG.copy()
+    text(img, "TESTED ON 71 REAL PEOPLE   ·   LIFESNAPS DATASET   ·   CC BY 4.0", 54, 300, MUTED, True, t, 0.0, track=6)
+    for cx, target, label, t0 in ((W * 0.31, 79, "of mood days", 0.2), (W * 0.69, 78, "of sleep days", 0.45)):
+        n = round(target * ease((t - t0) / 1.2))
+        text(img, f"{n}%", 400, 620, AMBER, True, t, t0, cx=cx)
+        text(img, label, 80, 1140, TEXT, False, t, t0 + 0.2, cx=cx)
+    text(img, "inside the personal range built to hold 80% of days", 72, 1330, TEXT, False, t, 1.0)
+    text(img, "and 2 to 5 times fewer notes than a naive single-day rule", 64, 1450, MUTED, False, t, 1.5)
+    return img
+
+
+def end(t):
+    img = BG.copy()
+    text(img, "ANCHOR", 320, 560, AMBER, True, t, 0.0, track=40)
+    text(img, "A personal baseline for long missions", 96, 1000, TEXT, False, t, 0.2)
+    text(img, "Team ANCHOR   ·   NASA Space Apps 2026", 68, 1170, MUTED, False, t, 0.35)
+    text(img, "agcpr.github.io/nasa-space-apps-2026-anchor", 68, 1270, TEXT, True, t, 0.45)
+    text(img, "Synthetic demo data   ·   Software built with AI assistance (Claude)   ·   Synthetic voice (Kokoro TTS)", 44, 1660, MUTED, False, t, 0.6)
+    return img
+
+
+def app_scene(name, keys):
+    """A recording under an eased virtual camera; keys = [(time, (x, y, size))] in source fractions."""
+    frames = sorted((REC / name).glob("f*.jpg"))
+
+    def render(t, dur):
+        n = len(frames)
+        speed = max(1.0, n / (dur * FPS))
+        src = Image.open(frames[min(n - 1, int(t * FPS * speed))])
+        a = b = keys[-1][1]
+        ta, tb = keys[-1][0], keys[-1][0] + 1
+        for (t1, k1), (t2, k2) in zip(keys, keys[1:]):
+            if t <= t2:
+                (ta, a), (tb, b) = (t1, k1), (t2, k2)
+                break
+        e = ease((t - ta) / max(1e-6, tb - ta))
+        x, y, s = (a[i] + (b[i] - a[i]) * e for i in range(3))
+        box = (x * src.width, y * src.height, (x + s) * src.width, (y + s) * src.height)
+        return src.resize((W, H), Image.LANCZOS, box=box).convert("RGBA")
+
+    return render
+
+
+LINES = [
+    ("Mars is up to twenty-two minutes away. Each way.", lambda t, d: hook(t)),
+    ("Out there, saying how you feel can feel risky.", lambda t, d: risk(t)),
+    ("ANCHOR is a ninety-second check-in. You rate first; your data stays yours.",
+     app_scene("s3_checkin", [(0.0, (0, 0, 1)), (0.25, (0, 0, 1)), (1.2, (0.235, 0.03, 0.75))])),
+    ("It learns your normal before flight, and notices lasting change, calmly.",
+     app_scene("s4_course", [(0.0, (0.21, 0.06, 0.78)), (4.0, (0.245, 0.12, 0.72))])),
+    ("Every note explains why, grounded in NASA research.",
+     app_scene("s5_why", [(0.0, (0.235, 0.03, 0.75)), (3.0, (0.26, 0.07, 0.62))])),
+    ("Nothing leaves unless you see it first. Safety lines always get through.",
+     app_scene("s6_sharing", [(0.0, (0.235, 0.04, 0.75)), (1.4, (0.235, 0.04, 0.75)), (3.6, (0.27, 0.14, 0.6))])),
+    ("On seventy-one real people, its range held eight days in ten.", lambda t, d: evidence(t)),
+    ("ANCHOR. Team ANCHOR.", lambda t, d: end(t)),
 ]
 
 
-def run(*args: str) -> None:
-    subprocess.run(args, check=True)
+def voice():
+    from kokoro_onnx import Kokoro
+    k = Kokoro(str(WORK / "kokoro" / "kokoro-v1.0.onnx"), str(WORK / "kokoro" / "voices-v1.0.bin"))
+    out = []
+    for line, _ in LINES:
+        s, sr = k.create(line, voice="af_heart", speed=1.0, lang="en-us")
+        out.append(np.interp(np.arange(0, len(s) * SR / sr) * sr / SR, np.arange(len(s)), s).astype(np.float32))
+    return out
 
 
-def duration(p: pathlib.Path) -> float:
-    return float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(p)]))
+def tone(n):
+    """A quiet A-major pad: slow swells, soft top end, fades at both ends."""
+    t = np.arange(n) / SR
+    pad = sum(a * np.sin(2 * np.pi * f * t + ph) * (0.6 + 0.4 * np.sin(2 * np.pi * r * t + ph))
+              for f, a, r, ph in ((110.0, 1.0, 0.07, 0.0), (164.81, 0.7, 0.05, 1.3), (220.0, 0.55, 0.09, 2.1),
+                                  (277.18, 0.35, 0.06, 0.4), (329.63, 0.3, 0.08, 2.9)))
+    env = np.minimum(1, t / 2.0) * np.minimum(1, (t[-1] - t) / 1.5)
+    return (pad / 3.0 * env).astype(np.float32)
 
 
-def tfile(text: str, name: str) -> str:
-    f = WORK / "txt" / name
-    f.parent.mkdir(exist_ok=True)
-    f.write_text(text, encoding="utf-8")
-    return f.as_posix().replace(":", "\\:")
+def main():
+    global BG
+    BG = background()
+    vo = voice()
+    durs = [len(v) / SR + GAP for v in vo]
+    durs[-1] += 0.3
+    total = LEAD + sum(durs)
+    assert total <= LIMIT, f"{total:.2f} s is over 30 s"
 
+    frames_dir = WORK / "frames4k"
+    frames_dir.mkdir(exist_ok=True)
+    for old in frames_dir.glob("*.jpg"):
+        old.unlink()
+    audio = np.zeros(int(total * SR) + SR, np.float32)
+    i, start = 0, LEAD
+    for j, ((line, scene), d, v) in enumerate(zip(LINES, durs, vo)):
+        at = int((start + 0.08) * SR)
+        audio[at: at + len(v)] += v
+        lead = LEAD if j == 0 else 0.0
+        nf = round((d + lead) * FPS)
+        for k in range(nf):
+            img = scene(max(0.0, k / FPS - lead), d)
+            fade = min(1.0, (k + 1) / 6, (nf - k) / 6)  # 0.2 s dip through the night ground
+            if fade < 1:
+                img = Image.blend(Image.new("RGBA", img.size, (*GROUND, 255)), img, fade)
+            subtitle(img, line)
+            img.convert("RGB").save(frames_dir / f"{i:05d}.jpg", quality=94)
+            i += 1
+        start += d
+        print(f"scene {j}: {d:.2f} s")
 
-def draw(text, size, y, color, bold, t0, x="(w-text_w)/2", key="") -> str:
-    a = f"if(lt(t\\,{t0})\\,0\\,if(lt(t\\,{t0 + 0.35})\\,(t-{t0})/0.35\\,1))"
-    yy = f"{y}+22*(1-min(1\\,max(0\\,(t-{t0})/0.35)))"
-    return (f"drawtext=expansion=none:fontfile='{BOLD if bold else REG}':textfile='{tfile(text, key)}':"
-            f"fontsize={size}:fontcolor={color}:alpha='{a}':x={x}:y='{yy}'")
+    audio = audio[: int(total * SR)]
+    mix = audio + 0.035 * tone(len(audio))
+    mix = mix / max(1e-6, float(np.abs(mix).max())) * 0.89
+    wav = WORK / "mix.wav"
+    with wave.open(str(wav), "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(SR)
+        w.writeframes((mix * 32767).astype(np.int16).tobytes())
 
-
-def subtitle(text: str, key: str) -> str:
-    return (f"drawbox=x=0:y=ih-{BAND}:w=iw:h={BAND}:color=0x0d0904@0.9:t=fill,"
-            f"drawtext=expansion=none:fontfile='{REG}':textfile='{tfile(text, key)}':fontsize=38:fontcolor={TEXT}:x=(w-text_w)/2:y=h-{BAND // 2 + 22}")
-
-
-def main() -> None:
-    WORK.mkdir(exist_ok=True)
-    # Voice first: each scene lasts as long as its line.
-    lines = []
-    for i, (line, _) in enumerate(SCENES):
-        mp3 = WORK / f"vo{i}.mp3"
-        run(sys.executable, "-m", "edge_tts", "--voice", VOICE, f"--rate={RATE}", "--text", line, "--write-media", str(mp3))
-        lines.append((mp3, duration(mp3)))
-    durs = [d for _, d in lines]
-    durs[-1] += 0.25
-    assert sum(durs) <= LIMIT, f"{sum(durs):.2f} s is over the 30-second limit"
-
-    # Card background: the app's evening ground with a soft vignette (no imagery).
-    bg = WORK / "bg.png"
-    run("ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=0x1a1209:s=1920x1080:d=1", "-frames:v", "1",
-        "-vf", "vignette=angle=PI/3.2", str(bg))
-
-    segs = []
-    for i, ((line, (kind, spec)), d) in enumerate(zip(SCENES, durs)):
-        seg = WORK / f"seg{i}.mp4"
-        fade = f"fade=t=in:st=0:d=0.18,fade=t=out:st={d - 0.18:.3f}:d=0.18"
-        if kind == "card":
-            texts = ",".join(draw(*item[:6], *(item[6:] or ["(w-text_w)/2"]), key=f"c{i}_{j}.txt") for j, item in enumerate(spec))
-            src = ["-loop", "1", "-t", f"{d:.3f}", "-i", str(bg)]
-            vf = f"scale=1920:1080,{texts},{subtitle(line, f's{i}.txt')},{fade}"
-        else:
-            clip = REC / f"{spec}.mp4"
-            c = duration(clip)
-            # Fit the recording to its line: speed up when longer, hold the last frame when shorter.
-            fit = f"setpts=PTS*{d / c:.4f}" if c > d else f"tpad=stop_mode=clone:stop_duration={d - c + 0.05:.3f}"
-            src = ["-i", str(clip)]
-            vf = f"{fit},scale=1920:1080,crop=1920:{1080 - BAND}:0:0,pad=1920:1080:0:0:color=0x0d0904,{subtitle(line, f's{i}.txt')},{fade}"
-        run("ffmpeg", "-y", "-loglevel", "error", *src, "-vf", vf, "-r", "30", "-t", f"{d:.3f}", "-an",
-            "-c:v", "libx264", "-crf", "17", "-pix_fmt", "yuv420p", str(seg))
-        segs.append(seg)
-
-    vlist = WORK / "v.txt"
-    vlist.write_text("".join(f"file '{s.as_posix()}'\n" for s in segs), encoding="utf-8")
-    run("ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", str(vlist), "-c", "copy", str(WORK / "video.mp4"))
-
-    # Audio: each line padded to its scene, concatenated, levelled.
-    inputs, pads = [], []
-    for i, ((mp3, _), d) in enumerate(zip(lines, durs)):
-        inputs += ["-i", str(mp3)]
-        pads.append(f"[{i}:a]aresample=48000,apad,atrim=0:{d:.3f}[a{i}]")
-    graph = ";".join(pads) + ";" + "".join(f"[a{i}]" for i in range(len(lines))) + f"concat=n={len(lines)}:v=0:a=1,loudnorm=I=-16:TP=-1.5[out]"
-    run("ffmpeg", "-y", "-loglevel", "error", *inputs, "-filter_complex", graph, "-map", "[out]", "-c:a", "aac", "-b:a", "160k", str(WORK / "audio.m4a"))
-
-    run("ffmpeg", "-y", "-loglevel", "error", "-i", str(WORK / "video.mp4"), "-i", str(WORK / "audio.m4a"), "-map", "0:v", "-map", "1:a",
-        "-c:v", "copy", "-c:a", "copy", "-shortest", "-movflags", "+faststart",
-        "-metadata", "title=ANCHOR: NASA Space Apps 2026 demo (Team ANCHOR)",
-        "-metadata", "comment=Real app captures with synthetic demo data. Software built with AI assistance (Claude). Narration is synthetic speech (Microsoft Edge neural TTS).",
-        str(OUT))
-    total = duration(OUT)
-    print(f"{OUT} {total:.2f} s")
-    assert total <= LIMIT + 0.05
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", str(frames_dir / "%05d.jpg"), "-i", str(wav),
+                    "-c:v", "libx264", "-preset", "slow", "-crf", "19", "-profile:v", "high", "-pix_fmt", "yuv420p",
+                    "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart",
+                    "-metadata", "title=ANCHOR: NASA Space Apps 2026 demo (Team ANCHOR)",
+                    "-metadata", "comment=Real app captures with synthetic demo data. Software built with AI assistance (Claude). Narration is synthetic speech (Kokoro TTS, voice af_heart).",
+                    str(OUT)], check=True)
+    print(f"{OUT}: {total:.2f} s, {i} frames")
 
 
 if __name__ == "__main__":

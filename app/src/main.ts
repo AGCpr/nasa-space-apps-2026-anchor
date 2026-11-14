@@ -18,6 +18,8 @@ type Mode = "replay" | "fork" | "live";
 type Light = "auto" | "day" | "evening";
 
 const app = {
+  /** Judge's guide on Today in replay; dismissed for the session, or off via #guide=off. */
+  guide: sessionStorage.getItem("anchor.guide") !== "off",
   engine: null as Engine | null,
   mode: "replay" as Mode,
   events: [] as Event[],
@@ -320,6 +322,38 @@ function sheetWidth(): number {
 let resizeTimer: number | undefined;
 window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = window.setTimeout(render, 120); });
 
+/** Three places that show what ANCHOR does, one tap each (replay only). */
+function guideCard(): HTMLElement {
+  const go = (view: V.View, day: number, why = false) => () => {
+    app.view = view;
+    app.scrub = day;
+    render();
+    document.querySelector("main")?.scrollTo(0, 0);
+    if (why) document.querySelectorAll<HTMLDetailsElement>("details.why").forEach((d) => (d.open = true));
+  };
+  return h("section", { class: "guide", "aria-label": "Guide to this demonstration" },
+    h("div", { class: "guide__head" },
+      h("h2", {}, "A 150-day synthetic mission, replayed"),
+      h("button", { type: "button", class: "ghost guide__close", onclick: () => { app.guide = false; sessionStorage.setItem("anchor.guide", "off"); render(); } }, "Hide guide")),
+    h("p", { class: "fine" }, "Everything here runs in this browser from a generated log. Three places to start:"),
+    h("div", { class: "guide__links" },
+      h("button", { type: "button", class: "secondary", onclick: () => { app.view = "course"; app.scrub = 20; render(); playMission(); } }, "Play the mission on Course"),
+      h("button", { type: "button", class: "secondary", onclick: go("today", 110, true) }, "Open a note and its reasons, day 110"),
+      h("button", { type: "button", class: "secondary", onclick: go("sharing", 150) }, "See everything that was shared")),
+    h("p", { class: "fine" }, `To try it yourself, choose “${c.ui.continueHere}” in the bar below.`));
+}
+
+/** Course time-lapse: steps the replay from the current day to the end. */
+function playMission() {
+  const step = () => {
+    if (app.mode !== "replay" || app.scrub >= app.demoDays) return;
+    app.scrub = Math.min(app.demoDays, app.scrub + 2);
+    render();
+    setTimeout(step, 60);
+  };
+  step();
+}
+
 function render() {
   const scroll = document.querySelector("main")?.scrollTop ?? 0;
   if (app.fatal) {
@@ -361,9 +395,10 @@ function render() {
     },
   };
   const view = { today: V.today, course: V.course, sharing: V.sharing, support: V.support }[app.view](ctx);
+  const guide = app.mode === "replay" && app.guide && app.view === "today" ? guideCard() : null;
   const flash = app.flash.length ? h("section", { class: "flash", role: "status", "aria-live": "polite" }, ...app.flash.map((m) => card(m))) : null;
   const busy = app.busy ? h("p", { class: "busy", role: "status" }, glyph("info"), ` ${app.busy}…`) : null;
-  root.replaceChildren(sidebar(), h("main", { id: "main" }, statusBar(st), h("div", { class: "content" }, busy ?? "", flash ?? "", view)), replayBar(st) ?? "", tabBar());
+  root.replaceChildren(sidebar(), h("main", { id: "main" }, statusBar(st), h("div", { class: "content" }, busy ?? "", guide ?? "", flash ?? "", view)), replayBar(st) ?? "", tabBar());
   const main = document.querySelector("main");
   if (main) main.scrollTop = scroll;
 }
@@ -379,6 +414,7 @@ setInterval(() => { if (app.mode === "live") { rollover(); render(); } }, 60_000
   app.engine = await Engine.create(bytes);
   // Shareable replay links: #view=course&day=150&light=day&why=open (read-only replay state only).
   const p = new URLSearchParams(location.hash.slice(1));
+  if (p.get("guide") === "off") app.guide = false;
   const view = p.get("view");
   if (view === "today" || view === "course" || view === "sharing" || view === "support") app.view = view;
   const light = p.get("light");

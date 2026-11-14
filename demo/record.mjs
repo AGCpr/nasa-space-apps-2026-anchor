@@ -15,8 +15,8 @@ const FPS = 30;
 
 const browser = await puppeteer.launch({
   executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
-  // 1280x720 CSS px at 1.5x = 1920x1080 frames with interface text 1.5x larger, readable in a small player.
-  defaultViewport: { width: 1280, height: 720, deviceScaleFactor: 1.5 },
+  // 1280x720 CSS px at 3x = 3840x2160 (4K) frames: the compositor zooms into regions without losing sharpness.
+  defaultViewport: { width: 1280, height: 720, deviceScaleFactor: 3 },
   args: ["--hide-scrollbars", "--window-size=1280,720"],
 });
 const page = await browser.newPage();
@@ -25,7 +25,7 @@ let dir = "", n = 0, last = "";
 /** Capture the current screen and hold it for `frames` frames. */
 async function snap(frames = 1) {
   last = path.join(dir, `f${String(n).padStart(5, "0")}.jpg`);
-  await page.screenshot({ path: last, type: "jpeg", quality: 92 });
+  await page.screenshot({ path: last, type: "jpeg", quality: 95 });
   n++;
   for (let k = 1; k < frames; k++) copyFileSync(last, path.join(dir, `f${String(n++).padStart(5, "0")}.jpg`));
 }
@@ -45,7 +45,7 @@ async function touchIndicator() {
 }
 
 async function open(hash) {
-  await page.goto(URL + hash, { waitUntil: "load" });
+  await page.goto(URL + hash + "&guide=off", { waitUntil: "load" });
   await page.waitForFunction(() => document.documentElement.dataset.ready === "true", { timeout: 60000 });
   await page.reload({ waitUntil: "load" }); // hash routing applies on load
   await page.waitForFunction(() => document.documentElement.dataset.ready === "true", { timeout: 60000 });
@@ -127,7 +127,7 @@ await scene("s3_checkin", async () => {
   await page.mouse.up();
   await new Promise((r) => setTimeout(r, 900)); // kernel B comparison, then the result
   await page.evaluate(() => document.querySelector("main").scrollTo(0, 0));
-  await page.mouse.move(-100, -100);
+  await page.evaluate(() => { document.getElementById("finger").style.display = "none"; });
   await hold(1.4);
 });
 

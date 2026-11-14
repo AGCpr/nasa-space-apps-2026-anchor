@@ -4,7 +4,9 @@
 
 **Live demo:** https://agcpr.github.io/nasa-space-apps-2026-anchor/app/ (a labelled synthetic 150-day mission; runs fully in the browser, offline after load)
 
-**30-second demo video:** https://agcpr.github.io/nasa-space-apps-2026-anchor/demo/anchor-demo.mp4
+In the replay, a short guide on the Today screen links straight to the three moments worth seeing.
+
+**30-second demo video (4K, narrated):** https://agcpr.github.io/nasa-space-apps-2026-anchor/demo/anchor-demo.mp4
 
 Direct links into the replay:
 - [the personal range on day 150](https://agcpr.github.io/nasa-space-apps-2026-anchor/app/#view=course&day=150)
@@ -92,7 +94,7 @@ bash verify.sh                    # rebuilds and runs every check (needs Rust, N
 
 ## Use of AI
 
-This project was built with an AI coding assistant (Claude, by Anthropic) during the software phase. See [AI_ASSISTANCE.md](AI_ASSISTANCE.md) for what was assisted and how it was checked. Commits made with the assistant carry a `Co-Authored-By` trailer. No images are AI-generated. The demo video narration is synthetic speech (Microsoft Edge neural TTS), disclosed on its end card and in the file metadata.
+This project was built with an AI coding assistant (Claude, by Anthropic) during the software phase. See [AI_ASSISTANCE.md](AI_ASSISTANCE.md) for what was assisted and how it was checked. Commits made with the assistant carry a `Co-Authored-By` trailer. No images are AI-generated. The demo video narration is synthetic speech (Kokoro open-weights TTS), disclosed on its end card and in the file metadata.
 
 ## Data, licences, credits
 

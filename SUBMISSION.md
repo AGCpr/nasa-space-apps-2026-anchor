@@ -24,11 +24,11 @@ On 71 real people's wearable and mood data, the personal range held 79 % of mood
 
 ## Link to Project Demo
 
-https://agcpr.github.io/nasa-space-apps-2026-anchor/demo/anchor-demo.mp4 (30 seconds, narrated, English subtitles, real app footage)
+https://agcpr.github.io/nasa-space-apps-2026-anchor/demo/anchor-demo.mp4 (30 seconds, 4K, narrated, English subtitles, real app footage)
 
 ## Link to Final Project
 
-https://github.com/AGCpr/nasa-space-apps-2026-anchor (source, documentation, validation). The live app is at https://agcpr.github.io/nasa-space-apps-2026-anchor/app/
+https://github.com/AGCpr/nasa-space-apps-2026-anchor (source, documentation, validation). The live app is at https://agcpr.github.io/nasa-space-apps-2026-anchor/app/ ; it opens on a labelled synthetic 150-day mission with a short guide to the three moments worth seeing.
 
 ## Detailed Project Description
 
@@ -74,7 +74,7 @@ https://github.com/AGCpr/nasa-space-apps-2026-anchor (source, documentation, val
 
 **Tools**
 
-Rust (engine, safety kernel A, WebAssembly), TypeScript (interface, safety kernel B), Python with NumPy and SciPy (reference oracles, simulation, validation), SVG, ffmpeg, puppeteer-core and Microsoft Edge neural TTS (demo video), GitHub Pages.
+Rust (engine, safety kernel A, WebAssembly), TypeScript (interface, safety kernel B), Python with NumPy and SciPy (reference oracles, simulation, validation), SVG, ffmpeg, puppeteer-core, Pillow and Kokoro TTS (demo video, rendered at 3840x2160), GitHub Pages.
 
 ## Use of Super Intelligence (SI)
 
@@ -85,7 +85,7 @@ Yes. We used an AI coding assistant (Claude, by Anthropic) during the software p
 - **How we checked it:** two independent safety-kernel implementations, Python reference oracles, about 70 automated tests including mutation checks, and an independent design review.
 - **Disclosure in the project itself:** the repository's AI_ASSISTANCE.md, `Co-Authored-By` commit metadata, and a caption in the demo video.
 - **Not AI-generated:** no images or video frames. Every app shot is a recording of the running app.
-- **Narration:** synthetic speech (Microsoft Edge neural text-to-speech), disclosed on the video's end card and in its file metadata.
+- **Narration:** synthetic speech (Kokoro, open-weights neural text-to-speech), disclosed on the video's end card and in its file metadata.
 
 ## NASA Data
 

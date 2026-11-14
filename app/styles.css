@@ -120,6 +120,12 @@ main { grid-area: main; overflow-y: auto; container-type: inline-size; }
 .replay__note { display: none; }
 @media (min-width: 1500px) { .replay__note { display: inline; } }
 .tabbar { display: none; }
+.guide { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; padding: 22px 24px; border-radius: var(--r-l); border: 2px solid var(--accent); background: var(--surface); }
+.guide__head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.guide__head h2 { font-size: var(--t-title3); font-weight: 700; }
+.guide__links { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.guide__links button { width: 100%; }
+.guide__close { flex: none; }
 
 /* ---------- controls (familiar iPadOS forms, enlarged for microgravity: R7-R9) ---------- */
 button.primary, button.secondary, button.ghost {
