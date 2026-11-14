@@ -24,6 +24,10 @@
   .card { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 30px 32px; }
   .shot { width: 100%; border-radius: 18px; border: 1px solid var(--line); display: block; }
   .big { font-size: 180px; font-weight: 700; color: var(--amber); line-height: 1; }
+  .vs { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 24px; }
+  .vs__head { font-size: 26px; color: var(--muted); margin: 0 0 18px; }
+  .vs__cell { display: flex; flex-direction: column; gap: 6px; font-size: 24px; }
+  .vs__num { font-size: 64px; font-weight: 700; color: var(--amber); line-height: 1; }
   .num { font-size: 120px; font-weight: 700; color: var(--amber); line-height: 1; }
   table { border-collapse: collapse; width: 100%; font-size: 25px; }
   td, th { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
@@ -87,8 +91,16 @@
     <div class="card"><h3>Disclosure contract</h3><p>Private by default, consent per category, a sharing log shown before anything is sent, exclusions without exception.</p></div>
     <div class="card"><h3>Safety lines always work</h3><p>Pre-agreed lines, such as SpO2, are checked by two independently written safety kernels. During loss of signal they re-route to the CMO on board.</p></div>
   </div>
-  <img class="shot" src="../docs/img/today-why.jpg" alt="Today view: a calm note with its explanation open" style="height:250px; object-fit:cover; object-position:50% 62%">
-  <div class="foot"><span>Every note answers "Why this note?": the data, the rule, what closes it, the NASA research area</span><span>3 / 7</span></div>
+  <div class="vs">
+    <p class="vs__head">Among 243 public projects for this challenge, how many do this? ANCHOR does all four.</p>
+    <div class="grid g4">
+      <div class="vs__cell"><span class="vs__num">5%</span><span>detect sustained change statistically</span></div>
+      <div class="vs__cell"><span class="vs__num">10%</span><span>report a false-alarm rate</span></div>
+      <div class="vs__cell"><span class="vs__num">1%</span><span>design for calm language</span></div>
+      <div class="vs__cell"><span class="vs__num">0</span><span>agree disclosure before flight</span></div>
+    </div>
+  </div>
+  <div class="foot"><span>Coded survey of public GitHub repositories, about 10% of registered teams (LANDSCAPE.md) · every note answers "Why this note?"</span><span>3 / 7</span></div>
 </section>
 
 <!-- 4 How it works -->
@@ -99,7 +111,7 @@
     <div class="arrow">→</div>
     <div class="card"><h3>2 · Tonight in range</h3><p>Tonight against their own usual range, with confidence and coverage. No composite score.</p></div>
     <div class="arrow">→</div>
-    <div class="card"><h3>3 · Notes that explain</h3><p>One calm note per episode, with a step and an owner, never a diagnosis.</p></div>
+    <div class="card"><h3>3 · Notes that explain</h3><p>Several changes arrive as one calm note, with a step and an owner, never a diagnosis.</p></div>
     <div class="arrow">→</div>
     <div class="card"><h3>4 · You decide</h3><p>A sharing log, per-person exclusions, and a private conference or a crewmate one tap away.</p></div>
   </div>
@@ -107,11 +119,11 @@
     <div class="card"><h3>Built for a floating tablet at night</h3><ul>
       <li>NASA-STD-3001 App. F display rules: red, yellow and blue reserved, contrast at least 6:1, 15–20 mm touch targets</li>
       <li>Evening rendering follows the ISS pre-sleep lighting: no colour bluer than 2700 K</li>
-      <li>iPadOS conventions; fully offline</li></ul></div>
+      <li>iPadOS conventions; installable; works offline</li></ul></div>
     <div class="card"><h3>Engineered to be trusted</h3><ul>
       <li>Deterministic Rust engine compiled to WebAssembly; every screen can be replayed from a hash-chained log</li>
       <li>Safety kernel in Rust plus an independent TypeScript version, compared on every value</li>
-      <li>About 70 automated tests, Python reference oracles, a machine audit of every sentence the astronaut can read</li></ul></div>
+      <li>75 tests, reference oracles, and a machine audit of every sentence the astronaut reads</li></ul></div>
   </div>
   <div class="foot"><span>Design decisions argued with alternatives in eleven ADRs (docs/adr)</span><span>4 / 7</span></div>
 </section>

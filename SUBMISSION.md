@@ -55,7 +55,7 @@ https://github.com/AGCpr/nasa-space-apps-2026-anchor (source, documentation, val
 
 - **Log.** Every input is a record in a hash-chained, append-only log, stored in two copies so that it is repairable.
 - **Engine.** The engine is a deterministic fold over that log, so every output can be reproduced by replay. It is written in Rust and compiled to WebAssembly.
-- **Interface.** Vanilla TypeScript and SVG, a pure projection of the engine's outputs, with no frameworks or runtime dependencies. It runs fully offline.
+- **Interface.** Vanilla TypeScript and SVG, a pure projection of the engine's outputs, with no frameworks or runtime dependencies. It can be installed to a tablet's home screen and works with no network after the first visit; a scripted test reloads it with the network cut.
 - **Decisions.** Every design decision is argued, with rejected alternatives, in eleven Architecture Decision Records.
 
 **Evidence**
@@ -65,7 +65,7 @@ https://github.com/AGCpr/nasa-space-apps-2026-anchor (source, documentation, val
   - ANCHOR raised one note per 95–125 days per indicator, against one per 22–46 days for a naive rule.
   - A known change injected into real sleep series (23 people) was noticed within 4 weeks by ANCHOR in 52 % of people at 1 SD, against 9 % by chance. ANCHOR's notes were five times rarer than the naive rule's before the change.
   - We also report a negative finding. The band is too narrow for smoothed device signals such as Fitbit resting heart rate (lag-1 autocorrelation 0.87), and this is now a configuration rule.
-- **Checks.** About 70 automated tests, Python reference oracles, mutation checks, and a machine audit of every sentence the astronaut can read.
+- **Checks.** 75 automated tests, Python reference oracles, mutation checks, and a machine audit of every sentence the astronaut can read.
 
 **How it differs**
 
@@ -89,7 +89,7 @@ Yes. We used an AI coding assistant (Claude, by Anthropic) during the software p
 
 - **The team decided:** the challenge, the product concept and its requirements, the visual direction, and every design decision. Each decision is recorded with alternatives in the ADRs.
 - **The assistant helped with:** literature and standards research, drafting design documents, writing code and tests, running the validation, and building the demo video from frame-by-frame recordings of the real app.
-- **How we checked it:** two independent safety-kernel implementations, Python reference oracles, about 70 automated tests including mutation checks, and an independent design review.
+- **How we checked it:** two independent safety-kernel implementations, Python reference oracles, 75 automated tests including mutation checks, and an independent design review.
 - **Disclosure in the project itself:** the repository's AI_ASSISTANCE.md, `Co-Authored-By` commit metadata, and a caption in the demo video.
 - **Not AI-generated:** no images or video frames. Every app shot is a recording of the running app.
 - **Narration:** synthetic speech (Kokoro, open-weights neural text-to-speech), disclosed on the video's end card and in its file metadata.

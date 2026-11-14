@@ -2,7 +2,7 @@
 
 **NASA Space Apps Challenge 2026 · Challenge: "Create Health Monitoring Software for Astronauts on Space Missions"**
 
-**Live demo:** https://agcpr.github.io/nasa-space-apps-2026-anchor/app/ (a labelled synthetic 150-day mission; runs fully in the browser, offline after load)
+**Live demo:** https://agcpr.github.io/nasa-space-apps-2026-anchor/app/ (a labelled synthetic 150-day mission; runs entirely on the device, installable, and works with no network after the first visit)
 
 In the replay, a short guide on the Today screen links straight to the three moments worth seeing.
 
@@ -73,7 +73,7 @@ A coded survey of 243 public repositories for this challenge (a reproducible key
   - A scripted 150-day mission demonstrates every mechanism. A Rust test fails if the demo stops demonstrating it.
 - **Web quality (Lighthouse 12, live site, 14 Nov 2026).** Mobile: performance 97–98, accessibility 100, best practices 100, SEO 100. Desktop: 100 in all four. Total blocking time is under 20 ms: the demo mission is prebuilt by the engine, and the independent safety re-check of its history runs in one linear pass that yields to the browser.
 - **Independent implementations.** Python reference oracles and reference vectors cover numerics, baseline, detection and the safety kernel.
-- **Tests.** About 70 automated tests across Rust, WebAssembly, TypeScript and the interface. They include a machine audit of every sentence the astronaut can read (no disease names, no alarm vocabulary, every message names an action and an owner), plus colour and contrast tests derived from NASA-STD-3001 Appendix F.
+- **Tests.** 75 automated tests across Rust, WebAssembly, TypeScript and the interface. They include a machine audit of every sentence the astronaut can read (no disease names, no alarm vocabulary, every message names an action and an owner, mean reading grade 4.6 with a ceiling of 6), plus colour and contrast tests derived from NASA-STD-3001 Appendix F, including a 7:1 increased-contrast mode.
 
 ## How it works
 
@@ -96,6 +96,7 @@ interface (vanilla TypeScript, SVG) = a projection of the log's outputs: replaya
 python -m http.server 8765        # from the repository root
 # open http://localhost:8765/app/
 bash verify.sh                    # rebuilds and runs every check (needs Rust, Node 22, Python with numpy and scipy)
+TOOLS=<dir with puppeteer-core> node app/scripts/offline-check.mjs   # reloads with the network cut; the app must start
 ```
 
 ## Repository map

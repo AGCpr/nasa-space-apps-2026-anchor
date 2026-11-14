@@ -157,7 +157,7 @@ LINES = [
     ("It learns your normal before flight, and notices lasting change, calmly.",
      app_scene("s4_course", [(0.0, (0.235, 0.08, 0.765)), (4.0, (0.25, 0.10, 0.75))])),
     ("Every note explains why, grounded in NASA research.",
-     app_scene("s5_why", [(0.0, (0.235, 0.03, 0.75)), (3.0, (0.18, 0.11, 0.82))])),
+     app_scene("s5_why", [(0.0, (0.235, 0.03, 0.75)), (3.0, (0.15, 0.11, 0.85))])),
     ("Nothing leaves unless you see it first. Safety lines always get through.",
      app_scene("s6_sharing", [(0.0, (0.235, 0.04, 0.75)), (1.4, (0.235, 0.04, 0.75)), (3.6, (0.27, 0.14, 0.6))])),
     ("On seventy-one real people, its range held eight days in ten.", lambda t, d: evidence(t)),
