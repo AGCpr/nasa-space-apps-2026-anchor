@@ -75,32 +75,33 @@ function why(c, st, n, s) {
             return base([
                 `Data: your ${lab} reading of ${s.value} on day ${o.day}.`,
                 l && i ? `Rule: a line you agreed before flight (${l.op} ${fmt(c, i, l.limit)}). It does not depend on your usual range.` : "Rule: a line you agreed before flight.",
-                "Check: two independently written safety checks evaluate every value; if they ever disagree, the value is treated as unconfirmed.",
+                "Check: two separately written safety programs test every value. If they ever disagree, the value is marked unconfirmed.",
             ]);
         }
         case "SafetyCheckFailed":
-            return base(["Rule: two independently written safety checks evaluate every value.", "When they disagree, the value is treated as unconfirmed and, outside the optional questions, shared as such."], "support");
+            return base(["Rule: two separately written safety programs test every value.", "When they disagree, the value is marked unconfirmed and, outside the optional questions, shared as such."], "support");
         case "Alarm": {
             const i = st.indicators.get(o.indicator);
             const days = i ? i.stats.filter((d) => d.day > o.day - 14 && d.day <= o.day).length : 0;
             return base([
                 `Data: your daily ${lab} on ${days} of the 14 days up to day ${o.day}, each compared with your usual range at the time.`,
-                `Rule: evidence of a sustained shift built up past your personal threshold (${o.h.toFixed(1)}). The threshold is set so that a stable person sees a note like this about once in 30 days or less.`,
+                `Rule: each day's gap from your usual range adds to an evidence score. It reached ${o.statistic.toFixed(1)} on day ${o.day}, past the level of ${o.h.toFixed(1)} set for you.`,
+                "That level is tuned so that, while nothing changes, a note like this comes about once a month or less.",
                 "Closes: after 3 days back in your usual range, or when you set a new normal.",
             ]);
         }
         case "AlarmCleared":
-            return base(["Rule: the evidence returned to zero and stayed there for 3 days."]);
+            return base(["Rule: the evidence score fell back to zero and stayed there for 3 days."]);
         case "DriftPrompt":
-            return base([`Data: your ${lab} over the last ${o.n} days.`, "Rule: the median day-to-day trend is clear at the 1 % level after allowing for carry-over from one day to the next.", "A drift is a question for you, not a finding."]);
+            return base([`Data: your ${lab} over the last ${o.n} days.`, "Rule: the trend is steady enough that chance alone would produce it less than once in 100 times, even allowing for each day resembling the one before.", "A drift is a question for you, not a finding."]);
         case "AnchorRunPrompt":
-            return base(["Rule: your average over the last 14 days sits more than one pre-flight spread away from your pre-flight level.", "Setting a new normal is your choice and can be undone."]);
+            return base(["Rule: your average over the last 14 days is further from your pre-flight level than your usual day-to-day variation before flight.", "Setting a new normal is your choice and can be undone."]);
         case "MissingnessAlarm":
             return base(["Rule: the share of days without a check-in rose above your own usual rate.", "Days you tagged as heavy workload are not counted."], "support");
         case "OfferExtraSample":
-            return base(["Rule: evidence passed half of your threshold today, and for you a second reading adds enough to be worth asking."]);
+            return base(["Rule: your evidence score passed half of your level today, and for you a second reading adds enough to be worth asking."]);
         case "Reanchored":
-            return base(["Rule: a new normal can be set once a change has lasted 14 days, at most once every 30 days, and only within two pre-flight spreads of your pre-flight level.", "It is recorded in your log and can be undone."]);
+            return base(["Rule: a new normal can be set once a change has lasted 14 days, at most once every 30 days, and only within twice your usual pre-flight variation.", "It is recorded in your log and can be undone."]);
         case "PrivateSupport":
             return base(["Rule: any yes offers your plan and two ways to reach a person.", "Your answers stay on this tablet unless you agreed otherwise before flight."], "crew");
         default:
@@ -113,8 +114,9 @@ function grouped(c, alarms) {
     // Every NASA research area the grouped measures belong to, each once.
     const areas = [...new Map(alarms.map((a) => c.area[a.i.key]).filter((a) => a !== undefined).map((a) => [a.url, a])).values()];
     const lines = [
-        ...alarms.map((a) => `${cap(label(c, a.i.key))}: evidence of a sustained shift passed your personal threshold (${a.h.toFixed(1)}) on day ${a.i.alarmDay}.`),
-        "Rule: each threshold is set so that a stable person sees a note like this about once in 30 days or less.",
+        "Rule: each day's gap from your usual range adds to an evidence score for that measure.",
+        ...alarms.map((a) => `${cap(label(c, a.i.key))}: the score reached ${a.stat.toFixed(1)} on day ${a.i.alarmDay}, past the level of ${a.h.toFixed(1)} set for you.`),
+        "Each level is tuned so that, while nothing changes, a note like this comes about once a month or less.",
         "Closes: each one after 3 days back in its usual range, or when you set a new normal.",
     ];
     const [area, ...also] = areas;
@@ -208,7 +210,7 @@ export function today(x) {
         const n = [...st.notes].reverse().find((z) => z.out.t === "Alarm" && "indicator" in z.out && z.out.indicator === i.key);
         const m = n && message(c, st, n);
         if (m && n.out.t === "Alarm")
-            alarms.push({ i, m, h: n.out.h });
+            alarms.push({ i, m, h: n.out.h, stat: n.out.statistic });
     }
     if (alarms.length === 1)
         open.push({ ...alarms[0].m, title: `${alarms[0].m.title} (since day ${alarms[0].i.alarmDay})` });
@@ -310,7 +312,9 @@ export function episodes(st, key, upto) {
 }
 function corridorChart(c, st, i, g) {
     // Top band: episode boxes (y 6-32), two label lanes (y 54, 76), the hinge-label row (y 88-114), then the plot.
-    const H = 440, top = 122, bottom = H - 30;
+    // The label band is reserved only when there is something to label; otherwise the plot takes the space.
+    const labelled = episodes(st, i.key, g.upto).length > 0 || i.hinges.some((hg) => hg.day <= g.upto);
+    const H = 440, top = labelled ? 122 : 48, bottom = H - 30;
     const pts = i.stats.map((d) => ({ day: d.day, y: statShown(i, d.y), lo: statShown(i, d.lo), hi: statShown(i, d.hi), a: statShown(i, d.anchor) }));
     const line = st.table?.lines.find((l) => l.indicator === i.key && !l.high);
     const limit = line ? shown(i, line.limit) : null;
@@ -329,6 +333,10 @@ function corridorChart(c, st, i, g) {
         svg.append(s("line", { x1: g.padL, x2: g.W - g.padR, y1: y(t), y2: y(t), class: "contour" }));
         svg.append(s("text", { x: g.padL - 10, y: y(t) + 6, class: "axis", "text-anchor": "end" }, `${+t.toFixed(2)}`));
     }
+    // The axis says what its numbers are (HIG charts.md: describe units where the chart can show them).
+    const unit = i.slider ? "0–100" : (c.indicator[i.key]?.unit ?? "");
+    if (unit)
+        svg.append(s("text", { x: g.padL - 10, y: top - 14, class: "axis axis--unit", "text-anchor": "end" }, unit));
     // Sustained-change episodes: a caution bar over the days they cover, and one label per episode,
     // starting at its triangle (shape + words, R2). Two label lanes keep neighbours apart.
     const laneEnd = [-Infinity, -Infinity];

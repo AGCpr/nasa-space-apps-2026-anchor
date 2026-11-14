@@ -144,3 +144,30 @@ test("the prebuilt demo events equal a fresh engine run (I5; scripts/build-demo.
   assert.ok(r.ok);
   assert.deepEqual(pre, JSON.parse(JSON.stringify(r.events)));
 });
+
+/** Plain language (HIG writing; Flesch–Kincaid, app/test/readability.ts): everything the astronaut
+ *  reads in the demo, including every "Why this note?" line, stays easy to read. */
+test("astronaut-facing text stays plain: mean reading grade <= 6, 90th percentile <= 9", async () => {
+  const { catalogues: cats } = await import("../src/catalogue.ts");
+  const { project } = await import("../src/model.ts");
+  const { message } = await import("../src/views.ts");
+  const { grade } = await import("./readability.ts");
+  const c = cats.en!;
+  const ev = JSON.parse(readFileSync(new URL("../demo-events.json", import.meta.url), "utf8"));
+  const seen = new Set<string>();
+  const add = (s: string) => { for (const x of s.split(/(?<=[.;])\s+/)) if (x.split(" ").length > 3) seen.add(x); };
+  for (const day of [30, 60, 80, 102, 110, 122, 125, 131, 150]) {
+    const st = project(ev.slice(0, prefixEnd(ev, day)));
+    for (const n of st.notes) {
+      const m = message(c, st, n);
+      if (m) [m.text, m.action, ...(m.why?.lines ?? [])].forEach(add);
+    }
+  }
+  Object.values(c.ui).forEach(add);
+  Object.values(c.about).forEach((a) => [a.how, a.space, a.helps].forEach(add));
+  const g = [...seen].map(grade).sort((a, b) => a - b);
+  const mean = g.reduce((s, x) => s + x, 0) / g.length;
+  assert.ok(g.length > 120, `measured ${g.length}`);
+  assert.ok(mean <= 6, `mean grade ${mean.toFixed(1)}`);
+  assert.ok(g[Math.floor(g.length * 0.9)]! <= 9, `90th percentile ${g[Math.floor(g.length * 0.9)]!.toFixed(1)}`);
+});

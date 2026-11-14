@@ -69,7 +69,7 @@ const UI_EN = {
   vitalsHint: "Measured with the station's medical kit. Set the ones you took today; each is checked against your safety lines as soon as it is saved.",
   lastReading: "Last reading: tap the value to keep it",
   saveVitals: "Save measurements",
-  kernelAgree: "Independent safety check: both versions agreed on every value shown",
+  kernelAgree: "Safety check: two separately written versions agreed on every value",
 };
 
 type Template = (s: Slots) => Msg;
@@ -223,7 +223,7 @@ export const en: Catalogue = {
         : {
             register: "warning",
             title: `${label(s)} past your safety line`,
-            text: `Tonight's ${label(s)} of ${s.value} is past the line you agreed before flight. ${who(s.to)[0]!.toUpperCase()}${who(s.to).slice(1)} has the reading.`,
+            text: `Your ${label(s)} reading of ${s.value} is past the line you agreed before flight. ${who(s.to)[0]!.toUpperCase()}${who(s.to).slice(1)} has the reading.`,
             action: `measure your ${label(s)} again now`,
             owner: "You",
           },
@@ -253,7 +253,7 @@ export const en: Catalogue = {
     OfferExtraSample: (s) => ({
       register: "advisory",
       title: "One more reading, if you like",
-      text: `One more ${label(s)} reading later today would make tonight's picture clearer. It is optional.`,
+      text: `One more ${label(s)} reading later today would make today's picture clearer. It is optional.`,
       action: `add a short ${label(s)} reading later today, or let it go`,
       owner: "You",
     }),
@@ -318,8 +318,8 @@ export const en: Catalogue = {
     }),
     CompanionError: () => ({
       register: "caution",
-      title: "Part of tonight's analysis did not run",
-      text: "Part of tonight's analysis could not run, so no new note was made. Your entries are stored safely, and the safety check ran as usual.",
+      title: "Part of today's analysis did not run",
+      text: "Part of today's analysis could not run, so no new note was made. Your entries are stored safely, and the safety check ran as usual.",
       action: "look at the technical record when convenient",
       owner: "The CMO on board",
     }),
