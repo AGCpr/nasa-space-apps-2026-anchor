@@ -132,3 +132,10 @@ test("the boundary rejects bad records without appending them", async () => {
   const good = eng.submit("86400000|checkin|day=1;mood=500");
   assert.ok(good.ok && good.events[0]!.seq === pre.events.length);
 });
+
+test("the prebuilt demo events equal a fresh engine run (I5; scripts/build-demo.ts)", async () => {
+  const pre = JSON.parse(readFileSync(new URL("../demo-events.json", import.meta.url), "utf8"));
+  const r = (await Engine.create(wasm)).demo();
+  assert.ok(r.ok);
+  assert.deepEqual(pre, JSON.parse(JSON.stringify(r.events)));
+});

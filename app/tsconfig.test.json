@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": { "noEmit": true, "types": ["node"], "typeRoots": ["../kernel-b/node_modules/@types"] },
-  "include": ["src", "test"]
+  "include": ["src", "test", "scripts"]
 }

@@ -177,12 +177,14 @@ async function startReplay() {
     app.busy = "Preparing the synthetic mission";
     render();
     await new Promise((r) => setTimeout(r, 30));
-    const r = app.engine!.demo();
-    if (!r.ok) throw new Error(r.error);
-    app.demo = r.events;
-    app.demoDays = project(r.events).lastClosed;
-    await auditHistory(app.demo);
+    // Prebuilt by the same engine at build time (scripts/build-demo.ts); computed here only as a fallback.
+    const pre = await fetch("demo-events.json").then((x) => (x.ok ? (x.json() as Promise<Event[]>) : null)).catch(() => null);
+    const events = pre ?? (() => { const r = app.engine!.demo(); if (!r.ok) throw new Error(r.error); return r.events; })();
+    app.demo = events;
+    app.demoDays = project(events).lastClosed;
     app.busy = "";
+    // The kernel-B audit of the history runs after the first render; its line updates when done.
+    void auditHistory(app.demo).then(render);
   }
   render();
 }

@@ -38,7 +38,7 @@ export function card(m, extra) {
     return h("article", { class: `msg msg--${m.register}` }, 
     // Register inline on the heading line, never a label stacked above it; warning and caution
     // keep their word beside the shape (R2).
-    h("header", { class: "msg__head" }, glyph(m.register), h("h3", {}, m.register === "warning" || m.register === "caution" ? h("span", { class: "msg__reg" }, `${GLYPH[m.register].label}: `) : null, m.title)), h("p", {}, m.text), h("p", { class: "msg__step" }, h("strong", {}, m.owner === "You" ? "What you can do: " : `Who acts: ${m.owner}. `), `${m.action[0].toUpperCase()}${m.action.slice(1)}.`), m.why
+    h("header", { class: "msg__head" }, glyph(m.register), h("h2", { class: "msg__title" }, m.register === "warning" || m.register === "caution" ? h("span", { class: "msg__reg" }, `${GLYPH[m.register].label}: `) : null, m.title)), h("p", {}, m.text), h("p", { class: "msg__step" }, h("strong", {}, m.owner === "You" ? "What you can do: " : `Who acts: ${m.owner}. `), `${m.action[0].toUpperCase()}${m.action.slice(1)}.`), m.why
         ? h("details", { class: "why" }, h("summary", {}, "Why this note?"), h("ul", {}, ...m.why.lines.map((l) => h("li", {}, l))), m.why.area ? h("p", { class: "why__area" }, "NASA research area: ", h("a", { href: m.why.area.url, target: "_blank", rel: "noopener" }, m.why.area.name), ".") : null)
         : null, extra ?? null);
 }

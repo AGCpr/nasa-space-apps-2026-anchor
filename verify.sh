@@ -32,6 +32,7 @@ echo "== kernel B (TypeScript): typecheck + tests"
 echo "== WebAssembly boundary (ADR-0009): host tests + lints + wasm32 build"
 (cd wasm && cargo test -q && cargo clippy -q --all-targets -- -D warnings   && cargo build -q --release --target wasm32-unknown-unknown)
 cp wasm/target/wasm32-unknown-unknown/release/anchor_wasm.wasm app/anchor.wasm
+node app/scripts/build-demo.ts
 
 echo "== interface: typecheck, build, language audit, tokens, boundary"
 TSC=kernel-b/node_modules/.bin/tsc

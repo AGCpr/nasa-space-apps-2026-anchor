@@ -189,7 +189,7 @@ input.scrub::-moz-range-thumb { width: 44px; height: 64px; border-radius: var(--
 .msg { display: flex; flex-direction: column; gap: 10px; padding: 22px 24px; }
 .msg__head { display: flex; gap: 12px; align-items: center; }
 .msg__head .glyph { flex: none; }
-.msg__head h3 { font-size: var(--t-title3); }
+.msg__title { font-size: var(--t-title3); line-height: 1.25; font-weight: 650; }
 .msg__reg { font-weight: 700; }
 .msg__step { color: var(--muted); }
 .msg__step strong { color: var(--text); font-weight: 650; }

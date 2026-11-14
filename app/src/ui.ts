@@ -42,7 +42,7 @@ export function card(m: Msg, extra?: Child): HTMLElement {
     { class: `msg msg--${m.register}` },
     // Register inline on the heading line, never a label stacked above it; warning and caution
     // keep their word beside the shape (R2).
-    h("header", { class: "msg__head" }, glyph(m.register), h("h3", {}, m.register === "warning" || m.register === "caution" ? h("span", { class: "msg__reg" }, `${GLYPH[m.register].label}: `) : null, m.title)),
+    h("header", { class: "msg__head" }, glyph(m.register), h("h2", { class: "msg__title" }, m.register === "warning" || m.register === "caution" ? h("span", { class: "msg__reg" }, `${GLYPH[m.register].label}: `) : null, m.title)),
     h("p", {}, m.text),
     h("p", { class: "msg__step" }, h("strong", {}, m.owner === "You" ? "What you can do: " : `Who acts: ${m.owner}. `), `${m.action[0]!.toUpperCase()}${m.action.slice(1)}.`),
     m.why
