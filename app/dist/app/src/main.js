@@ -338,5 +338,20 @@ setInterval(() => { if (app.mode === "live") {
     void navigator.storage?.persist?.();
     const bytes = await (await fetch("anchor.wasm")).arrayBuffer();
     app.engine = await Engine.create(bytes);
+    // Shareable replay links: #view=course&day=150&light=day&why=open (read-only replay state only).
+    const p = new URLSearchParams(location.hash.slice(1));
+    const view = p.get("view");
+    if (view === "today" || view === "course" || view === "sharing" || view === "support")
+        app.view = view;
+    const light = p.get("light");
+    if (light === "auto" || light === "day" || light === "evening")
+        app.light = light;
     await startReplay();
+    const day = Number(p.get("day"));
+    if (Number.isInteger(day) && day >= 1 && day <= app.demoDays)
+        app.scrub = day;
+    render();
+    if (p.get("why") === "open")
+        document.querySelectorAll("details.why").forEach((d) => (d.open = true));
+    document.documentElement.dataset.ready = "true";
 })().catch((e) => { app.fatal = String(e); render(); });

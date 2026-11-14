@@ -16,6 +16,7 @@ The challenge's Resources tab lists three NASA resources: HRP *5 Hazards of Huma
 
 ## Other NASA sources used in the design
 
+- **Space radiation hazard ([5 Hazards](https://www.nasa.gov/hrp/hazards/)) and NASA NTRS 20060015096 (radiation effects on commercial hardware).** Commercial tablets in orbit suffer single-event upsets. This is why the safety kernel keeps three copies of the safety table and votes (TMR), and why kernel B is an independent implementation (ADR-0003; DESIGN_PAPER §5.2).
 - **NASA-STD-3001 Vol. 2, Appendix F (display design).** Colour meanings, contrast, character height, touch targets. See docs/UI_RESEARCH.md, sources S1–S2.
 - **ISS Solid-State Lighting Assemblies (SSLA) schedule.** The basis of the evening rendering. See UI_RESEARCH S12.
 - **NASA HRP behavioural-health research.** Standardised measures, the Reaction Self Test, and journals (Stuster), as surveyed in DESIGN_PAPER.md §2.

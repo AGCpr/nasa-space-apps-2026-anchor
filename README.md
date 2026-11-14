@@ -4,6 +4,13 @@
 
 **Live demo:** https://agcpr.github.io/nasa-space-apps-2026-anchor/app/ (a labelled synthetic 150-day mission; runs fully in the browser, offline after load)
 
+**30-second demo video:** https://agcpr.github.io/nasa-space-apps-2026-anchor/demo/anchor-demo.mp4
+
+Direct links into the replay:
+- [the personal range on day 150](https://agcpr.github.io/nasa-space-apps-2026-anchor/app/#view=course&day=150)
+- [a note with its explanation, day 110](https://agcpr.github.io/nasa-space-apps-2026-anchor/app/#view=today&day=110&light=day&why=open)
+- [the sharing log](https://agcpr.github.io/nasa-space-apps-2026-anchor/app/#view=sharing&day=150)
+
 ANCHOR is a daily companion for long-duration crews. It learns each astronaut's own normal before flight, notices **sustained** change calmly, never diagnoses, and leaves the astronaut in control of what leaves the tablet. Pre-agreed safety lines still always work.
 
 ![Course: the personal range drawn as terrain, with the pre-flight level and a consented "new normal"](docs/img/course.jpg)
