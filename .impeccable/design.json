@@ -1,0 +1,744 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-14T13:30:48.030Z",
+  "title": "Design System: ANCHOR",
+  "extensions": {
+    "colorMeta": {
+      "pine-ink-ground": {
+        "role": "neutral",
+        "displayName": "Pine Ink Ground",
+        "canonical": "#0f221c",
+        "oklch": "oklch(23.3% 0.028 171.4)",
+        "cssVar": "--ground",
+        "mode": "day",
+        "tonalRamp": [
+          "oklch(15% 0.01 171.4)",
+          "oklch(26.4% 0.018 171.4)",
+          "oklch(37.9% 0.025 171.4)",
+          "oklch(49.3% 0.028 171.4)",
+          "oklch(60.7% 0.026 171.4)",
+          "oklch(72.1% 0.019 171.4)",
+          "oklch(83.6% 0.011 171.4)",
+          "oklch(95% 0.003 171.4)"
+        ]
+      },
+      "pine-surface": {
+        "role": "neutral",
+        "displayName": "Pine Surface",
+        "canonical": "#16302a",
+        "oklch": "oklch(28.6% 0.034 177)",
+        "cssVar": "--surface",
+        "mode": "day",
+        "tonalRamp": [
+          "oklch(15% 0.012 177)",
+          "oklch(26.4% 0.022 177)",
+          "oklch(37.9% 0.031 177)",
+          "oklch(49.3% 0.034 177)",
+          "oklch(60.7% 0.032 177)",
+          "oklch(72.1% 0.023 177)",
+          "oklch(83.6% 0.013 177)",
+          "oklch(95% 0.004 177)"
+        ]
+      },
+      "pine-rule": {
+        "role": "neutral",
+        "displayName": "Pine Rule",
+        "canonical": "#2c4a40",
+        "oklch": "oklch(38.2% 0.04 171)",
+        "cssVar": "--line",
+        "mode": "day",
+        "tonalRamp": [
+          "oklch(15% 0.014 171)",
+          "oklch(26.4% 0.025 171)",
+          "oklch(37.9% 0.036 171)",
+          "oklch(49.3% 0.04 171)",
+          "oklch(60.7% 0.038 171)",
+          "oklch(72.1% 0.027 171)",
+          "oklch(83.6% 0.016 171)",
+          "oklch(95% 0.005 171)"
+        ]
+      },
+      "vellum-text": {
+        "role": "neutral",
+        "displayName": "Vellum Text",
+        "canonical": "#eee8d8",
+        "oklch": "oklch(93.1% 0.022 89.8)",
+        "cssVar": "--text",
+        "mode": "day",
+        "tonalRamp": [
+          "oklch(15% 0.008 89.8)",
+          "oklch(26.4% 0.014 89.8)",
+          "oklch(37.9% 0.02 89.8)",
+          "oklch(49.3% 0.022 89.8)",
+          "oklch(60.7% 0.021 89.8)",
+          "oklch(72.1% 0.015 89.8)",
+          "oklch(83.6% 0.009 89.8)",
+          "oklch(95% 0.003 89.8)"
+        ]
+      },
+      "sage-muted": {
+        "role": "neutral",
+        "displayName": "Sage Muted",
+        "canonical": "#b9c2ad",
+        "oklch": "oklch(80.1% 0.031 126.1)",
+        "cssVar": "--muted",
+        "mode": "day",
+        "tonalRamp": [
+          "oklch(15% 0.011 126.1)",
+          "oklch(26.4% 0.019 126.1)",
+          "oklch(37.9% 0.028 126.1)",
+          "oklch(49.3% 0.031 126.1)",
+          "oklch(60.7% 0.029 126.1)",
+          "oklch(72.1% 0.02 126.1)",
+          "oklch(83.6% 0.012 126.1)",
+          "oklch(95% 0.004 126.1)"
+        ]
+      },
+      "contour-ochre": {
+        "role": "tertiary",
+        "displayName": "Contour Ochre",
+        "canonical": "#a98a5e",
+        "oklch": "oklch(65.2% 0.071 75.7)",
+        "cssVar": "--contour",
+        "mode": "day",
+        "tonalRamp": [
+          "oklch(15% 0.026 75.7)",
+          "oklch(26.4% 0.045 75.7)",
+          "oklch(37.9% 0.064 75.7)",
+          "oklch(49.3% 0.071 75.7)",
+          "oklch(60.7% 0.067 75.7)",
+          "oklch(72.1% 0.047 75.7)",
+          "oklch(83.6% 0.028 75.7)",
+          "oklch(95% 0.009 75.7)"
+        ]
+      },
+      "corridor-moss": {
+        "role": "secondary",
+        "displayName": "Corridor Moss",
+        "canonical": "#5f8a52",
+        "oklch": "oklch(58.7% 0.095 138.6)",
+        "cssVar": "--corridor",
+        "mode": "day",
+        "tonalRamp": [
+          "oklch(15% 0.034 138.6)",
+          "oklch(26.4% 0.06 138.6)",
+          "oklch(37.9% 0.086 138.6)",
+          "oklch(49.3% 0.095 138.6)",
+          "oklch(60.7% 0.089 138.6)",
+          "oklch(72.1% 0.063 138.6)",
+          "oklch(83.6% 0.037 138.6)",
+          "oklch(95% 0.011 138.6)"
+        ]
+      },
+      "cream-trace": {
+        "role": "secondary",
+        "displayName": "Cream Trace",
+        "canonical": "#f4efe2",
+        "oklch": "oklch(95.2% 0.018 89.4)",
+        "cssVar": "--trace",
+        "mode": "day",
+        "tonalRamp": [
+          "oklch(15% 0.006 89.4)",
+          "oklch(26.4% 0.011 89.4)",
+          "oklch(37.9% 0.016 89.4)",
+          "oklch(49.3% 0.018 89.4)",
+          "oklch(60.7% 0.017 89.4)",
+          "oklch(72.1% 0.012 89.4)",
+          "oklch(83.6% 0.007 89.4)",
+          "oklch(95% 0.002 89.4)"
+        ]
+      },
+      "lichen-accent": {
+        "role": "primary",
+        "displayName": "Lichen Accent",
+        "canonical": "#cfe3b4",
+        "oklch": "oklch(88.9% 0.066 126.5)",
+        "cssVar": "--accent",
+        "mode": "day",
+        "tonalRamp": [
+          "oklch(15% 0.024 126.5)",
+          "oklch(26.4% 0.042 126.5)",
+          "oklch(37.9% 0.06 126.5)",
+          "oklch(49.3% 0.066 126.5)",
+          "oklch(60.7% 0.062 126.5)",
+          "oklch(72.1% 0.044 126.5)",
+          "oklch(83.6% 0.026 126.5)",
+          "oklch(95% 0.008 126.5)"
+        ]
+      },
+      "on-accent": {
+        "role": "neutral",
+        "displayName": "On Accent",
+        "canonical": "#0f221c",
+        "oklch": "oklch(23.3% 0.028 171.4)",
+        "cssVar": "--on-accent",
+        "mode": "day",
+        "tonalRamp": [
+          "oklch(15% 0.01 171.4)",
+          "oklch(26.4% 0.018 171.4)",
+          "oklch(37.9% 0.025 171.4)",
+          "oklch(49.3% 0.028 171.4)",
+          "oklch(60.7% 0.026 171.4)",
+          "oklch(72.1% 0.019 171.4)",
+          "oklch(83.6% 0.011 171.4)",
+          "oklch(95% 0.003 171.4)"
+        ]
+      },
+      "advisory-blue": {
+        "role": "signal",
+        "displayName": "Advisory Blue (day only)",
+        "canonical": "#8cc4f0",
+        "oklch": "oklch(79.8% 0.086 242.8)",
+        "cssVar": "--advisory",
+        "mode": "day",
+        "tonalRamp": [
+          "oklch(15% 0.031 242.8)",
+          "oklch(26.4% 0.054 242.8)",
+          "oklch(37.9% 0.078 242.8)",
+          "oklch(49.3% 0.086 242.8)",
+          "oklch(60.7% 0.081 242.8)",
+          "oklch(72.1% 0.057 242.8)",
+          "oklch(83.6% 0.034 242.8)",
+          "oklch(95% 0.01 242.8)"
+        ]
+      },
+      "caution-yellow": {
+        "role": "signal",
+        "displayName": "Caution Yellow",
+        "canonical": "#f0d84a",
+        "oklch": "oklch(87.8% 0.157 99.5)",
+        "cssVar": "--caution",
+        "mode": "day",
+        "tonalRamp": [
+          "oklch(15% 0.057 99.5)",
+          "oklch(26.4% 0.1 99.5)",
+          "oklch(37.9% 0.143 99.5)",
+          "oklch(49.3% 0.157 99.5)",
+          "oklch(60.7% 0.148 99.5)",
+          "oklch(72.1% 0.105 99.5)",
+          "oklch(83.6% 0.062 99.5)",
+          "oklch(95% 0.019 99.5)"
+        ]
+      },
+      "warning-red": {
+        "role": "signal",
+        "displayName": "Warning Red",
+        "canonical": "#ff8f80",
+        "oklch": "oklch(76.7% 0.138 28.7)",
+        "cssVar": "--warning",
+        "mode": "day",
+        "tonalRamp": [
+          "oklch(15% 0.05 28.7)",
+          "oklch(26.4% 0.088 28.7)",
+          "oklch(37.9% 0.125 28.7)",
+          "oklch(49.3% 0.138 28.7)",
+          "oklch(60.7% 0.13 28.7)",
+          "oklch(72.1% 0.092 28.7)",
+          "oklch(83.6% 0.054 28.7)",
+          "oklch(95% 0.017 28.7)"
+        ]
+      },
+      "on-signal": {
+        "role": "signal",
+        "displayName": "On Signal",
+        "canonical": "#0f221c",
+        "oklch": "oklch(23.3% 0.028 171.4)",
+        "cssVar": "--on-signal",
+        "mode": "day",
+        "tonalRamp": [
+          "oklch(15% 0.01 171.4)",
+          "oklch(26.4% 0.018 171.4)",
+          "oklch(37.9% 0.025 171.4)",
+          "oklch(49.3% 0.028 171.4)",
+          "oklch(60.7% 0.026 171.4)",
+          "oklch(72.1% 0.019 171.4)",
+          "oklch(83.6% 0.011 171.4)",
+          "oklch(95% 0.003 171.4)"
+        ]
+      },
+      "evening-ground": {
+        "role": "neutral",
+        "displayName": "Evening Pine Ink Ground",
+        "canonical": "#0d0904",
+        "oklch": "oklch(14.3% 0.015 79.4)",
+        "cssVar": "--ground",
+        "mode": "evening",
+        "tonalRamp": [
+          "oklch(15% 0.005 79.4)",
+          "oklch(26.4% 0.009 79.4)",
+          "oklch(37.9% 0.014 79.4)",
+          "oklch(49.3% 0.015 79.4)",
+          "oklch(60.7% 0.014 79.4)",
+          "oklch(72.1% 0.01 79.4)",
+          "oklch(83.6% 0.006 79.4)",
+          "oklch(95% 0.002 79.4)"
+        ]
+      },
+      "evening-surface": {
+        "role": "neutral",
+        "displayName": "Evening Pine Surface",
+        "canonical": "#1a1209",
+        "oklch": "oklch(19% 0.021 69.3)",
+        "cssVar": "--surface",
+        "mode": "evening",
+        "tonalRamp": [
+          "oklch(15% 0.008 69.3)",
+          "oklch(26.4% 0.014 69.3)",
+          "oklch(37.9% 0.019 69.3)",
+          "oklch(49.3% 0.021 69.3)",
+          "oklch(60.7% 0.02 69.3)",
+          "oklch(72.1% 0.014 69.3)",
+          "oklch(83.6% 0.008 69.3)",
+          "oklch(95% 0.003 69.3)"
+        ]
+      },
+      "evening-rule": {
+        "role": "neutral",
+        "displayName": "Evening Pine Rule",
+        "canonical": "#3a2b14",
+        "oklch": "oklch(30.1% 0.042 76.7)",
+        "cssVar": "--line",
+        "mode": "evening",
+        "tonalRamp": [
+          "oklch(15% 0.015 76.7)",
+          "oklch(26.4% 0.027 76.7)",
+          "oklch(37.9% 0.039 76.7)",
+          "oklch(49.3% 0.042 76.7)",
+          "oklch(60.7% 0.04 76.7)",
+          "oklch(72.1% 0.028 76.7)",
+          "oklch(83.6% 0.017 76.7)",
+          "oklch(95% 0.005 76.7)"
+        ]
+      },
+      "evening-text": {
+        "role": "neutral",
+        "displayName": "Evening Vellum Text",
+        "canonical": "#ffb858",
+        "oklch": "oklch(83.2% 0.138 72)",
+        "cssVar": "--text",
+        "mode": "evening",
+        "tonalRamp": [
+          "oklch(15% 0.05 72)",
+          "oklch(26.4% 0.088 72)",
+          "oklch(37.9% 0.126 72)",
+          "oklch(49.3% 0.138 72)",
+          "oklch(60.7% 0.13 72)",
+          "oklch(72.1% 0.092 72)",
+          "oklch(83.6% 0.055 72)",
+          "oklch(95% 0.017 72)"
+        ]
+      },
+      "evening-muted": {
+        "role": "neutral",
+        "displayName": "Evening Sage Muted",
+        "canonical": "#d39548",
+        "oklch": "oklch(71.6% 0.119 69.6)",
+        "cssVar": "--muted",
+        "mode": "evening",
+        "tonalRamp": [
+          "oklch(15% 0.043 69.6)",
+          "oklch(26.4% 0.076 69.6)",
+          "oklch(37.9% 0.108 69.6)",
+          "oklch(49.3% 0.119 69.6)",
+          "oklch(60.7% 0.113 69.6)",
+          "oklch(72.1% 0.08 69.6)",
+          "oklch(83.6% 0.047 69.6)",
+          "oklch(95% 0.014 69.6)"
+        ]
+      },
+      "evening-contour": {
+        "role": "tertiary",
+        "displayName": "Evening Contour Ochre",
+        "canonical": "#8a6430",
+        "oklch": "oklch(53.2% 0.084 72.8)",
+        "cssVar": "--contour",
+        "mode": "evening",
+        "tonalRamp": [
+          "oklch(15% 0.03 72.8)",
+          "oklch(26.4% 0.054 72.8)",
+          "oklch(37.9% 0.077 72.8)",
+          "oklch(49.3% 0.084 72.8)",
+          "oklch(60.7% 0.08 72.8)",
+          "oklch(72.1% 0.056 72.8)",
+          "oklch(83.6% 0.033 72.8)",
+          "oklch(95% 0.01 72.8)"
+        ]
+      },
+      "evening-corridor": {
+        "role": "secondary",
+        "displayName": "Evening Corridor Moss",
+        "canonical": "#6f6a1f",
+        "oklch": "oklch(51.4% 0.095 105.5)",
+        "cssVar": "--corridor",
+        "mode": "evening",
+        "tonalRamp": [
+          "oklch(15% 0.034 105.5)",
+          "oklch(26.4% 0.06 105.5)",
+          "oklch(37.9% 0.086 105.5)",
+          "oklch(49.3% 0.095 105.5)",
+          "oklch(60.7% 0.089 105.5)",
+          "oklch(72.1% 0.063 105.5)",
+          "oklch(83.6% 0.037 105.5)",
+          "oklch(95% 0.011 105.5)"
+        ]
+      },
+      "evening-trace": {
+        "role": "secondary",
+        "displayName": "Evening Cream Trace",
+        "canonical": "#ffc458",
+        "oklch": "oklch(85.4% 0.14 79.9)",
+        "cssVar": "--trace",
+        "mode": "evening",
+        "tonalRamp": [
+          "oklch(15% 0.051 79.9)",
+          "oklch(26.4% 0.089 79.9)",
+          "oklch(37.9% 0.127 79.9)",
+          "oklch(49.3% 0.14 79.9)",
+          "oklch(60.7% 0.132 79.9)",
+          "oklch(72.1% 0.094 79.9)",
+          "oklch(83.6% 0.055 79.9)",
+          "oklch(95% 0.017 79.9)"
+        ]
+      },
+      "evening-accent": {
+        "role": "primary",
+        "displayName": "Evening Lichen Accent",
+        "canonical": "#ffb858",
+        "oklch": "oklch(83.2% 0.138 72)",
+        "cssVar": "--accent",
+        "mode": "evening",
+        "tonalRamp": [
+          "oklch(15% 0.05 72)",
+          "oklch(26.4% 0.088 72)",
+          "oklch(37.9% 0.126 72)",
+          "oklch(49.3% 0.138 72)",
+          "oklch(60.7% 0.13 72)",
+          "oklch(72.1% 0.092 72)",
+          "oklch(83.6% 0.055 72)",
+          "oklch(95% 0.017 72)"
+        ]
+      },
+      "evening-on-accent": {
+        "role": "neutral",
+        "displayName": "Evening On Accent",
+        "canonical": "#0d0904",
+        "oklch": "oklch(14.3% 0.015 79.4)",
+        "cssVar": "--on-accent",
+        "mode": "evening",
+        "tonalRamp": [
+          "oklch(15% 0.005 79.4)",
+          "oklch(26.4% 0.009 79.4)",
+          "oklch(37.9% 0.014 79.4)",
+          "oklch(49.3% 0.015 79.4)",
+          "oklch(60.7% 0.014 79.4)",
+          "oklch(72.1% 0.01 79.4)",
+          "oklch(83.6% 0.006 79.4)",
+          "oklch(95% 0.002 79.4)"
+        ]
+      },
+      "evening-advisory": {
+        "role": "signal",
+        "displayName": "Evening Advisory Blue",
+        "canonical": "#ffb858",
+        "oklch": "oklch(83.2% 0.138 72)",
+        "cssVar": "--advisory",
+        "mode": "evening",
+        "tonalRamp": [
+          "oklch(15% 0.05 72)",
+          "oklch(26.4% 0.088 72)",
+          "oklch(37.9% 0.126 72)",
+          "oklch(49.3% 0.138 72)",
+          "oklch(60.7% 0.13 72)",
+          "oklch(72.1% 0.092 72)",
+          "oklch(83.6% 0.055 72)",
+          "oklch(95% 0.017 72)"
+        ]
+      },
+      "evening-caution": {
+        "role": "signal",
+        "displayName": "Evening Caution Yellow",
+        "canonical": "#f0c23a",
+        "oklch": "oklch(83.3% 0.153 89.1)",
+        "cssVar": "--caution",
+        "mode": "evening",
+        "tonalRamp": [
+          "oklch(15% 0.055 89.1)",
+          "oklch(26.4% 0.097 89.1)",
+          "oklch(37.9% 0.139 89.1)",
+          "oklch(49.3% 0.153 89.1)",
+          "oklch(60.7% 0.144 89.1)",
+          "oklch(72.1% 0.102 89.1)",
+          "oklch(83.6% 0.06 89.1)",
+          "oklch(95% 0.018 89.1)"
+        ]
+      },
+      "evening-warning": {
+        "role": "signal",
+        "displayName": "Evening Warning Red",
+        "canonical": "#ff6a3d",
+        "oklch": "oklch(70.4% 0.192 37.1)",
+        "cssVar": "--warning",
+        "mode": "evening",
+        "tonalRamp": [
+          "oklch(15% 0.069 37.1)",
+          "oklch(26.4% 0.121 37.1)",
+          "oklch(37.9% 0.174 37.1)",
+          "oklch(49.3% 0.192 37.1)",
+          "oklch(60.7% 0.181 37.1)",
+          "oklch(72.1% 0.128 37.1)",
+          "oklch(83.6% 0.076 37.1)",
+          "oklch(95% 0.023 37.1)"
+        ]
+      },
+      "evening-on-signal": {
+        "role": "signal",
+        "displayName": "Evening On Signal",
+        "canonical": "#0d0904",
+        "oklch": "oklch(14.3% 0.015 79.4)",
+        "cssVar": "--on-signal",
+        "mode": "evening",
+        "tonalRamp": [
+          "oklch(15% 0.005 79.4)",
+          "oklch(26.4% 0.009 79.4)",
+          "oklch(37.9% 0.014 79.4)",
+          "oklch(49.3% 0.015 79.4)",
+          "oklch(60.7% 0.014 79.4)",
+          "oklch(72.1% 0.01 79.4)",
+          "oklch(83.6% 0.006 79.4)",
+          "oklch(95% 0.002 79.4)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "One per view: the view title (h1)."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card headings, slider labels, question text, primary-button label, top-line values."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text; lede capped at 62ch in muted colour."
+      },
+      "body-small": {
+        "displayName": "Body Small",
+        "purpose": "Fine print, legends, tables, axes, chips; the 16 px floor."
+      },
+      "label": {
+        "displayName": "Map-collar Label",
+        "purpose": "Uppercase marginalia for cell and section labels; never a kicker above an h1."
+      }
+    },
+    "shadows": [
+      {
+        "name": "rail-current",
+        "value": "inset 0 -4px 0 var(--accent)",
+        "purpose": "Structural underline on the current rail item; the system's only box-shadow."
+      },
+      {
+        "name": "focus-ring",
+        "value": "outline: 3px solid var(--accent); outline-offset: 3px",
+        "purpose": "Keyboard focus on every control."
+      }
+    ],
+    "motion": [
+      {
+        "name": "none",
+        "value": "no transitions",
+        "purpose": "State changes are instant; prefers-reduced-motion also strips any browser-added transition or animation."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "portrait-tablet",
+        "value": "900px",
+        "purpose": "max-width: rail 104 px, top line wraps to two full rows, footer two columns."
+      },
+      {
+        "name": "phone",
+        "value": "600px",
+        "purpose": "max-width: one column, rail on top, page scrolls, replay footer sticky."
+      }
+    ],
+    "sizes": [
+      {
+        "name": "hit",
+        "value": "80px",
+        "purpose": "Minimum touch target."
+      },
+      {
+        "name": "hit-primary",
+        "value": "104px",
+        "purpose": "Primary controls, slider tracks, rail items."
+      },
+      {
+        "name": "rail",
+        "value": "136px",
+        "purpose": "Rail width (104 px below 900 px)."
+      }
+    ],
+    "modes": {
+      "mechanism": "app/src/tokens.ts day and evening objects, written to :root custom properties by toCss() at runtime",
+      "evening": "2700 K amber monochrome; blue channel at most 0.35 of max; advisory equals text amber"
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one primary action on a screen, 104 px tall.",
+      "html": "<button class=\"ds-btn-primary\">Save check-in</button>",
+      "css": ".ds-btn-primary { font-family: \"Atkinson Hyperlegible\", \"Segoe UI\", system-ui, sans-serif; font-variant-numeric: tabular-nums slashed-zero; min-height: 80px; padding: 0 28px; border-radius: 10px; font-size: 19px; font-weight: 650; cursor: pointer; min-height: 104px; font-size: 21px; background: var(--accent, #cfe3b4); color: var(--on-accent, #0f221c); border: 0; } .ds-btn-primary:focus-visible { outline: 3px solid var(--accent, #cfe3b4); outline-offset: 3px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Surface fill, accent edge; 80 px.",
+      "html": "<button class=\"ds-btn-secondary\">This is my new normal</button>",
+      "css": ".ds-btn-secondary { font-family: \"Atkinson Hyperlegible\", \"Segoe UI\", system-ui, sans-serif; font-variant-numeric: tabular-nums slashed-zero; min-height: 80px; padding: 0 28px; border-radius: 10px; font-size: 19px; font-weight: 650; cursor: pointer; background: var(--surface, #16302a); border: 2px solid var(--accent, #cfe3b4); color: var(--text, #eee8d8); } .ds-btn-secondary:focus-visible { outline: 3px solid var(--accent, #cfe3b4); outline-offset: 3px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Quiet action with a rule-coloured edge.",
+      "html": "<button class=\"ds-btn-ghost\">Undo</button>",
+      "css": ".ds-btn-ghost { font-family: \"Atkinson Hyperlegible\", \"Segoe UI\", system-ui, sans-serif; font-variant-numeric: tabular-nums slashed-zero; min-height: 80px; padding: 0 28px; border-radius: 10px; font-size: 19px; font-weight: 650; cursor: pointer; background: none; border: 2px solid var(--line, #2c4a40); color: var(--muted, #b9c2ad); } .ds-btn-ghost:focus-visible { outline: 3px solid var(--accent, #cfe3b4); outline-offset: 3px; }"
+    },
+    {
+      "name": "Disabled Button",
+      "kind": "button",
+      "refersTo": "button-disabled",
+      "description": "Muted text on the ground with a dashed edge; never opacity.",
+      "html": "<button class=\"ds-btn-disabled\" disabled>Save check-in</button>",
+      "css": ".ds-btn-disabled { font-family: \"Atkinson Hyperlegible\", \"Segoe UI\", system-ui, sans-serif; font-variant-numeric: tabular-nums slashed-zero; min-height: 80px; padding: 0 28px; border-radius: 10px; font-size: 19px; font-weight: 650; cursor: pointer; background: var(--ground, #0f221c); color: var(--muted, #b9c2ad); border: 2px dashed var(--line, #2c4a40); cursor: not-allowed; }"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "chip",
+      "refersTo": "segmented-option",
+      "description": "Radio group of 80 px options; selected fills with the accent.",
+      "html": "<div class=\"ds-seg\" role=\"radiogroup\" aria-label=\"Mode\"><button role=\"radio\" aria-checked=\"true\">Day</button><button role=\"radio\" aria-checked=\"false\">Evening</button></div>",
+      "css": ".ds-seg { display: inline-flex; border: 2px solid var(--line, #2c4a40); border-radius: 10px; overflow: hidden; } .ds-seg button { font-family: \"Atkinson Hyperlegible\", \"Segoe UI\", system-ui, sans-serif; font-variant-numeric: tabular-nums slashed-zero; font-size: 19px; min-height: 80px; min-width: 80px; padding: 0 18px; background: none; border: 0; border-right: 1px solid var(--line, #2c4a40); color: var(--muted, #b9c2ad); font-weight: 600; cursor: pointer; } .ds-seg button:last-child { border-right: 0; } .ds-seg button[aria-checked=\"true\"] { background: var(--accent, #cfe3b4); color: var(--on-accent, #0f221c); } .ds-seg button:focus-visible { outline: 3px solid var(--accent, #cfe3b4); outline-offset: 3px; }"
+    },
+    {
+      "name": "Bipolar Slider",
+      "kind": "input",
+      "refersTo": "bipolar-slider-track",
+      "description": "104 px drag-anywhere track; dashed and empty until rated.",
+      "html": "<div class=\"ds-slider\"><div class=\"ds-slider__top\"><span class=\"ds-slider__label\">Sleep quality</span><span class=\"ds-slider__readout\">Somewhat better</span></div><div class=\"ds-slider__track\" role=\"slider\" tabindex=\"0\" aria-label=\"Sleep quality\" aria-valuenow=\"680\" aria-valuemin=\"0\" aria-valuemax=\"1000\"><div class=\"ds-slider__mid\"></div><div class=\"ds-slider__fill\" style=\"left:50%;width:18%\"></div><div class=\"ds-slider__thumb\" style=\"left:68%\"></div></div><div class=\"ds-slider__ends\"><span>Much worse</span><span>Usual</span><span>Much better</span></div></div>",
+      "css": ".ds-slider { font-family: \"Atkinson Hyperlegible\", \"Segoe UI\", system-ui, sans-serif; font-variant-numeric: tabular-nums slashed-zero; font-size: 19px; color: var(--text, #eee8d8); display: flex; flex-direction: column; gap: 10px; } .ds-slider__top { display: flex; justify-content: space-between; align-items: baseline; } .ds-slider__label { font-size: 21px; font-weight: 650; } .ds-slider__readout { color: var(--muted, #b9c2ad); } .ds-slider__track { position: relative; height: 104px; border-radius: 10px; background: var(--surface, #16302a); border: 2px solid var(--line, #2c4a40); cursor: pointer; } .ds-slider__mid { position: absolute; left: 50%; top: 18%; bottom: 18%; width: 2px; background: var(--line, #2c4a40); } .ds-slider__fill { position: absolute; top: 34%; bottom: 34%; background: var(--corridor, #5f8a52); border-radius: 4px; } .ds-slider__thumb { position: absolute; top: 8px; bottom: 8px; width: 16px; margin-left: -8px; border-radius: 6px; background: var(--trace, #f4efe2); } .ds-slider__ends { display: flex; justify-content: space-between; color: var(--muted, #b9c2ad); font-size: 16px; } .ds-slider__track:focus-visible { outline: 3px solid var(--accent, #cfe3b4); outline-offset: 3px; }"
+    },
+    {
+      "name": "Message Card (caution)",
+      "kind": "card",
+      "refersTo": "message-card",
+      "description": "Register by shape and word; colour repeats it.",
+      "html": "<article class=\"ds-msg\"><header class=\"ds-msg__head\"><svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" aria-hidden=\"true\"><path d=\"M12 3 22 21H2Z\"/></svg><h3><span class=\"ds-msg__reg\">Worth a look: </span>Sleep has been shorter for five nights</h3></header><p>Your last five nights sit below your usual range.</p><p class=\"ds-msg__step\"><strong>What you can do: </strong>Talk it over with your flight surgeon.</p></article>",
+      "css": ".ds-msg { font-family: \"Atkinson Hyperlegible\", \"Segoe UI\", system-ui, sans-serif; font-variant-numeric: tabular-nums slashed-zero; font-size: 19px; line-height: 1.45; color: var(--text, #eee8d8); display: flex; flex-direction: column; gap: 8px; padding: 20px 24px; border: 1px solid var(--caution, #f0d84a); border-radius: 10px; background: var(--surface, #16302a); max-width: 78ch; } .ds-msg p, .ds-msg h3 { margin: 0; } .ds-msg__head { display: flex; gap: 12px; align-items: center; } .ds-msg__head svg { flex: none; fill: var(--caution, #f0d84a); } .ds-msg h3 { font-size: 21px; line-height: 1.25; font-weight: 650; } .ds-msg__reg { color: var(--caution, #f0d84a); } .ds-msg__step { color: var(--muted, #b9c2ad); } .ds-msg__step strong { color: var(--text, #eee8d8); font-weight: 650; }"
+    },
+    {
+      "name": "Rail Navigation",
+      "kind": "nav",
+      "refersTo": "rail-item",
+      "description": "104 px rail items; the current page gets the surface and an inset accent underline.",
+      "html": "<nav class=\"ds-rail\"><button aria-current=\"page\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"8\"/><path d=\"M12 8v4l3 2\"/></svg>Today</button><button><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 17c4-6 7-6 9-3s5 3 9-3\"/></svg>Course</button></nav>",
+      "css": ".ds-rail { display: flex; flex-direction: column; width: 136px; border-right: 1px solid var(--line, #2c4a40); } .ds-rail button { font-family: \"Atkinson Hyperlegible\", \"Segoe UI\", system-ui, sans-serif; font-variant-numeric: tabular-nums slashed-zero; font-size: 19px; min-height: 104px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: none; border: 0; border-bottom: 1px solid var(--line, #2c4a40); color: var(--muted, #b9c2ad); font-weight: 600; cursor: pointer; } .ds-rail svg { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; } .ds-rail button[aria-current=\"page\"] { color: var(--text, #eee8d8); background: var(--surface, #16302a); box-shadow: inset 0 -4px 0 var(--accent, #cfe3b4); } .ds-rail button:focus-visible { outline: 3px solid var(--accent, #cfe3b4); outline-offset: 3px; }"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Sharing-log status; waiting and undeliverable switch to full text colour.",
+      "html": "<span class=\"ds-chip\">Delivered</span> <span class=\"ds-chip ds-chip--waiting\">Waiting for link</span>",
+      "css": ".ds-chip { font-family: \"Atkinson Hyperlegible\", \"Segoe UI\", system-ui, sans-serif; font-variant-numeric: tabular-nums slashed-zero; font-size: 16px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line, #2c4a40); color: var(--muted, #b9c2ad); white-space: nowrap; } .ds-chip--waiting { border-color: var(--text, #eee8d8); color: var(--text, #eee8d8); }"
+    },
+    {
+      "name": "Range Bar",
+      "kind": "custom",
+      "refersTo": "survey-sheet",
+      "description": "The survey sheet in miniature: moss range, dashed ochre anchor, cream tonight mark.",
+      "html": "<div class=\"ds-rbar\"><span class=\"ds-marg\">Sleep</span><div class=\"ds-rbar__track\"><div class=\"ds-rbar__range\" style=\"left:30%;width:40%\"></div><div class=\"ds-rbar__anchor\" style=\"left:48%\"></div><div class=\"ds-rbar__tonight\" style=\"left:62%\"></div></div></div>",
+      "css": ".ds-rbar { font-family: \"Atkinson Hyperlegible\", \"Segoe UI\", system-ui, sans-serif; font-variant-numeric: tabular-nums slashed-zero; display: grid; grid-template-columns: 120px 1fr; gap: 16px; align-items: center; } .ds-marg { font-size: 16px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted, #b9c2ad); font-weight: 600; } .ds-rbar__track { position: relative; height: 40px; border-radius: 6px; background: var(--ground, #0f221c); border: 1px solid var(--line, #2c4a40); } .ds-rbar__range { position: absolute; top: 6px; bottom: 6px; background: var(--corridor, #5f8a52); border-radius: 4px; opacity: 0.85; } .ds-rbar__anchor { position: absolute; top: 2px; bottom: 2px; border-left: 3px dashed var(--contour, #a98a5e); } .ds-rbar__tonight { position: absolute; top: -4px; bottom: -4px; width: 8px; margin-left: -4px; border-radius: 3px; background: var(--trace, #f4efe2); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Night Survey Sheet",
+    "overview": "ANCHOR is a topographic survey sheet read at night. The ground is pine ink. The person's own normal is drawn on it as terrain: a moss corridor for the usual range, an ochre dashed benchmark for the pre-flight level, a lichen hinge where a consented new normal begins, and a cream trace for the person's own values. Everything else on the sheet, from the rail and top line to the controls, is ruled, flat and quiet so that the terrain and the reserved signal colours stay legible.\n\nThe system is an Operate shell for a tablet held at arm's length in a moving, dim cabin. That sets its density: few elements per screen, 19 px body type, 80 px minimum touch targets and 104 px primary ones. Labels are set in uppercase map-collar marginalia, figures are tabular with slashed zeros, and meaning never depends on colour alone. In the evening the whole sheet re-renders in a 2700 K amber monochrome, and shape and label take over everything that colour carried in the day.\n\nThe system rejects rings, gauges, composite scores and red/green status cards. Signal colours belong to NASA-STD-3001 meanings and nothing else.",
+    "keyCharacteristics": [
+      "Flat, ruled panels on a single dark ground; depth comes from one tonal step and 1 px rules.",
+      "One accent (lichen) for selection and the primary action; signal colours reserved for their meaning.",
+      "Large, calm controls: 80 px minimum, 104 px primary, and drag-anywhere tracks.",
+      "Dashed strokes mark reference, not-yet or not-live states throughout.",
+      "Two complete token sets, day and evening, swapped at runtime on the same CSS custom properties."
+    ],
+    "rules": [
+      {
+        "name": "The Six-to-One Rule",
+        "body": "Every text and background pair is at least 6:1 in both day and evening modes, including disabled text. `app/test/tokens.test.ts` enforces this; a new text pairing must pass it before it ships.",
+        "section": "colors"
+      },
+      {
+        "name": "The 2700 K Rule",
+        "body": "No evening token may be bluer than a 2700 K source (blue channel at most 0.35 of the maximum channel). The evening set is amber monochrome; advisories rely on shape and label.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reserved Signal Rule",
+        "body": "Warning red, caution yellow and advisory blue appear only for their NASA-STD-3001 meaning. They are never decoration, selection or brand.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ochre-Is-Line Rule",
+        "body": "Contour ochre draws grid and benchmark lines only. It is never used as text or as a fill, and the token test fails if it is used as a text colour.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Figures Rule",
+        "body": "`tabular-nums slashed-zero` is set on `:root`, so every figure has the same width (ten repeats of all ten digits measure 120.0 px at 19 px) and every zero is slashed. Do not switch it off for any number.",
+        "section": "typography"
+      },
+      {
+        "name": "The Map-Collar Rule",
+        "body": "Uppercase tracked text is used only for marginalia: a cell or section label in the label style. It never sits stacked above an h1 as a kicker, and a message card's register word stays inline on its heading line.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Sheet Rule",
+        "body": "Surfaces never lift. A panel is distinguished by its tone, its rule or its border weight, never by a shadow.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Dashed Edge Rule",
+        "body": "A dashed stroke means reference, not yet, or not live: the pre-flight benchmark, an unrated slider, a disabled control, the read-only note, the synthetic badge, loss of signal on the mission-day strip and an undone hinge. A solid stroke means the person's live state.",
+        "section": "shapes"
+      },
+      {
+        "name": "The Shape-Carries-It Rule",
+        "body": "A register is carried by shape and word together, and colour only repeats it. This must survive the evening rendering, where advisory blue becomes amber.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "**Do** reference colours through the runtime custom properties (`var(--accent)`, `var(--line)`) so the evening set reaches every component.",
+      "**Do** keep every text pair at 6:1 or better in both modes, and run `app/test/tokens.test.ts` after any token change.",
+      "**Do** size touch targets at 80px minimum and 104px for the primary control on a screen.",
+      "**Do** carry every register with its glyph shape (diamond, triangle, circle, rule) and its word, and let colour only repeat them.",
+      "**Do** mark not-yet, reference and not-live states with a dashed stroke, and live state with a solid one.",
+      "**Do** keep figures tabular with slashed zeros, and keep text at 16px or larger.",
+      "**Do** size chart SVGs to the sheet width so one unit is one CSS px."
+    ],
+    "donts": [
+      "**Don't** use warning red, caution yellow or advisory blue for anything but their NASA-STD-3001 meaning, and don't use blue at all in the evening set.",
+      "**Don't** use contour ochre for text or fills.",
+      "**Don't** fade disabled controls with opacity. Use muted text on the ground with a dashed border.",
+      "**Don't** add drop shadows or lift surfaces. Depth is one tonal step and a rule.",
+      "**Don't** introduce rings, gauges, composite scores or red/green status cards.",
+      "**Don't** stack an uppercase label above a heading as a kicker. Marginalia labels cells and sections only."
+    ]
+  }
+}

@@ -1,0 +1,146 @@
+// DOM helpers and the few controls the interface needs (ADR-0009 §10-11). No framework.
+import type { Msg } from "./catalogue.ts";
+
+type Child = Node | string | null | undefined | false;
+type Props = Record<string, string | number | boolean | EventListener | null | undefined>;
+
+export function h(tag: string, props: Props = {}, ...children: Child[]): HTMLElement {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (v === null || v === undefined || v === false) continue;
+    if (typeof v === "function") el.addEventListener(k.slice(2), v);
+    else if (v === true) el.setAttribute(k, "");
+    else el.setAttribute(k, String(v));
+  }
+  for (const c of children) if (c !== null && c !== undefined && c !== false) el.append(c);
+  return el;
+}
+
+const NS = "http://www.w3.org/2000/svg";
+export function s(tag: string, attrs: Record<string, string | number> = {}, ...children: (SVGElement | string)[]): SVGElement {
+  const el = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, String(v));
+  for (const c of children) el.append(c);
+  return el;
+}
+
+/** Register glyphs: shape and label carry the meaning, colour only repeats it (R2). */
+const GLYPH: Record<Msg["register"], { label: string; path: string }> = {
+  warning: { label: "Safety line", path: "M12 2 22 12 12 22 2 12Z" },
+  caution: { label: "Worth a look", path: "M12 3 22 21H2Z" },
+  advisory: { label: "Note", path: "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18Z" },
+  info: { label: "Update", path: "M4 11h16v2H4Z" },
+};
+
+export function glyph(register: Msg["register"]): SVGElement {
+  return s("svg", { viewBox: "0 0 24 24", width: 28, height: 28, "aria-hidden": "true", class: `glyph glyph--${register}` }, s("path", { d: GLYPH[register].path }));
+}
+
+export function card(m: Msg, extra?: Child): HTMLElement {
+  return h(
+    "article",
+    { class: `msg msg--${m.register}` },
+    // Register inline on the heading line, never a label stacked above it; warning and caution
+    // keep their word beside the shape (R2).
+    h("header", { class: "msg__head" }, glyph(m.register), h("h3", {}, m.register === "warning" || m.register === "caution" ? h("span", { class: "msg__reg" }, `${GLYPH[m.register].label}: `) : null, m.title)),
+    h("p", {}, m.text),
+    h("p", { class: "msg__step" }, h("strong", {}, m.owner === "You" ? "What you can do: " : `Who acts: ${m.owner}. `), `${m.action[0]!.toUpperCase()}${m.action.slice(1)}.`),
+    m.why
+      ? h("details", { class: "why" }, h("summary", {}, "Why this note?"), h("ul", {}, ...m.why.lines.map((l) => h("li", {}, l))),
+          m.why.area ? h("p", { class: "why__area" }, "NASA research area: ", h("a", { href: m.why.area.url, target: "_blank", rel: "noopener" }, m.why.area.name), ".") : null)
+      : null,
+    extra ?? null,
+  );
+}
+
+export function segmented<T extends string>(name: string, options: { value: T; label: string }[], current: T, onPick: (v: T) => void, cls = ""): HTMLElement {
+  return h(
+    "div",
+    { class: `seg ${cls}`, role: "radiogroup", "aria-label": name },
+    ...options.map((o) =>
+      h("button", { type: "button", role: "radio", "aria-checked": o.value === current ? "true" : "false", onclick: () => onPick(o.value) }, o.label),
+    ),
+  );
+}
+
+/**
+ * Bipolar slider (R9, R15): the whole track takes the press, the value follows the finger and
+ * is committed on release. Untouched, it shows "not rated" rather than a default of 50.
+ */
+export function bipolar(opts: { id: string; label: string; low: string; mid: string; high: string; value: number | null; notRated: string; disabled: boolean; onCommit: (v: number) => void }): HTMLElement {
+  let value = opts.value;
+  const fill = h("div", { class: "slider__fill" });
+  const thumb = h("div", { class: "slider__thumb" });
+  const readout = h("span", { class: "slider__readout" });
+  const track = h(
+    "div",
+    {
+      class: "slider__track",
+      role: "slider",
+      tabindex: opts.disabled ? -1 : 0,
+      "aria-labelledby": `${opts.id}-label`,
+      "aria-valuemin": 0,
+      "aria-valuemax": 1000,
+      "aria-disabled": opts.disabled ? "true" : null,
+    },
+    h("div", { class: "slider__mid", "aria-hidden": "true" }),
+    fill,
+    thumb,
+  );
+  const paint = () => {
+    const rated = value !== null;
+    track.dataset.rated = String(rated);
+    if (rated) {
+      const p = value! / 10;
+      const [a, b] = p < 50 ? [p, 50] : [50, p];
+      fill.style.left = `${a}%`;
+      fill.style.width = `${b - a}%`;
+      thumb.style.left = `${p}%`;
+      track.setAttribute("aria-valuenow", String(value));
+      const word = p < 40 ? opts.low : p > 60 ? opts.high : opts.mid;
+      track.setAttribute("aria-valuetext", `${word}, ${Math.round(p)} of 100`);
+      readout.textContent = word;
+    } else {
+      track.removeAttribute("aria-valuenow");
+      track.setAttribute("aria-valuetext", opts.notRated);
+      readout.textContent = opts.notRated;
+    }
+  };
+  const at = (e: PointerEvent) => {
+    const r = track.getBoundingClientRect();
+    return Math.round(Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * 1000);
+  };
+  if (!opts.disabled) {
+    track.addEventListener("pointerdown", (e) => {
+      track.setPointerCapture(e.pointerId);
+      value = at(e);
+      paint();
+    });
+    track.addEventListener("pointermove", (e) => {
+      if (!track.hasPointerCapture(e.pointerId)) return;
+      value = at(e);
+      paint();
+    });
+    track.addEventListener("pointerup", (e) => {
+      if (!track.hasPointerCapture(e.pointerId)) return;
+      track.releasePointerCapture(e.pointerId);
+      opts.onCommit(value!);
+    });
+    track.addEventListener("keydown", (e) => {
+      const step = { ArrowLeft: -10, ArrowDown: -10, ArrowRight: 10, ArrowUp: 10, PageDown: -100, PageUp: 100 }[e.key];
+      if (step === undefined) return;
+      e.preventDefault();
+      value = Math.min(1000, Math.max(0, (value ?? 500) + step));
+      paint();
+      opts.onCommit(value);
+    });
+  }
+  paint();
+  return h(
+    "div",
+    { class: "slider" },
+    h("div", { class: "slider__top" }, h("span", { id: `${opts.id}-label`, class: "slider__label" }, opts.label), readout),
+    track,
+    h("div", { class: "slider__ends", "aria-hidden": "true" }, h("span", {}, opts.low), h("span", {}, opts.mid), h("span", {}, opts.high)),
+  );
+}

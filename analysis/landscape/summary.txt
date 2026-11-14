@@ -1,0 +1,35 @@
+candidates: 502  relevant: 243  substantive README (>=1500 chars): 197
+
+feature                          all   substantive
+personal_baseline            98  40%     93  47%
+rolling_baseline              5   2%      4   2%
+fixed_start_baseline          2   1%      2   1%
+ml_anomaly                   25  10%     24  12%
+stat_change_detection        11   5%     11   6%
+false_alarm_quantified       24  10%     24  12%
+llm_or_chatbot               63  26%     62  31%
+offline_first                98  40%     96  49%
+privacy_or_consent           33  14%     33  17%
+psych_mood                  136  56%    129  65%
+psych_intervention           21   9%     20  10%
+sleep                        97  40%     91  46%
+circadian                    19   8%     18   9%
+cognitive_pvt                32  13%     32  16%
+radiation                   126  52%    122  62%
+camera_face                  43  18%     42  21%
+voice                        34  14%     34  17%
+gamification                 74  30%     74  38%
+body_figure                  24  10%     22  11%
+comm_delay                   57  23%     56  28%
+ground_dashboard             70  29%     66  34%
+nasa_open_data               92  38%     90  46%
+digital_twin                 13   5%     13   7%
+tests                        48  20%     48  24%
+non_diagnostic               40  16%     39  20%
+integrity_safety             24  10%     24  12%
+crew_interpersonal           12   5%     12   6%
+lifecycle                    24  10%     24  12%
+family                       11   5%      9   5%
+language_framing              2   1%      2   1%
+wearable                     51  21%     49  25%
+explainability               60  25%     57  29%
