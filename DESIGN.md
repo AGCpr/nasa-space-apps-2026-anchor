@@ -289,11 +289,11 @@ Large, calm and unmistakable.
 - **Top line:** ruled cells, each a marginalia label over a 21px/650 value: mission day, ground link and mode.
 
 ### Survey Sheet and Range Bar (signature)
-- **Sheet:** a figure on Pine Ink Ground with a 1px rule and 10px radius. It contains the corridor chart (ochre contours, a moss corridor, a dashed ochre benchmark, an accent hinge with a pin and plate, a cream trace, a dotted red limit and boxed caution episodes) and the mission-day strip on the same time axis. A data table in a `details` element gives the same values in text.
+- **Sheet:** a figure on Pine Ink Ground with a 1px rule and 10px radius. It contains the corridor chart (ochre contours, a moss corridor, a dashed ochre benchmark, an accent hinge with a pin and plate, a cream trace, a dotted red limit and caution bars for episodes, each labelled once beside its triangle) and the mission-day strip on the same time axis. A data table in a `details` element gives the same values in text.
 - **Range bar:** the chart in miniature. A 40px track holds the moss range, a 3px dashed ochre pre-flight anchor and an 8px cream mark for tonight.
 
-### Read-only Note
-- A 1px dashed Pine Rule box at 10px radius with Body Small text in Vellum Text. It states that the replay is read-only.
+### Read-only state
+- The replay bar says "read-only" once, and disabled controls keep their dashed border. There is no per-view read-only banner (removed in the product audit below).
 
 ## Do's and Don'ts
 
@@ -340,4 +340,23 @@ This revision supersedes the shell and type sections above wherever they conflic
   - **Switches:** a 66 × 40 px track whose knob position, fill and word all state the setting (R2); the whole control is the 80 px target.
   - **Sharing settings:** inset grouped lists.
   - **Chart cards:** open with a title and a one-sentence main message; the coverage and episode details sit below the chart (HIG charts.md).
-- **Insight titles** name the value ("Mood tonight") instead of repeating the page title.
+- **Tonight's insight** is one sentence at the top of the range card ("Your mood tonight is inside your usual range…"), not a card of its own.
+
+## Product audit, 14 Nov 2026
+
+Every screen was captured in every state (iPad landscape and phone, day and evening, replay and live) and read against the requirements in docs/UI_RESEARCH.md, Apple's HIG and NASA-STD-3001. Each change below removes something or fixes a contradiction; nothing was added for decoration.
+
+| Finding | Principle | Change |
+|---|---|---|
+| The evening check-in showed notes about the person's own data before they rated. | UI_RESEARCH R13: rate first, then see the data. | Until the check-in is saved, only safety notices show; a line says how many notes wait. |
+| Three identical "stayed lower" cards on one day. | Calm by construction (I3) and DESIGN_PAPER F4 (few proactive messages). HIG managing-notifications offers the same idea as delivery "in a summary" instead of separate alerts. | Changes open at once form one note; its "Why this note?" lists each measure with its start day and threshold. |
+| Every sustained-change note blamed "a heavy work block or shorter sleep", also for blood oxygen. | Explainability: a cause is stated only where the research supports it (HRP_MAPPING.md). | Cause hints per kind of measure; body measures get none and point to the flight surgeon if a change stays. |
+| An untouched vitals stepper saved yesterday's value as today's. | Data integrity; HIG entering-data: prefill a reasonable default, then let people confirm. | The last reading is shown muted and labelled; tapping it keeps it; only set values are saved. |
+| Nine weekly-summary rows in the sharing log read the same. | Disclosure contract: every share listed, but readable. | Identical consecutive shares collapse into one row that still names every day. |
+| "Stays on this tablet" and "agreed before flight" repeated on every row. | HIG writing: say it once, where it applies. | One sentence per group; rows carry only what differs. |
+| The screener questions were always open, although the text says "asked only when you choose". | HIG disclosure-controls: hide details until they are relevant; consistency between words and behaviour. | The two questions sit behind a disclosure the astronaut opens. |
+| Course offered "new normal" and "undo" side by side, both disabled. | HIG buttons: one clear action. | Only the action that applies is shown. |
+| A read-only banner on every view. | Simplicity. | Said once, in the replay bar. |
+| Episode marks were empty boxes plus numbered labels elsewhere. | R2: shape and words together, no lookup. | A caution bar over the days, labelled once beside its triangle. |
+| Phone: status bar in four rows and replay bar in three; 330 px left for content. | HIG layout: content first; controls at least 44 pt. | Two-row status bar, one-row replay bar; 520 px for content. Full labels stay as accessible names. |
+| `verify.sh` passed with a TypeScript error. | Evidence must be able to fail. | One command per line, so `set -e` stops on any failure. |

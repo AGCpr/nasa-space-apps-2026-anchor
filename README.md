@@ -26,6 +26,7 @@ NASA's Human Research Program lists the risks this tool addresses. The mapping, 
 - **Behavioural health in isolation and confinement.** Long Mars communication delays weaken the ground support available on the ISS, and NASA names *privacy* as a top priority for crews' psychological well-being.
 - **Sleep loss and irregular schedules.**
 - **Mild hypoxia** in the partially depressurised cabins planned for exploration.
+- **Cardiovascular adaptation, altered immune response, and food and nutrition**, covered by the morning measurements and their safety lines.
 - **Teamwork** in small, isolated crews.
 - **Systems that crews must run without mission control.**
 
@@ -33,8 +34,8 @@ NASA's Human Research Program lists the risks this tool addresses. The mapping, 
 
 | | |
 |---|---|
-| **90-second evening check-in** | Three bipolar sliders (mood, energy, calm), rated *before* the astronaut sees their data. Sleep and SpO2 come from a wearable. |
-| **Morning vitals** | Pulse, blood pressure, temperature and (every third morning) glucose, entered with large steppers. Each of the nine measures has an "About this measure" card: how it is measured, why it matters in space, what helps. |
+| **90-second evening check-in** | Three bipolar sliders (mood, energy, calm), rated *before* the astronaut sees any of their data: until the check-in is saved, only safety notices show. Sleep and SpO2 come from a wearable. |
+| **Morning vitals** | Pulse, blood pressure, temperature and (every third morning) glucose, entered with large steppers. A stepper starts at the last reading but never saves it as today's unless the astronaut keeps it. Each of the nine measures has an "About this measure" card: how it is measured, why it matters in space, what helps. |
 | **Personal range** | A Bayesian baseline anchored on pre-flight days. The band on screen holds about 8 in 10 days, and that claim was checked on real people (below). |
 | **Calm by construction** | Sustained-change detection (CUSUM) with a calibrated false-alert budget: at most one unwanted note per 30 days, verified end to end at one per 39 days. No single-reading alerts except pre-agreed safety lines: one day's evidence is capped, so a single fever morning goes to the surgeon but never becomes a "several days" note ([ADR-0011](docs/adr/ADR-0011-single-day-cap.md)). |
 | **"This is my new normal"** | The astronaut may accept a new level (reversible, at most once per 30 days, within 2 SD of pre-flight). It is drawn as a hinge in the range. |
@@ -46,6 +47,18 @@ NASA's Human Research Program lists the risks this tool addresses. The mapping, 
 ![Today: a calm note with its explanation open](docs/img/today-why.jpg)
 
 ![Course, body temperature: one fever morning crosses the safety line and reaches the flight surgeon, yet opens no "several days" note](docs/img/fever.jpg)
+
+## How it differs
+
+A coded survey of 243 public repositories for this challenge (a reproducible keyword pass, with the nearest neighbours read in full; [LANDSCAPE.md](LANDSCAPE.md)) shows where ANCHOR departs from the field. The corpus is roughly a 10 % sample of the 2,407 registered teams.
+
+| What most projects do | Share of the 243 | What ANCHOR does instead, and why |
+|---|---|---|
+| Collect mood data | 56 % | Detects *sustained* change in it against the person's own pre-flight range, under a stated false-alert budget. Statistical change detection appears in 5 %. |
+| Report no false-alarm rate | 90 % | Reports it end to end (one note per 38.9 days against a budget of 30) and on real people (LifeSnaps), with an injected-change test. |
+| Show a composite readiness or risk score | 12 % (28) | No composite score: each measure is shown on its own and explained, because a single number hides why it moved. |
+| Offer a ground or mission-control dashboard | 29 % | None. Nothing leaves the tablet unless it is listed first. A pre-flight disclosure agreement with fixed safety lines appears in 0 of 243. |
+| Leave wording unchecked (no calm-language design) | 99 % | Every sentence the astronaut can read passes a machine audit: no disease names, no alarm words, always an action and an owner. |
 
 ## Evidence
 
@@ -75,7 +88,7 @@ interface (vanilla TypeScript, SVG) = a projection of the log's outputs: replaya
 
 - The engine is a deterministic fold over the log, so every screen can be reproduced by replay.
 - The interface has no framework and no runtime dependencies. The WebAssembly boundary is a five-call hand-written ABI.
-- Every design decision is argued, with alternatives, in an ADR: [docs/adr/](docs/adr/) (ADR-0001 to ADR-0009).
+- Every design decision is argued, with alternatives, in an ADR: [docs/adr/](docs/adr/) (ADR-0001 to ADR-0011).
 
 ## Run it locally
 

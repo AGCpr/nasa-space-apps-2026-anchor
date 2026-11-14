@@ -16,17 +16,17 @@ ANCHOR is a daily wellbeing companion for long-duration crews.
 - It never diagnoses, and it shows the evidence and confidence behind every note.
 - Disclosure is the astronaut's decision. Everything is private by default, and every share is listed before it is sent. Pre-agreed safety lines, such as low blood oxygen, still always reach the flight surgeon, or the CMO on board during loss of signal.
 
-This addresses NASA HRP's risks in four areas: behavioural health under isolation, sleep and irregular schedules, mild hypoxia in exploration cabins, and Earth-independent operations.
+This addresses eight NASA HRP risks, from behavioural health under isolation and sleep to hypoxia, cardiovascular, immune and nutrition risks, teamwork, and Earth-independent operations.
 
 It matters because honest self-reporting is the first casualty when monitoring feels like surveillance, and Mars-distance crews cannot rely on real-time ground support.
 
-On 71 real people's wearable and mood data, the personal range held 79 % of mood days and 78 % of sleep days (target 80 %). ANCHOR raised 2–5× fewer notes than a naive single-day rule.
+On 71 real people's wearable and mood data, the personal range held 79 % of mood days and 78 % of sleep days (target 80 %). ANCHOR raised 2–6× fewer notes than a naive single-day rule, and when a known change was injected into real sleep data it noticed it far above chance.
 
 ## Link to Project Demo
 
-A 7-slide deck is also available: https://agcpr.github.io/nasa-space-apps-2026-anchor/demo/anchor-deck.pdf
-
 https://agcpr.github.io/nasa-space-apps-2026-anchor/demo/anchor-demo.mp4 (30 seconds, 4K, narrated, English subtitles, real app footage)
+
+A 7-slide deck is also available: https://agcpr.github.io/nasa-space-apps-2026-anchor/demo/anchor-deck.pdf
 
 ## Link to Final Project
 
@@ -36,10 +36,10 @@ https://github.com/AGCpr/nasa-space-apps-2026-anchor (source, documentation, val
 
 **What it does**
 
-- **Check-in.** A 90-second evening check-in with three bipolar sliders (mood, energy, calm). The astronaut rates *before* seeing any data, so the number never overwrites how they feel. Sleep and SpO2 are imported from a wearable. In the morning, pulse, blood pressure, temperature and (every third day) glucose are entered with large steppers. Each measure has an "About this measure" card: how it is measured, why it matters in space, what helps.
+- **Check-in.** A 90-second evening check-in with three bipolar sliders (mood, energy, calm). The astronaut rates *before* seeing any data, so the number never overwrites how they feel: until the check-in is saved, only safety notices are shown. Sleep and SpO2 are imported from a wearable. In the morning, pulse, blood pressure, temperature and (every third day) glucose are entered with large steppers that start at the last reading but never save it as today's unless the astronaut keeps it. Each measure has an "About this measure" card: how it is measured, why it matters in space, what helps.
 - **Personal range.** Each value is compared with the astronaut's own range: a Bayesian baseline anchored on pre-flight days. It is drawn as a corridor, with the pre-flight level as a dashed benchmark.
 - **Sustained change.** A CUSUM detector notices sustained change. Its threshold is calibrated so a stable person sees at most one unwanted note per 30 days; the end-to-end test gives one per 39 days. One day's evidence is capped (a robust CUSUM), so a single extreme reading can never open a "several days" note; single readings are the safety kernel's job.
-- **Notes.** Notes use calm, audited language and always name a next step and who takes it. Every note has a "Why this note?" panel: the data, the rule, what would close it, and the NASA research area it relates to.
+- **Notes.** Notes use calm, audited language and always name a next step and who takes it. Several changes at once arrive as one note, not a stack. Every note has a "Why this note?" panel: the data, the rule, what would close it, and the NASA research area it relates to.
 - **New normal.** "This is my new normal": after a sustained change the astronaut may accept a new level. It is reversible, limited to once per 30 days and to within 2 SD of pre-flight, and drawn as a hinge in the range.
 - **Disclosure contract.**
   - Nothing is shared by default.
@@ -56,16 +56,20 @@ https://github.com/AGCpr/nasa-space-apps-2026-anchor (source, documentation, val
 - **Log.** Every input is a record in a hash-chained, append-only log, stored in two copies so that it is repairable.
 - **Engine.** The engine is a deterministic fold over that log, so every output can be reproduced by replay. It is written in Rust and compiled to WebAssembly.
 - **Interface.** Vanilla TypeScript and SVG, a pure projection of the engine's outputs, with no frameworks or runtime dependencies. It runs fully offline.
-- **Decisions.** Every design decision is argued, with rejected alternatives, in nine Architecture Decision Records.
+- **Decisions.** Every design decision is argued, with rejected alternatives, in eleven Architecture Decision Records.
 
 **Evidence**
 
 - **Real data.** On LifeSnaps (71 adults, 4 months, CC BY 4.0), the unmodified engine processed 13,376 records with 0 errors at 6.7 ms per record.
   - The personal range was calibrated for mood and sleep: 79 % and 78 % of days inside the 80 % band.
   - ANCHOR raised one note per 95–125 days per indicator, against one per 22–46 days for a naive rule.
-  - A known change injected into real sleep series (23 people) was noticed within 4 weeks by ANCHOR in 52 % of people at 1 SD, against 13 % by chance. ANCHOR's notes were four times rarer than the naive rule's before the change.
+  - A known change injected into real sleep series (23 people) was noticed within 4 weeks by ANCHOR in 52 % of people at 1 SD, against 9 % by chance. ANCHOR's notes were five times rarer than the naive rule's before the change.
   - We also report a negative finding. The band is too narrow for smoothed device signals such as Fitbit resting heart rate (lag-1 autocorrelation 0.87), and this is now a configuration rule.
 - **Checks.** About 70 automated tests, Python reference oracles, mutation checks, and a machine audit of every sentence the astronaut can read.
+
+**How it differs**
+
+A coded survey of 243 public repositories for this challenge (LANDSCAPE.md) found statistical change detection in 5 %, reported false-alarm rates in 10 %, calm-language design in 1 %, and a pre-flight disclosure agreement in none. 29 % offer a ground dashboard and 28 projects a composite readiness score; ANCHOR deliberately has neither, because both work against honest self-report.
 
 **Benefits and goals**
 
