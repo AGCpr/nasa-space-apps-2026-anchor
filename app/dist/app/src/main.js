@@ -249,7 +249,7 @@ function displayControls() {
 /** Mission status, always visible above the content (HIG: the current location and state stay visible). */
 function statusBar(st) {
     const shownDay = app.mode === "replay" ? st.lastClosed : st.openDay;
-    return h("header", { class: "status" }, h("span", { class: "status__mark" }, "ANCHOR"), h("span", { class: "pill" }, h("span", { class: "marg" }, "Mission day"), h("strong", { class: "num" }, h("span", { class: "pill__short" }, "Day "), String(shownDay))), h("span", { class: `pill link link--${st.linkUp ? "up" : "down"}` }, h("strong", {}, st.linkUp ? c.ui.linkUp : c.ui.linkDown)), h("span", { class: `pill badge${app.mode === "live" ? "" : " badge--synthetic"}` }, h("strong", {}, app.mode === "live" ? "Live · synthetic pre-flight" : c.ui.syntheticReplay)), h("details", { class: "status__more" }, h("summary", {}, "Display and data"), displayControls()));
+    return h("header", { class: "status" }, h("span", { class: "status__mark" }, "ANCHOR"), h("span", { class: "pill" }, h("span", { class: "marg" }, "Mission day"), h("strong", { class: "num" }, h("span", { class: "pill__short" }, "Day "), String(shownDay))), h("span", { class: `pill link link--${st.linkUp ? "up" : "down"}` }, h("strong", {}, st.linkUp ? c.ui.linkUp : c.ui.linkDown)), h("span", { class: `pill badge${app.mode === "live" ? "" : " badge--synthetic"}` }, app.mode === "live" ? h("strong", {}, "Live · synthetic pre-flight") : h("strong", {}, "Synthetic", h("span", { class: "long" }, " replay"))), h("details", { class: "status__more" }, h("summary", { "aria-label": "Display and data" }, "Display", h("span", { class: "long" }, " and data")), displayControls()));
 }
 const RAIL = [
     { v: "today", label: c.ui.today, d: "M12 4a8 8 0 1 0 0 16a8 8 0 1 0 0-16Zm0 4v4l3 2" },
@@ -286,7 +286,7 @@ function replayBar(st) {
         render();
         document.querySelector(".scrub")?.focus();
     });
-    return h("footer", { class: "replay" }, h("p", {}, h("span", { class: "marg" }, c.ui.syntheticReplay), ` Day ${app.scrub} of ${app.demoDays}.`, h("span", { class: "replay__note" }, ` ${c.ui.syntheticNote}`)), range, h("button", { type: "button", class: "secondary", onclick: () => void continueHere() }, c.ui.continueHere));
+    return h("footer", { class: "replay" }, h("p", {}, h("span", { class: "marg" }, c.ui.syntheticReplay), ` Day ${app.scrub} of ${app.demoDays}, read-only.`, h("span", { class: "replay__note" }, ` ${c.ui.syntheticNote}`)), range, h("button", { type: "button", class: "secondary", "aria-label": c.ui.continueHere, onclick: () => void continueHere() }, "Continue", h("span", { class: "long" }, " from this day")));
 }
 /** Inner chart width: the measured content column minus the sheet's padding (styles.css .sheet). */
 function sheetWidth() {
@@ -362,15 +362,13 @@ function render() {
             setScreen: (k, v) => { app.screen[k] = v; render(); },
             setVital: (k, v) => { app.vitals[k] = v; render(); },
             saveVitals: () => {
-                // Untouched steppers save the value shown (the last measurement), so every field is explicit.
+                // Only values the astronaut set are saved: an untouched stepper shows the last reading, which
+                // is not a measurement of today (no carried-forward data in the log).
                 const st2 = project(app.events);
                 const vals = { day: st2.openDay };
-                for (const k of V.VITALS) {
-                    const i = st2.indicators.get(k);
-                    if (!i)
-                        continue;
-                    vals[k] = app.vitals[k] ?? [...i.values.values()].at(-1)?.[0] ?? 0;
-                }
+                for (const k of V.VITALS)
+                    if (st2.indicators.has(k) && app.vitals[k] !== undefined)
+                        vals[k] = app.vitals[k];
                 void act("sample", vals).then(() => { app.vitals = {}; render(); });
             },
             saveScreen: () => void act("screen", { day: st.openDay, ...app.screen }).then(() => { app.screen = {}; render(); }),

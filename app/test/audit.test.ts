@@ -58,6 +58,10 @@ for (const cat of Object.values(catalogues)) {
     for (const r of Object.values(cat.reasons)) {
       check("reason", rejected({ ind: "mood", dir: -1, to: null, value: r, n: 0, cls: "safety", item: "", share: false, screen: false }));
     }
+    for (const a of inds) for (const b of inds) for (const dir of [1, -1] as const) {
+      check("group", cat.group([{ ind: a, since: 93, dir }, { ind: b, since: 104, dir: -1 }]));
+      check("group3", cat.group([{ ind: a, since: 93, dir }, { ind: b, since: 102, dir }, { ind: "mood", since: 104, dir }]));
+    }
     for (const ind of inds) {
       check("insight.inside", cat.insight.inside(ind, 7, 10));
       check("insight.outside", cat.insight.outside(ind, "lower", 0, 10));

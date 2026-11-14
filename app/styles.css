@@ -126,7 +126,10 @@ main { grid-area: main; overflow-y: auto; container-type: inline-size; }
 .about dd { margin: 0; }
 .about a { color: var(--text); text-underline-offset: 3px; }
 .stepper { display: grid; grid-template-columns: minmax(120px, 1fr) var(--hit) minmax(150px, auto) var(--hit); align-items: center; gap: 12px; }
-.stepper__label { font-weight: 650; }
+.stepper__label { font-weight: 650; display: flex; flex-direction: column; gap: 2px; }
+.stepper__hint { font-size: var(--t-foot); font-weight: 500; color: var(--muted); }
+.stepper--untouched .stepper__value { color: var(--muted); }
+.stepper__keep { min-height: var(--hit); border: 1px dashed var(--line); border-radius: var(--r-m); background: none; font: inherit; font-size: var(--t-title3); font-weight: 700; cursor: pointer; }
 .stepper__btn { min-height: var(--hit); border-radius: var(--r-m); border: 2px solid var(--accent); background: var(--surface); color: var(--text); font-size: 32px; font-weight: 700; cursor: pointer; }
 .stepper__value { text-align: center; font-size: var(--t-title3); font-weight: 700; font-variant-numeric: tabular-nums slashed-zero; }
 @media (max-width: 600px) { .about dl { grid-template-columns: 1fr; } .stepper { grid-template-columns: 1fr var(--hit) auto var(--hit); } }
@@ -146,7 +149,6 @@ button.secondary { background: var(--surface); border: 2px solid var(--accent); 
 button.ghost { background: none; border: 2px solid var(--line); color: var(--text); }
 /* Disabled keeps 6:1 text (R3); a dashed edge says it, never fading. */
 button:disabled, button.primary:disabled { background: var(--ground); color: var(--muted); border: 2px dashed var(--line); cursor: not-allowed; }
-.readonly { font-size: var(--t-foot); color: var(--text); border: 1px dashed var(--line); border-radius: var(--r-m); padding: 12px 16px; max-width: 70ch; }
 .row { display: flex; gap: 16px; flex-wrap: wrap; }
 .row--big > * { flex: 1 1 260px; }
 
@@ -229,6 +231,13 @@ input.scrub::-moz-range-thumb { width: 44px; height: 64px; border-radius: var(--
 
 /* Today: tonight's value in the usual range (signature move in miniature). */
 .ranges { display: flex; flex-direction: column; gap: 14px; padding: 22px 24px; }
+.ranges__lede { max-width: 60ch; }
+.held { color: var(--muted); border: 1px dashed var(--line); border-radius: var(--r-l); padding: 18px 22px; }
+.screener > summary { min-height: var(--hit); display: flex; flex-direction: column; justify-content: center; gap: 4px; cursor: pointer; list-style: none; }
+.screener > summary::-webkit-details-marker { display: none; }
+.screener__open { color: var(--text); font-weight: 650; }
+.screener__open::after { content: " ›"; }
+.screener[open] .screener__open { display: none; }
 .rbar { display: grid; grid-template-columns: 110px 1fr; gap: 16px; align-items: center; }
 .rbar__track { position: relative; height: 40px; border-radius: var(--r-s); background: var(--ground); border: 1px solid var(--line); }
 .rbar__range { position: absolute; top: 6px; bottom: 6px; background: var(--corridor); border-radius: 6px; opacity: 0.9; }
@@ -258,9 +267,9 @@ input.scrub::-moz-range-thumb { width: 44px; height: 64px; border-radius: var(--
 .limit { stroke: var(--warning); stroke-width: 2; stroke-dasharray: 2 6; }
 .limit__label, .safety-mark__label { fill: var(--warning); font-size: 16px; font-weight: 650; }
 .safety-mark { fill: var(--warning); }
-.episode { fill: none; stroke: var(--caution); stroke-width: 2; rx: 4; }
+.episode { fill: var(--caution); }
+.episode__leader { stroke: var(--caution); stroke-width: 1.5; stroke-dasharray: 2 3; fill: none; }
 .episode__glyph { fill: var(--caution); }
-.episode__num { fill: var(--caution); font-size: 16px; font-weight: 700; }
 .episode__label { fill: var(--caution); font-size: 16px; font-weight: 650; paint-order: stroke; stroke: var(--surface); stroke-width: 5px; }
 .strip__in { fill: var(--muted); }
 .strip__gap { fill: var(--line); }
@@ -274,7 +283,7 @@ input.scrub::-moz-range-thumb { width: 44px; height: 64px; border-radius: var(--
 .key--corridor::before { background: var(--corridor); }
 .key--benchmark::before { height: 0; border-top: 3px dashed var(--contour); vertical-align: 4px; }
 .key--hinge::before { width: 14px; border-radius: 50%; border: 3px solid var(--accent); }
-.key--episode::before { border: 2px solid var(--caution); }
+.key--episode::before { height: 6px; background: var(--caution); vertical-align: 3px; }
 
 .actions { display: flex; flex-direction: column; gap: 14px; padding: 22px 24px; }
 .datatable summary { min-height: var(--hit); display: flex; align-items: center; cursor: pointer; color: var(--text); font-weight: 650; }
@@ -291,7 +300,6 @@ input.scrub::-moz-range-thumb { width: 44px; height: 64px; border-radius: var(--
 .log__row--waiting .chip, .log__row--undeliverable .chip { border-color: var(--text); color: var(--text); }
 .group { gap: 0; }
 .group > h2 { padding: 0 6px 10px; }
-.group > .readonly { margin-bottom: 10px; }
 .setting { display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: var(--hit); padding: 10px 14px 10px 22px; background: var(--surface); border: 1px solid var(--line); border-top: 0; }
 .group > .setting:first-of-type { border-top: 1px solid var(--line); border-radius: var(--r-l) var(--r-l) 0 0; }
 .group > .setting:last-child { border-radius: 0 0 var(--r-l) var(--r-l); }
@@ -326,9 +334,15 @@ input.scrub::-moz-range-thumb { width: 44px; height: 64px; border-radius: var(--
 @media (max-width: 600px) {
   :root { --t-large: 32px; }
   .status { gap: 8px; padding-block: 10px; }
-  .pill { min-height: 40px; padding: 0 12px; }
-  .replay, .replay:has(.ghost) { grid-template-columns: minmax(0, 1fr) auto; }
-  .replay > p { grid-column: 1 / -1; }
+  .pill { min-height: 36px; padding: 0 12px; font-size: var(--t-foot); }
+  /* Two rows: name, day and the menu first; the two status pills below (they inform, they are not tapped). */
+  .status__more { order: 1; }
+  .status__more summary { min-height: 44px; padding: 0 14px; }
+  .status .link, .status .badge { order: 2; }
+  .long { display: none; }
+  /* Replay bar in one row: the status bar above already names the day and "Synthetic replay". */
+  .replay, .replay:has(.ghost) { grid-template-columns: minmax(0, 1fr) auto; padding-block: 8px; }
+  .replay > p { display: none; }
   .replay > input { grid-column: auto; }
   .replay:has(.ghost) > button { grid-column: auto; }
   .replay button { padding: 0 14px; font-size: var(--t-sub); }

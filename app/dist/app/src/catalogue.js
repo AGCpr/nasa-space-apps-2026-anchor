@@ -43,7 +43,8 @@ const UI_EN = {
     nothingToday: "No notes today.",
     aboutTitle: "About this measure",
     vitalsTitle: "Morning measurements",
-    vitalsHint: "Measured with the station's medical kit. Each value is checked against your safety lines as soon as it is saved.",
+    vitalsHint: "Measured with the station's medical kit. Set the ones you took today; each is checked against your safety lines as soon as it is saved.",
+    lastReading: "Last reading: tap the value to keep it",
     saveVitals: "Save measurements",
     kernelAgree: "Independent safety check: both versions agreed on every value shown.",
 };
@@ -51,6 +52,15 @@ const cap = (x) => `${x[0].toUpperCase()}${x.slice(1)}`;
 const label = (s) => en.indicator[s.ind]?.label ?? s.ind.replace(/_/g, " ");
 const who = (to) => (to === null ? "no one yet" : (en.recipient[to] ?? to));
 const lower = (s) => (s.dir === -1 ? "lower" : "higher");
+const FEELINGS = ["mood", "energy", "calm"];
+/** What usually lies behind a sustained change, by kind of measure; body measures get no guessed cause. */
+const context = (ind) => FEELINGS.includes(ind)
+    ? { why: "Most often this follows a heavy work block or shorter sleep.", action: "look at what changed this week; talking it through with someone you trust is one option" }
+    : ind === "sleep_min"
+        ? { why: "Shifted schedules and heavy work blocks are the usual reasons.", action: "protect your sleep window this week; your flight surgeon can help if it continues" }
+        : { why: "Measuring the same way each time keeps this picture fair.", action: "measure as described on Course for the next few days; if it stays, mention it to your flight surgeon" };
+/** Join labels as "a", "a and b", "a, b and c". */
+const list = (xs) => (xs.length < 2 ? (xs[0] ?? "") : `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}`);
 export const en = {
     locale: "en",
     indicator: {
@@ -197,8 +207,8 @@ export const en = {
         Alarm: (s) => ({
             register: "caution",
             title: `${label(s)[0].toUpperCase()}${label(s).slice(1)} has stayed ${lower(s)} than usual`,
-            text: `For several days your ${label(s)} has stayed ${lower(s)} than your usual range. Most often this follows a heavy work block or shorter sleep. This note closes after 3 days back in your range.`,
-            action: "look at what changed this week; talking it through with someone you trust is one option",
+            text: `For several days your ${label(s)} has stayed ${lower(s)} than your usual range. ${context(s.ind).why} This note closes after 3 days back in your range.`,
+            action: context(s.ind).action,
             owner: "You",
         }),
         AlarmCleared: (s) => ({
@@ -349,6 +359,22 @@ export const en = {
         "link state unchanged": "it was already set that way",
     },
     ui: UI_EN,
+    group: (items) => {
+        const feelings = items.every((x) => FEELINGS.includes(x.ind) || x.ind === "sleep_min");
+        const body = items.every((x) => !FEELINGS.includes(x.ind) && x.ind !== "sleep_min");
+        const ctx = feelings ? context("mood") : body ? context("spo2") : { why: "", action: "look at each one on Course; if a body measure stays away from usual, mention it to your flight surgeon" };
+        // Start days in the sentence only while it stays short; "Why this note?" always lists them.
+        const named = items.map((x) => `${en.indicator[x.ind]?.label ?? x.ind}${items.length > 2 ? "" : ` (since day ${x.since})`}`);
+        const same = items.every((x) => x.dir === items[0].dir);
+        const way = same ? `${items[0].dir === -1 ? "lower" : "higher"} than` : "away from";
+        return {
+            register: "caution",
+            title: `${items.length} measures have stayed ${way} usual`,
+            text: `For several days your ${list(named)} have stayed ${way} your usual range.${ctx.why ? ` ${ctx.why}` : ""} Each closes after 3 days back in its range.`,
+            action: ctx.action,
+            owner: "You",
+        };
+    },
     insight: {
         inside: (ind, below, of) => ({
             register: "info",

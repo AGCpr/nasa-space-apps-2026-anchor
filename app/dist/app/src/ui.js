@@ -56,7 +56,11 @@ export function popUp(name, groups, current, onPick) {
 /** Stepper for a measured value: large minus and plus targets around the value (R7), no typing. */
 export function stepper(opts) {
     const show = (v) => `${v.toFixed(opts.decimals)} ${opts.unit}`;
-    return h("div", { class: "stepper", role: "group", "aria-labelledby": `${opts.id}-l` }, h("span", { id: `${opts.id}-l`, class: "stepper__label" }, opts.label), h("button", { type: "button", class: "stepper__btn", "aria-label": `Lower ${opts.label}`, disabled: opts.disabled, onclick: () => opts.onChange(opts.value - opts.step) }, "−"), h("output", { class: "stepper__value", "aria-live": "polite" }, show(opts.value)), h("button", { type: "button", class: "stepper__btn", "aria-label": `Raise ${opts.label}`, disabled: opts.disabled, onclick: () => opts.onChange(opts.value + opts.step) }, "+"));
+    return h("div", { class: `stepper${opts.hint ? " stepper--untouched" : ""}`, role: "group", "aria-labelledby": `${opts.id}-l` }, h("span", { id: `${opts.id}-l`, class: "stepper__label" }, opts.label, opts.hint ? h("span", { class: "stepper__hint" }, opts.hint) : null), h("button", { type: "button", class: "stepper__btn", "aria-label": `Lower ${opts.label}`, disabled: opts.disabled, onclick: () => opts.onChange(opts.value - opts.step) }, "−"), 
+    // Untouched, the value is the last reading: tapping it keeps it as today's (HIG entering-data: prefill, then confirm).
+    opts.hint
+        ? h("button", { type: "button", class: "stepper__value stepper__keep", "aria-label": `Keep ${show(opts.value)} as today's ${opts.label}`, disabled: opts.disabled, onclick: () => opts.onChange(opts.value) }, show(opts.value))
+        : h("output", { class: "stepper__value", "aria-live": "polite" }, show(opts.value)), h("button", { type: "button", class: "stepper__btn", "aria-label": `Raise ${opts.label}`, disabled: opts.disabled, onclick: () => opts.onChange(opts.value + opts.step) }, "+"));
 }
 /**
  * Bipolar slider (R9, R15): the whole track takes the press, the value follows the finger and

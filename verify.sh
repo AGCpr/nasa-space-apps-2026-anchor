@@ -36,7 +36,9 @@ node app/scripts/build-demo.ts
 
 echo "== interface: typecheck, build, language audit, tokens, boundary"
 TSC=kernel-b/node_modules/.bin/tsc
-$TSC -p app && $TSC -p app/tsconfig.test.json
+# One command per line: under set -e, a failure left of && would not stop the run.
+$TSC -p app
+$TSC -p app/tsconfig.test.json
 (cd app && node --test --test-reporter=dot test/*.test.ts)
 
 echo "all checks passed"

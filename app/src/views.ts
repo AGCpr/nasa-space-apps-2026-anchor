@@ -42,8 +42,6 @@ export type Ctx = {
 };
 
 const SLIDERS = ["mood", "energy", "calm"];
-/** Replay is read-only; say so where the controls are rather than leave them silently dimmed. */
-const readOnly = (x: Ctx) => (x.mode === "replay" ? h("p", { class: "readonly" }, `Replay is read-only. Choose “${x.cat.ui.continueHere}” below to try this.`) : null);
 
 const RANK: Record<Msg["register"], number> = { warning: 0, caution: 1, advisory: 2, info: 3 };
 
@@ -151,6 +149,18 @@ function why(c: Catalogue, st: State, n: Note, s: Slots): Why | undefined {
 
 // ---------- Today ----------
 
+function grouped(c: Catalogue, alarms: { i: Indicator; m: Msg; h: number }[]): Msg {
+  const m = c.group(alarms.map((a) => ({ ind: a.i.key, since: a.i.alarmDay!, dir: a.i.dir })));
+  const areas = new Set(alarms.map((a) => c.area[a.i.key]?.url));
+  const lines = [
+    ...alarms.map((a) => `${cap(label(c, a.i.key))}: evidence of a sustained shift passed your personal threshold (${a.h.toFixed(1)}) on day ${a.i.alarmDay}.`),
+    "Rule: each threshold is set so that a stable person sees a note like this about once in 30 days or less.",
+    "Closes: each one after 3 days back in its usual range, or when you set a new normal.",
+  ];
+  const area = areas.size === 1 ? c.area[alarms[0]!.i.key] : undefined;
+  return { ...m, why: area ? { lines, area } : { lines } };
+}
+
 function rangeBar(c: Catalogue, i: Indicator, tonight: number | null): HTMLElement | null {
   const last = i.stats.at(-1);
   if (!last) return null;
@@ -220,6 +230,7 @@ export function today(x: Ctx): HTMLElement {
   const body: (HTMLElement | null)[] = [];
   if (!done && x.canAct) {
     const ready = SLIDERS.every((k) => x.draft[k] !== undefined);
+    const sameDest = new Set(SLIDERS.map((k) => shareState(c, st, k))).size === 1;
     body.push(
       h("p", { class: "lede" }, c.ui.checkinHint),
       ...SLIDERS.map((k) => {
@@ -228,30 +239,33 @@ export function today(x: Ctx): HTMLElement {
           "div",
           { class: "item" },
           bipolar({ id: `sl-${k}`, label: cap(l.label), low: l.low, mid: l.mid, high: l.high, value: x.draft[k] ?? null, notRated: c.ui.notAnswered, disabled: false, onCommit: (v) => x.act.setDraft(k, v) }),
-          h("p", { class: "share-state" }, h("span", { class: "marg" }, "Where it goes"), ` ${shareState(c, st, k)}`),
+          sameDest ? null : h("p", { class: "share-state" }, h("span", { class: "marg" }, "Where it goes"), ` ${shareState(c, st, k)}`),
         );
       }),
+      sameDest ? h("p", { class: "share-state" }, h("span", { class: "marg" }, "Where it goes"), ` ${shareState(c, st, SLIDERS[0]!)}`) : null,
       h("button", { type: "button", class: "primary", disabled: !ready, onclick: () => x.act.saveCheckin() }, c.ui.save),
     );
   } else if (!done) {
     body.push(h("p", { class: "lede" }, "No check-in on this day."));
   } else {
     const m = insight(c, st, values);
-    if (m) body.push(card(m));
     const bars = SLIDERS.map((k) => {
       const i = st.indicators.get(k);
       return i ? rangeBar(c, i, values[k] ?? null) : null;
     }).filter((b) => b !== null);
-    if (bars.length) body.push(h("section", { class: "ranges" }, h("h2", { class: "marg" }, "Tonight in your usual range"), ...bars, h("p", { class: "fine" }, `${c.ui.rangeNote} Dashed mark: your pre-flight level.`)));
+    if (bars.length) body.push(h("section", { class: "ranges" }, h("h2", { class: "marg" }, "Tonight in your usual range"), m ? h("p", { class: "ranges__lede" }, m.text) : null, ...bars, h("p", { class: "fine" }, `${c.ui.rangeNote} Dashed mark: your pre-flight level.`)));
   }
   // Open states first (one note per episode), then this day's notes.
   const open: Msg[] = [];
+  const alarms: { i: Indicator; m: Msg; h: number }[] = [];
   for (const i of st.indicators.values()) {
     if (i.alarmDay === null) continue;
     const n = [...st.notes].reverse().find((z) => z.out.t === "Alarm" && "indicator" in z.out && z.out.indicator === i.key);
     const m = n && message(c, st, n);
-    if (m) open.push({ ...m, title: `${m.title} (since day ${i.alarmDay})` });
+    if (m && n.out.t === "Alarm") alarms.push({ i, m, h: n.out.h });
   }
+  if (alarms.length === 1) open.push({ ...alarms[0]!.m, title: `${alarms[0]!.m.title} (since day ${alarms[0]!.i.alarmDay})` });
+  else if (alarms.length > 1) open.push(grouped(c, alarms));
   if (st.missingness) {
     const n = [...st.notes].reverse().find((z) => z.out.t === "MissingnessAlarm");
     const m = n && message(c, st, n);
@@ -263,7 +277,10 @@ export function today(x: Ctx): HTMLElement {
     .filter((n, _, all) => n.out.t !== "OfferExtraSample" || all.find((z) => z.out.t === "OfferExtraSample") === n)
     .map((n) => message(c, st, n))
     .filter((m): m is Msg => m !== null);
-  const notes = [...open, ...dayNotes].sort((a, b) => RANK[a.register] - RANK[b.register]);
+  const all = [...open, ...dayNotes].sort((a, b) => RANK[a.register] - RANK[b.register]);
+  const rating = !done && x.canAct;
+  const notes = rating ? all.filter((m) => m.register === "warning") : all;
+  const held = all.length - notes.length;
   const recent = [...st.checkinDays].filter((d) => d > shownDay - 14 && d <= shownDay).length;
   const queued = [...st.shares.values()].filter((sh) => sh.day === shownDay).length;
   return h(
@@ -278,7 +295,8 @@ export function today(x: Ctx): HTMLElement {
         "section",
         { class: "col notes" },
         h("h2", { class: "marg" }, "Notes"),
-        ...(notes.length ? notes.map((m) => card(m)) : [h("p", {}, c.ui.nothingToday)]),
+        ...notes.map((m) => card(m)),
+        held ? h("p", { class: "held" }, `${held} note${held > 1 ? "s" : ""} about your own data ${held > 1 ? "appear" : "appears"} once you save tonight's check-in.`) : notes.length ? null : h("p", {}, c.ui.nothingToday),
         h("p", { class: "fine" }, `Coverage: ${recent} check-ins in the last 14 days.${queued ? ` ${queued} item${queued > 1 ? "s" : ""} listed on Sharing today.` : ""}`),
       ),
     ),
@@ -301,12 +319,14 @@ function vitalsCard(x: Ctx): HTMLElement | null {
     h("p", { class: "fine" }, c.ui.vitalsHint),
     ...keys.map((k) => {
       const i = st.indicators.get(k)!;
+      const touched = x.vitals[k] !== undefined;
       const v = x.vitals[k] ?? [...i.values.values()].at(-1)?.[0] ?? 0;
       return stepper({ id: `v-${k}`, label: cap(label(c, k).replace(/ \(.*\)/, "")), value: shown(i, v), step: STEP[k]! / 10 ** i.decimals, decimals: i.decimals, unit: c.indicator[k]?.unit ?? "", disabled: false,
+        hint: touched ? undefined : c.ui.lastReading,
         onChange: (n) => x.act.setVital(k, Math.round(n * 10 ** i.decimals)) });
     }),
     h("p", { class: "share-state" }, h("span", { class: "marg" }, "Where it goes"), ` ${c.ui.staysHere} Values past a pre-agreed safety line go to ${who(c, st.routes.get("safety")?.[0] ?? null)}.`),
-    h("button", { type: "button", class: "secondary", onclick: () => x.act.saveVitals() }, c.ui.saveVitals));
+    h("button", { type: "button", class: "secondary", disabled: Object.keys(x.vitals).length === 0, onclick: () => x.act.saveVitals() }, c.ui.saveVitals));
 }
 
 /** "About this measure": how to take it, why it changes in space, what helps, its safety line. */
@@ -393,29 +413,21 @@ function corridorChart(c: Catalogue, st: State, i: Indicator, g: Geo): SVGElemen
     svg.append(s("line", { x1: g.padL, x2: g.W - g.padR, y1: y(t), y2: y(t), class: "contour" }));
     svg.append(s("text", { x: g.padL - 10, y: y(t) + 6, class: "axis", "text-anchor": "end" }, `${+t.toFixed(2)}`));
   }
-  // Sustained-change episodes: a caution band along the top edge (shape + label, R2).
+  // Sustained-change episodes: a caution bar over the days they cover, and one label per episode,
+  // starting at its triangle (shape + words, R2). Two label lanes keep neighbours apart.
   const laneEnd = [-Infinity, -Infinity];
-  let n = 0;
   for (const e of episodes(st, i.key, g.upto)) {
     const x0 = g.x(e.from), x1 = g.x(Math.min(e.to ?? g.upto, g.upto));
-    svg.append(s("rect", { x: x0, y: 6, width: Math.max(4, x1 - x0), height: 26, class: "episode" }));
-    svg.append(s("path", { d: `M${x0 + 8} 28 l8 -16 l8 16z`, class: "episode__glyph" }));
-    n++;
-    const text = `${n} · Change noticed · day ${e.from}${e.to ? `–${e.to}` : ""}`;
-    // Only where it fits inside its band; the caption lists every episode (R2: label + shape).
-    // Always labelled (R2): inside when it fits, otherwise a short label beside the box.
-    if (x1 - x0 - 36 >= text.length * 8.5) svg.append(s("text", { x: x0 + 30, y: 25, class: "episode__label" }, text));
-    else {
-      // Below the boxes, in the first free lane; the number ties it to its box.
-      svg.append(s("text", { x: Math.max(x0 + 30, x1 + 6), y: 25, class: "episode__num" }, String(n))); // beside a narrow box, never on its edge
-      const w = text.length * 8.5;
-      const lx = Math.max(4, Math.min(x0, g.W - 4 - w));
-      const lane = laneEnd.findIndex((end) => lx > end + 12);
-      if (lane >= 0) {
-        laneEnd[lane] = lx + w;
-        svg.append(s("text", { x: lx, y: 54 + 22 * lane, class: "episode__label" }, text));
-      }
-    }
+    const text = `Change noticed · day ${e.from}${e.to ? `–${e.to}` : " on"}`;
+    const w = text.length * 8.5 + 26;
+    const lx = Math.max(g.padL, Math.min(x0, g.W - 4 - w));
+    const lane = Math.max(0, laneEnd.findIndex((end) => lx > end + 16));
+    laneEnd[lane] = lx + w;
+    const ly = 24 + 30 * lane;
+    svg.append(s("rect", { x: x0, y: 74, width: Math.max(6, x1 - x0), height: 6, rx: 3, class: "episode" }));
+    svg.append(s("path", { d: `M${x0} 74 V${ly + 6}`, class: "episode__leader" }));
+    svg.append(s("path", { d: `M${lx} ${ly + 2} l8 -16 l8 16z`, class: "episode__glyph" }));
+    svg.append(s("text", { x: lx + 24, y: ly, class: "episode__label" }, text));
   }
   // The corridor: the personal range, as a band per run of consecutive days.
   for (const r of runs(pts)) {
@@ -568,17 +580,17 @@ export function course(x: Ctx): HTMLElement {
         h("span", { class: "key key--episode" }, "Change noticed"),
       ),
       last ? h("p", { class: "fine sheet__detail" }, `${covered} of ${upto} days with data. Latest usual range ${statShown(i, last.lo).toFixed(i.slider ? 0 : 1)} to ${statShown(i, last.hi).toFixed(i.slider ? 0 : 1)}.${eps.length ? ` Change noticed on days ${eps.join(", ")}.` : ""}`) : null,
+      table,
     ),
-    h("div", { class: "cols" }, h("div", { class: "col" }, about(c, st, k), h("p", { class: "fine" }, c.ui.rangeNote), table),
+    h("div", { class: "cols" }, h("div", { class: "col" }, about(c, st, k)),
     h(
       "section",
       { class: "col actions" },
       h("h2", { class: "marg" }, "Your reference"),
-      readOnly(x),
       h("p", {}, c.ui.newNormalNote),
-      h("div", { class: "row" },
-        h("button", { type: "button", class: "secondary", disabled: !x.canAct, onclick: () => x.act.reanchor(k, false) }, c.ui.newNormal),
-        active ? h("button", { type: "button", class: "secondary", disabled: !x.canAct, onclick: () => x.act.reanchor(k, true) }, c.ui.undoNormal) : null),
+      active
+        ? h("button", { type: "button", class: "secondary", disabled: !x.canAct, onclick: () => x.act.reanchor(k, true) }, c.ui.undoNormal)
+        : h("button", { type: "button", class: "secondary", disabled: !x.canAct, onclick: () => x.act.reanchor(k, false) }, c.ui.newNormal),
     )),
   );
 }
@@ -604,6 +616,18 @@ function payloadWords(c: Catalogue, st: State, sh: Share): string {
   }
 }
 
+/** Consecutive log entries that read the same (class, recipient, status, payload words) form one run. */
+function logRuns(c: Catalogue, st: State, shares: Share[]): Share[][] {
+  const out: Share[][] = [];
+  const key = (sh: Share) => `${sh.cls}|${sh.to}|${sh.status}|${payloadWords(c, st, sh)}`;
+  for (const sh of shares) {
+    const last = out.at(-1);
+    if (last && key(last[0]!) === key(sh)) last.push(sh);
+    else out.push([sh]);
+  }
+  return out;
+}
+
 const STATUS: Record<Share["status"], string> = { waiting: "Waiting to send", sent: "Sent", cancelled: "Not sent", undeliverable: "Waiting on this tablet" };
 
 export function sharing(x: Ctx): HTMLElement {
@@ -620,24 +644,30 @@ export function sharing(x: Ctx): HTMLElement {
     h("figure", { class: "sheet sheet--strip" }, strip(st, geo(upto, x.sheetWidth), { shares: true }), h("figcaption", {}, "Check-ins, loss of signal, and each listed item (top row) by mission day.")),
     h("div", { class: "cols" }, h("div", { class: "col" },
     h("section", { class: "block" }, h("h2", { class: "marg" }, `Sharing log · ${shares.length} items`),
-      shares.length === 0 ? h("p", {}, "Nothing has been listed yet.") : h("ol", { class: "log" }, ...shares.slice(0, 40).map((sh) =>
-        h("li", { class: `log__row log__row--${sh.status}` },
-          h("span", { class: "log__day" }, `Day ${sh.day}`),
-          h("span", { class: "log__what" }, h("strong", {}, c.shareClass[sh.cls]), ` to ${who(c, sh.to)}`, h("br", {}), h("span", { class: "fine" }, payloadWords(c, st, sh))),
-          h("span", { class: "chip" }, STATUS[sh.status])))))),
+      shares.length === 0 ? h("p", {}, "Nothing has been listed yet.") : h("ol", { class: "log" }, ...logRuns(c, st, shares).map((r) => {
+        const sh = r[0]!;
+        const days = r.map((z) => z.day).reverse();
+        return h("li", { class: `log__row log__row--${sh.status}` },
+          h("span", { class: "log__day" }, r.length > 1 ? `Days ${days[0]}–${days.at(-1)}` : `Day ${sh.day}`),
+          h("span", { class: "log__what" }, h("strong", {}, c.shareClass[sh.cls]), ` to ${who(c, sh.to)}${r.length > 1 ? ` · ${r.length} times` : ""}`, h("br", {}),
+            h("span", { class: "fine" }, payloadWords(c, st, sh), r.length > 1 ? ` On days ${days.join(", ")}.` : "")),
+          h("span", { class: "chip" }, STATUS[sh.status]));
+      })))),
     h("div", { class: "col" },
-    h("section", { class: "block group" }, h("h2", { class: "marg" }, "Weekly summaries (your choice)"), readOnly(x),
+    h("section", { class: "block group" }, h("h2", { class: "marg" }, "Weekly summaries (your choice)"),
       ...[...st.indicators.values()].map((i) => h("div", { class: "setting" },
-        h("span", {}, cap(label(c, i.key)), h("br", {}), h("span", { class: "fine" }, i.shared ? `To ${who(c, st.routes.get("summary")?.[0] ?? null)}, once a week.` : c.ui.staysHere)),
+        h("span", {}, cap(label(c, i.key)), i.shared ? h("br", {}) : null, i.shared ? h("span", { class: "fine" }, `To ${who(c, st.routes.get("summary")?.[0] ?? null)}, once a week.`) : null),
         toggle(i.shared, "Shared weekly", "Not shared", () => x.act.shareCategory(i.key, !i.shared), !x.canAct)))),
     h("section", { class: "block group" }, h("h2", { class: "marg" }, "Safety lines agreed before flight"),
+      h("p", { class: "fine" }, `A value past one of these lines always goes to ${who(c, st.routes.get("safety")?.[0] ?? null)}. Two independently written checks evaluate every value.`),
       ...(st.table?.lines ?? []).map((l) => {
         const i = st.indicators.get(l.indicator);
         const what = l.high ? `A yes to ${c.item[l.indicator]?.label ?? l.indicator}` : `${cap(label(c, l.indicator))} ${l.op} ${i ? fmt(c, i, l.limit) : l.limit}`;
         return h("div", { class: "setting" },
-          h("span", {}, what, h("br", {}), h("span", { class: "fine" }, l.high ? (l.share ? `Goes to ${who(c, st.routes.get("safety")?.[0] ?? null)}, as you chose.` : c.ui.staysHere) : `Always goes to ${who(c, st.routes.get("safety")?.[0] ?? null)}: agreed before flight.`)),
+          h("span", {}, what, l.high ? h("br", {}) : null, l.high ? h("span", { class: "fine" }, l.share ? `Goes to ${who(c, st.routes.get("safety")?.[0] ?? null)}, as you chose.` : c.ui.staysHere) : null),
           l.high ? toggle(l.share, "Shared", "Stays here", () => x.act.consent(l.id, !l.share), !x.canAct) : h("span", { class: "chip" }, "Fixed"));
-      })),
+      }),
+      kernelLine(x)),
     h("section", { class: "block group" }, h("h2", { class: "marg" }, "People"),
       ...[...st.recipients.entries()].map(([k, r]) => h("div", { class: "setting" },
         h("span", {}, cap(who(c, k)), h("br", {}), h("span", { class: "fine" }, `${r.crew ? "On board" : "On the ground"} · receives ${[...st.routes.entries()].filter(([, to]) => to.includes(k)).map(([cl]) => c.shareClass[cl].toLowerCase()).join(", ") || "nothing"}`)),
@@ -648,6 +678,15 @@ export function sharing(x: Ctx): HTMLElement {
   );
 }
 
+/** The N-version comparison result, beside the safety lines it protects. */
+function kernelLine(x: Ctx): HTMLElement | null {
+  const k = x.kernel;
+  if (k.compared === 0) return null;
+  return h("p", { class: "fine" }, k.disagreements === 0
+    ? `${x.cat.ui.kernelAgree} (${k.compared} values compared${k.injected ? "; kernel B deliberately altered for this demonstration" : ""}).`
+    : `Independent safety check: ${k.disagreements} of ${k.compared} values gave different results in the two versions; each is recorded and treated as unconfirmed.`);
+}
+
 // ---------- Support ----------
 
 export function support(x: Ctx): HTMLElement {
@@ -655,14 +694,14 @@ export function support(x: Ctx): HTMLElement {
   const items = (st.table?.lines ?? []).filter((l) => l.high);
   const reqStatus = (cls: "ppc" | "crew") => {
     const last = [...st.shares.values()].reverse().find((sh) => sh.cls === cls);
-    return last ? `Last asked on day ${last.day}: ${STATUS[last.status].toLowerCase()}${last.to ? `, to ${who(c, last.to)}` : ""}.` : "";
+    return last ? `Last asked on day ${last.day}: ${STATUS[last.status].toLowerCase()}.` : "";
   };
   const supportShown = st.notes.some((n) => n.out.t === "PrivateSupport" && n.day >= st.lastClosed);
   const answered = items.every((l) => x.screen[l.indicator] !== undefined);
   return h(
     "section",
     { class: "view" },
-    h("header", { class: "view__head" }, h("h1", {}, "Support"), h("p", { class: "subtitle" }, "A person, whenever you want one. Asking needs no reason."), readOnly(x)),
+    h("header", { class: "view__head" }, h("h1", {}, "Support"), h("p", { class: "subtitle" }, "A person, whenever you want one. Asking needs no reason.")),
     h("div", { class: "cols" }, h("div", { class: "col" },
     h("div", { class: "row row--big" },
       h("div", { class: "reach" },
@@ -673,13 +712,12 @@ export function support(x: Ctx): HTMLElement {
         h("p", { class: "fine" }, `Goes to ${who(c, st.routes.get("crew")?.[0] ?? null)}. Only the request is sent. ${reqStatus("crew")}`))),
     h("section", { class: `block plan${supportShown ? " plan--open" : ""}` }, h("h2", { class: "marg" }, c.ui.planTitle), h("ul", {}, h("li", {}, c.ui.plan1), h("li", {}, c.ui.plan2), h("li", {}, c.ui.plan3)), h("p", { class: "fine" }, "Your plan stays on this tablet."))),
     h("div", { class: "col" },
-    h("section", { class: "block group" }, h("h2", { class: "marg" }, c.ui.screenerTitle), h("p", {}, c.ui.screenerIntro),
+    h("details", { class: "block group screener" }, h("summary", {}, h("span", { class: "marg" }, c.ui.screenerTitle), h("span", { class: "screener__open" }, "Open the two questions")), h("p", {}, c.ui.screenerIntro),
       ...items.map((l) => h("div", { class: "question" },
         h("p", { class: "question__text" }, c.item[l.indicator]?.question ?? l.indicator),
         h("p", { class: "share-state" }, h("span", { class: "marg" }, "If you answer yes"), ` ${l.share ? `${cap(who(c, st.routes.get("safety")?.[0] ?? null))} is told that you answered yes, as you agreed before flight. Nothing else is sent.` : "It stays on this tablet."}`),
         segmented(c.item[l.indicator]?.question ?? l.indicator, [{ value: "0", label: c.ui.no }, { value: "1", label: c.ui.yes }], (x.screen[l.indicator] === undefined ? "" : String(x.screen[l.indicator])) as "0" | "1", (v) => x.act.setScreen(l.indicator, v === "1" ? 1 : 0), "seg--answer"))),
       h("button", { type: "button", class: "secondary", disabled: !x.canAct || !answered, onclick: () => x.act.saveScreen() }, c.ui.sendAnswers),
-      h("p", { class: "fine" }, c.ui.screenerPlaceholder)),
-    h("p", { class: "fine" }, x.kernel.compared === 0 ? "" : x.kernel.disagreements === 0 ? `${c.ui.kernelAgree} (${x.kernel.compared} values compared${x.kernel.injected ? "; kernel B deliberately altered for this demonstration" : ""}).` : `Independent safety check: ${x.kernel.disagreements} of ${x.kernel.compared} values gave different results in the two versions; each is recorded and treated as unconfirmed.`))),
+      h("p", { class: "fine" }, c.ui.screenerPlaceholder)))),
   );
 }
