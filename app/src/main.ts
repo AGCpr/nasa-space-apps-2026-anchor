@@ -114,22 +114,28 @@ async function compare(e: Event, table: { text: string; digest: string }, record
   }
 }
 
-function tableAt(events: readonly Event[]): { text: string; digest: string } | null {
-  let t: { text: string; digest: string } | null = null;
-  for (const e of events) {
-    if (e.kind === "safety_table" && !e.out.some((o) => o.t === "Rejected")) t = { text: String(e.f.table_txt), digest: String(e.f.digest_txt) };
-    for (const o of e.out) if (o.t === "ConsentChanged") t = { text: o.table, digest: o.digest };
-  }
+type Table = { text: string; digest: string };
+/** The safety table in force after event e, given the one in force before it. */
+function tableAfter(t: Table | null, e: Event): Table | null {
+  if (e.kind === "safety_table" && !e.out.some((o) => o.t === "Rejected")) t = { text: String(e.f.table_txt), digest: String(e.f.digest_txt) };
+  for (const o of e.out) if (o.t === "ConsentChanged") t = { text: o.table, digest: o.digest };
   return t;
 }
 
-/** Audit of a loaded history: kernel B over every past value, displayed, not appended. */
+function tableAt(events: readonly Event[]): Table | null {
+  return events.reduce<Table | null>(tableAfter, null);
+}
+
+/** Audit of a loaded history: kernel B over every past value, displayed, not appended. One pass,
+ *  yielding to the browser every 64 events so the audit never blocks input (Lighthouse TBT). */
 async function auditHistory(events: readonly Event[]) {
   app.kernel.compared = 0;
   app.kernel.disagreements = 0;
+  let t: Table | null = null;
   for (let i = 0; i < events.length; i++) {
-    const t = tableAt(events.slice(0, i));
     if (t) await compare(events[i]!, t, false);
+    t = tableAfter(t, events[i]!);
+    if (i % 64 === 63) await new Promise((r) => setTimeout(r, 0));
   }
 }
 

@@ -69,7 +69,7 @@ const UI_EN = {
   vitalsHint: "Measured with the station's medical kit. Set the ones you took today; each is checked against your safety lines as soon as it is saved.",
   lastReading: "Last reading: tap the value to keep it",
   saveVitals: "Save measurements",
-  kernelAgree: "Independent safety check: both versions agreed on every value shown.",
+  kernelAgree: "Independent safety check: both versions agreed on every value shown",
 };
 
 type Template = (s: Slots) => Msg;
