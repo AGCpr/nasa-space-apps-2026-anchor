@@ -48,7 +48,8 @@ NASA's Human Research Program lists the risks this tool addresses. The mapping, 
   - The 80 % personal range held **79 % (mood)** and **78 % (sleep)** of real days.
   - ANCHOR raised a sustained-change note about once per 95–104 days per indicator. A naive single-day 2 SD rule warned 2–5× as often.
   - 13,376 real records produced 0 errors, at 6.7 ms per record.
-  - **Finding:** for smoothed device signals such as Fitbit resting heart rate (lag-1 autocorrelation 0.87), the band is too narrow (58 %). This is now a configuration rule.
+  - **Injected change:** a known, sustained change was injected into real sleep series (23 people). ANCHOR noticed a 1 SD drop within 4 weeks for 52 % of people, against 13 % by chance with nothing injected. The naive rule "noticed" 39 % by chance and raised four times as many notes beforehand (one per 45 days against one per 179).
+  - **Finding:** for smoothed device signals such as Fitbit resting heart rate (lag-1 autocorrelation 0.87), the band is too narrow (58 %). Two fixes were tested and rejected with numbers (a conformal band, and removing the guard band). The band is now defined as a settled reference, and such signals are shown as trends only ([ADR-0010](docs/adr/ADR-0010-personal-range-semantics.md)).
 - **Synthetic, end to end.**
   - 7,200 healthy person-days give one alert per 39.1 days, against a budget of 30.
   - A scripted 150-day mission demonstrates every mechanism. A Rust test fails if the demo stops demonstrating it.

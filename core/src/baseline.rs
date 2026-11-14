@@ -106,14 +106,19 @@ impl Nig {
     /// Values whose z is ±`z`: the central predictive interval the interface draws as the
     /// personal range (ADR-0009 §6). Bisection on the monotone t -> z map.
     pub fn interval(&self, z: f64) -> Result<(f64, f64), BaselineError> {
+        Ok((self.value_at(-z)?, self.value_at(z)?))
+    }
+
+    /// The value whose standardised deviation is `z` (inverse of `z` before clipping), by
+    /// bisection on the monotone t -> z map; used for conformal band edges (ADR-0010).
+    pub fn value_at(&self, z: f64) -> Result<f64, BaselineError> {
         let (loc, scale, df) = self.predictive();
-        let (mut lo, mut hi) = (0.0, 64.0);
-        for _ in 0..60 {
+        let (mut lo, mut hi) = (-64.0, 64.0);
+        for _ in 0..70 {
             let mid = 0.5 * (lo + hi);
             if t_to_z(mid, df)? < z { lo = mid } else { hi = mid }
         }
-        let t = 0.5 * (lo + hi);
-        Ok((loc - t * scale, loc + t * scale))
+        Ok(loc + 0.5 * (lo + hi) * scale)
     }
 
     fn winsorise(&self, y: f64) -> f64 {

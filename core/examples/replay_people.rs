@@ -20,6 +20,8 @@ struct Ind {
     naive_days: u32,
     naive_runs: u32,
     last_naive: i64,
+    alarm_days: Vec<i64>,
+    naive_starts: Vec<i64>,
 }
 
 fn main() {
@@ -48,11 +50,18 @@ fn main() {
                         // Naive comparator: one day beyond 2 SD in the harmful direction is an alert.
                         if harm(&indicator) * z >= 2.0 {
                             i.naive_days += 1;
-                            i.naive_runs += (i.last_naive != day - 1) as u32;
+                            if i.last_naive != day - 1 {
+                                i.naive_runs += 1;
+                                i.naive_starts.push(day);
+                            }
                             i.last_naive = day;
                         }
                     }
-                    Output::Alarm { indicator, .. } => inds.entry(indicator).or_default().alarms += 1,
+                    Output::Alarm { indicator, day, .. } => {
+                        let i = inds.entry(indicator).or_default();
+                        i.alarms += 1;
+                        i.alarm_days.push(day);
+                    }
                     Output::MissingnessAlarm { .. } => miss_alarms += 1,
                     Output::CompanionError { .. } | Output::KernelUnavailable { .. } => errors += 1,
                     _ => {}
@@ -64,8 +73,8 @@ fn main() {
             .iter()
             .map(|(k, i)| {
                 format!(
-                    "\"{k}\":{{\"days\":{},\"in_band\":{},\"alarms\":{},\"naive_days\":{},\"naive_runs\":{}}}",
-                    i.days, i.in_band, i.alarms, i.naive_days, i.naive_runs
+                    "\"{k}\":{{\"days\":{},\"in_band\":{},\"alarms\":{},\"naive_days\":{},\"naive_runs\":{},\"alarm_days\":{:?},\"naive_starts\":{:?}}}",
+                    i.days, i.in_band, i.alarms, i.naive_days, i.naive_runs, i.alarm_days, i.naive_starts
                 )
             })
             .collect();

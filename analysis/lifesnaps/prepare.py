@@ -3,7 +3,9 @@
 LifeSnaps (Yfantidou et al., Scientific Data 2022; Zenodo 7229547, CC BY 4.0): 71 adults, about 4 months,
 Fitbit Sense plus EMA. The data stays outside the repository; only this script and the summary are committed.
 
-Usage: python -I prepare.py <daily_fitbit_sema_df_unprocessed.csv> <out.txt>
+Usage: python -I prepare.py <daily_fitbit_sema_df_unprocessed.csv> <out.txt> [shift_sd]
+  shift_sd (optional): inject a sustained change into real sleep from mission day INJECT_DAY on,
+  in units of the person's own pre-flight SD (e.g. -1.0 = one SD shorter sleep); docs/VALIDATION.md
 
 Mapping (docs/VALIDATION.md):
   sleep_min  <- minutesAsleep              sample, harmful direction down
@@ -19,6 +21,7 @@ import sys
 
 PREFLIGHT_DAYS = 21
 MIN_MISSION_DAYS = 42
+INJECT_DAY = 40
 DAY_MS = 86_400_000
 TABLE = "t1|1,sleep_min,below,180,phys,1"
 # key, dir, transform, decimals, mu, tau2, sigma2, nu_p (model scale, x 1e6). Population priors are
@@ -77,7 +80,7 @@ def values(row: dict) -> tuple[dict, dict]:
     return sample, checkin
 
 
-def person(rows: list[dict]) -> list[str] | None:
+def person(rows: list[dict], shift_sd: float = 0.0) -> list[str] | None:
     rows.sort(key=lambda r: r["date"])
     start = dt.date.fromisoformat(rows[0]["date"])
     by_day = {(dt.date.fromisoformat(r["date"]) - start).days: r for r in rows}
@@ -85,6 +88,9 @@ def person(rows: list[dict]) -> list[str] | None:
     if last - PREFLIGHT_DAYS < MIN_MISSION_DAYS:
         return None
     out = config()
+    pre = [values(by_day[d])[0].get("sleep_min") for d in range(PREFLIGHT_DAYS) if d in by_day]
+    pre = [v for v in pre if v is not None]
+    sd = (sum((v - sum(pre) / len(pre)) ** 2 for v in pre) / (len(pre) - 1)) ** 0.5 if len(pre) >= 5 else 40.0
     for d in range(PREFLIGHT_DAYS):
         if d in by_day:
             s, c = values(by_day[d])
@@ -95,6 +101,8 @@ def person(rows: list[dict]) -> list[str] | None:
         base = day * DAY_MS
         if d in by_day:
             s, c = values(by_day[d])
+            if shift_sd and day >= INJECT_DAY and "sleep_min" in s:
+                s["sleep_min"] = max(1, round(s["sleep_min"] + shift_sd * sd))
             if s:
                 out.append(wire(base + 7 * 3_600_000, "sample", {"day": day, **s}))
             if c:
@@ -103,7 +111,7 @@ def person(rows: list[dict]) -> list[str] | None:
     return out
 
 
-def main(src: str, dst: str) -> None:
+def main(src: str, dst: str, shift_sd: float = 0.0) -> None:
     people: dict[str, list[dict]] = {}
     with open(src, encoding="utf-8") as f:
         for row in csv.DictReader(f):
@@ -111,7 +119,7 @@ def main(src: str, dst: str) -> None:
     kept = 0
     with open(dst, "w", encoding="utf-8", newline="\n") as f:  # LF: the reader splits blocks on blank lines
         for pid, rows in sorted(people.items()):
-            log = person(rows)
+            log = person(rows, shift_sd)
             if log is None:
                 continue
             kept += 1
@@ -120,4 +128,4 @@ def main(src: str, dst: str) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], float(sys.argv[3]) if len(sys.argv) > 3 else 0.0)

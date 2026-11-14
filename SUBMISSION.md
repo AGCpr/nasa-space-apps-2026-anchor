@@ -61,6 +61,7 @@ https://github.com/AGCpr/nasa-space-apps-2026-anchor (source, documentation, val
 - **Real data.** On LifeSnaps (71 adults, 4 months, CC BY 4.0), the unmodified engine processed 13,376 records with 0 errors at 6.7 ms per record.
   - The personal range was calibrated for mood and sleep: 79 % and 78 % of days inside the 80 % band.
   - ANCHOR raised one note per 95–104 days per indicator, against one per 21–46 days for a naive rule.
+  - A known change injected into real sleep series (23 people) was noticed within 4 weeks by ANCHOR in 52 % of people at 1 SD, against 13 % by chance. ANCHOR's notes were four times rarer than the naive rule's before the change.
   - We also report a negative finding. The band is too narrow for smoothed device signals such as Fitbit resting heart rate (lag-1 autocorrelation 0.87), and this is now a configuration rule.
 - **Checks.** About 70 automated tests, Python reference oracles, mutation checks, and a machine audit of every sentence the astronaut can read.
 
