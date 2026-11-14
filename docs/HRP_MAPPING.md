@@ -2,7 +2,7 @@
 
 This file records which NASA resources ANCHOR uses and how. It is the project's answer to the submission form's "NASA Data" field.
 
-The challenge's Resources tab lists three NASA resources: HRP *5 Hazards of Human Spaceflight*, *Risks of Human Spaceflight*, and *Ongoing HRP Research*. Every ANCHOR indicator and feature traces to one of the HRP risks below. Each row names the HRP page, what that page says (paraphrased), and the ANCHOR mechanism it grounds.
+The challenge's Resources tab lists three NASA resources: HRP *5 Hazards of Human Spaceflight*, *Risks of Human Spaceflight*, and *Ongoing HRP Research*. Every ANCHOR indicator and feature traces to one of the HRP risks below. Rows H6–H8 were added with the morning vitals; each indicator also carries an "About this measure" card in the app (how it is measured, why it matters in space, what helps). Each row names the HRP page, what that page says (paraphrased), and the ANCHOR mechanism it grounds.
 
 ## Mapping
 
@@ -13,6 +13,9 @@ The challenge's Resources tab lists three NASA resources: HRP *5 Hazards of Huma
 | **Risk of Hypoxia** [H3] | Deep-space vehicles will keep the cabin partially depressurised to cut pre-spacewalk oxygen needs, which raises the risk of mild hypoxia. NASA is building new health-monitoring protocols to track how crews adapt. | **Indicator.** `spo2`.<br>**Safety line.** A pre-agreed physiological line (SpO2 below 90.0 %) that always shares, is checked by two independent safety kernels with TMR (ADR-0003), and is re-routed to the CMO on board during loss of signal (ADR-0008). The demo mission includes such a crossing on day 120. |
 | **Risk of Inadequate Teamwork** ("in-mission performance and behavioral health decrements due to inadequate cooperation, coordination, communication, and psychosocial adaptation within a team") [H4] | Mars missions add communication delays, more isolation and smaller habitats, and crews must work through conflicts themselves. | **Crew route.** A one-tap request to talk with a trusted crewmate (`crew_request`).<br>**Exclusions.** The astronaut may exclude any recipient, including the CMO when the CMO is the person concerned (I10).<br>**No crew-level mood view.** It was rejected because with 4–6 crew any aggregate re-identifies individuals (DESIGN_PAPER §4.9). |
 | **Risk of Inadequate Systems Operations Support** ("adverse mission outcomes due to Earth independent human-systems operation") [H5] | Crews far from Earth must run systems without real-time support from mission control, so systems must be easy to operate independently. | **Explainable notes.** Every note answers "Why this note?": the data, the rule, the confidence, what would close it, and the NASA research area.<br>**Determinism.** Deterministic templates rather than generated text (ADR-0009 §8).<br>**Reproducibility.** Replayable, hash-chained logs (ADR-0002).<br>**Interface standards.** NASA-STD-3001 Appendix F display rules: reserved colours, contrast of at least 6:1, large touch targets for microgravity (UI_RESEARCH R1–R9). |
+| **Risk of Cardiovascular Adaptations** ("cardiovascular adaptations contributing to adverse mission performance and health outcomes") [H6] | Spaceflight changes the heart and vessels. Contributing factors listed include length of exposure, reduced physical activity, impaired sleep, psychological stress and immune dysregulation, which ties this risk to the behavioural and sleep risks above. | **Indicators.** Morning `pulse_bpm` and `sbp_mmhg` from the on-board cuff, entered with large steppers.<br>**Safety line.** Systolic pressure above 160 mmHg shares to the flight surgeon. Below the line, a sustained rise is a personal note, never a single-reading alert (ADR-0011). |
+| **Risk of Altered Immune System Responses** (Roadmap: "in-mission impacts, adverse health events or long-term health impacts due to altered immune response") [H7] | Spaceflight alters immune response; the risk is under active HRP research and is linked to the food and cardiovascular risks. | **Indicator.** Morning `temp_c`.<br>**Safety line.** Above 38.0 °C shares to the flight surgeon on the first reading. The demo mission shows a one-morning fever on day 80 that reaches the surgeon and, by design, opens no "several days" note (ADR-0011). |
+| **Risk of Inadequate Food and Nutrition** ("performance decrement and crew illness due to inadequate food and nutrition") [H8] | Inadequate energy and nutrient intake can dysregulate other systems, including immune and cardiovascular function. | **Indicator.** Fasting `glucose_mgdl`, every third morning (a finger-stick, so not daily).<br>**Safety line.** Below 70 mg/dL shares to the flight surgeon. A sustained fall is a personal note. |
 
 ## Other NASA sources used in the design
 
@@ -28,7 +31,7 @@ The challenge's Resources tab lists three NASA resources: HRP *5 Hazards of Huma
 
 ## Wording in the astronaut-facing interface
 
-The interface names these as "NASA research areas" (behavioural health, sleep and schedules, hypoxia, teamwork, independent operations). It does not use the formal HRP titles. The formal titles contain diagnostic and alarm vocabulary that the language audit bans from astronaut-facing copy (I3), because it frightens without informing.
+The interface names these as "NASA research areas" (behavioural health, sleep and schedules, hypoxia, teamwork, independent operations, heart and circulation, immune health, nutrition). It does not use the formal HRP titles. The formal titles contain diagnostic and alarm vocabulary that the language audit bans from astronaut-facing copy (I3), because it frightens without informing.
 
 ## Sources
 
@@ -37,6 +40,9 @@ The interface names these as "NASA research areas" (behavioural health, sleep an
 - [H3] NASA HRP, "Risk of Hypoxia": https://www.nasa.gov/reference/risk-of-hypoxia/
 - [H4] NASA HRP, "Risk of Inadequate Teamwork": https://www.nasa.gov/reference/risk-of-inadequate-teamwork/
 - [H5] NASA HRP, "Risk of Inadequate Systems Operations Support": https://www.nasa.gov/reference/risk-of-inadequate-systems-operations-support/
+- [H6] NASA HRP, "Risk of Cardiovascular Adaptations": https://www.nasa.gov/reference/risk-of-cardiovascular-adaptations/ (Human Research Roadmap record: https://humanresearchroadmap.nasa.gov/Risks/risk.aspx?i=179)
+- [H7] NASA HRP, "Risk of Altered Immune System Responses": https://www.nasa.gov/reference/risk-of-altered-immune-system-responses/ (Human Research Roadmap record: https://humanresearchroadmap.nasa.gov/Risks/risk.aspx?i=85)
+- [H8] NASA HRP, "Risk of Inadequate Food and Nutrition": https://www.nasa.gov/reference/risk-of-inadequate-food-and-nutrition/ (risk record Rev D, 2025: https://www.nasa.gov/wp-content/uploads/2025/08/food-risk-record-rev-d-web-final.pdf)
 - NASA HRP, "Risks of Human Spaceflight" (index): https://www.nasa.gov/hrp/risks/
 - NASA HRP, "5 Hazards of Human Spaceflight": https://www.nasa.gov/hrp/hazards/
 

@@ -70,6 +70,7 @@ for (const cat of Object.values(catalogues)) {
       ...Object.values(cat.shareClass),
       ...Object.values(cat.item).flatMap((i) => [i.label, i.question]),
       ...Object.values(cat.area).map((a) => a.name),
+      ...Object.values(cat.about).flatMap((a) => [a.how, a.space, a.helps]),
     ];
     for (const s of statics) {
       assert.deepEqual(banned(s), [], `static copy: "${s}"`);

@@ -10,13 +10,14 @@ import numpy as np
 from scipy import stats
 
 K_REF, DRIFT_WINDOW, DRIFT_MIN, ALPHA = 0.5, 28, 14, 0.01
+STEP_CAP = 3.0  # cap on one day's increment (core/src/detect.rs)
 r = lambda v: repr(float(v))
 
 
 def cusum_path(zs, sign, h):
     s, out = 0.0, []
     for z in zs:
-        s = max(0.0, s + sign * z - K_REF)
+        s = max(0.0, s + min(sign * z, STEP_CAP) - K_REF)  # capped increment (detect.rs STEP_CAP)
         if s > h:
             s = 0.0
             out.append(-1.0)

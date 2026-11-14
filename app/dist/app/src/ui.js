@@ -45,6 +45,11 @@ export function card(m, extra) {
 export function segmented(name, options, current, onPick, cls = "") {
     return h("div", { class: `seg ${cls}`, role: "radiogroup", "aria-label": name }, ...options.map((o) => h("button", { type: "button", role: "radio", "aria-checked": o.value === current ? "true" : "false", onclick: () => onPick(o.value) }, o.label)));
 }
+/** Stepper for a measured value: large minus and plus targets around the value (R7), no typing. */
+export function stepper(opts) {
+    const show = (v) => `${v.toFixed(opts.decimals)} ${opts.unit}`;
+    return h("div", { class: "stepper", role: "group", "aria-labelledby": `${opts.id}-l` }, h("span", { id: `${opts.id}-l`, class: "stepper__label" }, opts.label), h("button", { type: "button", class: "stepper__btn", "aria-label": `Lower ${opts.label}`, disabled: opts.disabled, onclick: () => opts.onChange(opts.value - opts.step) }, "−"), h("output", { class: "stepper__value", "aria-live": "polite" }, show(opts.value)), h("button", { type: "button", class: "stepper__btn", "aria-label": `Raise ${opts.label}`, disabled: opts.disabled, onclick: () => opts.onChange(opts.value + opts.step) }, "+"));
+}
 /**
  * Bipolar slider (R9, R15): the whole track takes the press, the value follows the finger and
  * is committed on release. Untouched, it shows "not rated" rather than a default of 50.

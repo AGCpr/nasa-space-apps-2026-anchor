@@ -31,10 +31,10 @@ ANCHOR's detectors were calibrated and tested on synthetic missions (ADR-0005, A
 
 | | Mood (31 people, 1,418 days) | Sleep (48 people, 2,506 days) | Resting HR (52 people, 3,049 days) |
 |---|---|---|---|
-| Days inside the 80 % personal range: pooled | **0.793** | **0.782** | 0.579 |
-| Per-person median (IQR) | 0.794 (0.739–0.875) | 0.782 (0.727–0.844) | 0.613 (0.508–0.717) |
-| ANCHOR sustained-change notes | 15 = one per **94.5** days | 24 = one per **104.4** days | 48 = one per **63.5** days |
-| Naive single-day rule | 31 runs = one per 45.7 days | 117 runs = one per 21.4 days | 158 runs = one per 19.3 days |
+| Days inside the 80 % personal range: pooled | **0.793** | **0.784** | 0.579 |
+| Per-person median (IQR) | 0.794 (0.739–0.875) | 0.782 (0.733–0.844) | 0.613 (0.508–0.717) |
+| ANCHOR sustained-change notes | 15 = one per **94.5** days | 20 = one per **125.3** days | 48 = one per **63.5** days |
+| Naive single-day rule | 31 runs = one per 45.7 days | 114 runs = one per 22.0 days | 159 runs = one per 19.2 days |
 
 - **Robustness.** 13,376 real records produced 0 rejections and 0 companion errors, including every real gap.
 - **Speed.** 6.7 ms per record on a desktop CPU (native build), including the weekly Monte-Carlo recalibration. This is far inside the N2 budget of 100 ms per check-in.
@@ -42,7 +42,7 @@ ANCHOR's detectors were calibrated and tested on synthetic missions (ADR-0005, A
 ## What this shows
 
 1. **The personal range is calibrated on real people where its assumption holds.** For mood and sleep, the 80 % band contained 79 % and 78 % of real days, pooled and per-person median alike. The band shown on Course is therefore honest about uncertainty: "about 8 in 10 of your days fall inside it" is true for these signals. That sentence is the interface's claim (ADR-0009 §6, Principle 4).
-2. **Calm by construction holds on real data.** ANCHOR raised a sustained-change note once per 95–104 days per indicator for mood and sleep. The naive single-day rule warned 2 to 5 times as often.
+2. **Calm by construction holds on real data.** ANCHOR raised a sustained-change note once per 95–125 days per indicator for mood and sleep. The naive single-day rule warned 2 to 6 times as often.
    - This does not show that ANCHOR's notes are *correct*. LifeSnaps has no ground truth for "a real change happened". It shows the alert *load* a person would carry.
    - The design target is at most one unwanted note per 30 days across the whole system (N4). Real life contains real changes, so free-living rates are an upper bound on false notes, not an estimate of them.
 3. **Finding: the band is too narrow for smoothed device signals.** Resting HR kept only 58 % of days in its 80 % band. The cause is in the data, not in the prior:
@@ -68,13 +68,13 @@ LifeSnaps has no labelled changes, so a known change was injected into the real 
 
 | Injected change | ANCHOR noticed | median delay | Naive single-day rule noticed | median delay |
 |---|---|---|---|---|
-| none (chance) | 13 % [5–32] | - | 39 % [22–59] | - |
+| none (chance) | 9 % [2–27] | - | 39 % [22–59] | - |
 | 0.5 SD shorter sleep | 39 % [22–59] | 8 d | 48 % [29–67] | 8 d |
 | 1.0 SD | 52 % [33–71] | 6 d | 65 % [45–81] | 6 d |
 | 1.5 SD | 61 % [41–78] | 5 d | 65 % [45–81] | 4 d |
-| Notes before the change | one per **179** days | | one per **45** days | |
+| Notes before the change | one per **224** days | | one per **45** days | |
 
-- **Specificity.** Most of the naive rule's apparent sensitivity is chance: it "notices" 39 % of people when nothing changed. Above chance, ANCHOR gains 26, 39 and 48 points at 0.5, 1.0 and 1.5 SD. The naive rule gains 9, 26 and 26 points, while raising four times as many notes beforehand. In practice, a note from ANCHOR is far more likely to mean something.
+- **Specificity.** Most of the naive rule's apparent sensitivity is chance: it "notices" 39 % of people when nothing changed. Above chance, ANCHOR gains 30, 43 and 52 points at 0.5, 1.0 and 1.5 SD. The naive rule gains 9, 26 and 26 points, while raising five times as many notes beforehand. In practice, a note from ANCHOR is far more likely to mean something.
 - **Sensitivity is limited by data gaps.** Fitbit sleep was present on only about half of all days in this study, and a note needs evidence from days that exist. The median delays (5–8 days) are among the people who were noticed within 28 days, so they are not an expected delay. ADR-0005 gives the expected delay for a 1 SD change on complete data with realistic autocorrelation as 11–18 days. With n = 23 the intervals are wide, and the differences between the two rules overlap. This is a direction, not proof.
 
 ## Limits

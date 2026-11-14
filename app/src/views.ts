@@ -5,7 +5,7 @@ import type { Catalogue, Msg, Slots, Why } from "./catalogue.ts";
 import { isSilent } from "./catalogue.ts";
 import type { Indicator, Note, Share, State } from "./model.ts";
 import { shown } from "./model.ts";
-import { bipolar, card, h, s, segmented } from "./ui.ts";
+import { bipolar, card, h, s, segmented, stepper } from "./ui.ts";
 
 export type View = "today" | "course" | "sharing" | "support";
 
@@ -17,6 +17,8 @@ export type Ctx = {
   draft: Record<string, number>;
   courseInd: string;
   screen: Record<string, 0 | 1>;
+  /** Morning measurements being entered, in record units. */
+  vitals: Record<string, number>;
   kernel: { compared: number; disagreements: number; injected: boolean };
   /** Inner width of the chart sheet in CSS px. */
   sheetWidth: number;
@@ -32,6 +34,8 @@ export type Ctx = {
     link(up: boolean): void;
     request(kind: "ppc_request" | "crew_request"): void;
     setScreen(k: string, v: 0 | 1): void;
+    setVital(k: string, v: number): void;
+    saveVitals(): void;
     saveScreen(): void;
     go(v: View): void;
   };
@@ -269,7 +273,7 @@ export function today(x: Ctx): HTMLElement {
     h(
       "div",
       { class: "cols" },
-      h("div", { class: "col" }, ...body),
+      h("div", { class: "col" }, ...body, vitalsCard(x)),
       h(
         "section",
         { class: "col notes" },
@@ -279,6 +283,48 @@ export function today(x: Ctx): HTMLElement {
       ),
     ),
   );
+}
+
+// ---------- Morning measurements (challenge: prompt measurements as part of the routine) ----------
+
+export const VITALS = ["pulse_bpm", "sbp_mmhg", "temp_c", "glucose_mgdl"];
+const STEP: Record<string, number> = { pulse_bpm: 1, sbp_mmhg: 2, temp_c: 1, glucose_mgdl: 1 };
+
+function vitalsCard(x: Ctx): HTMLElement | null {
+  const { st, cat: c } = x;
+  const keys = VITALS.filter((k) => st.indicators.has(k));
+  if (!keys.length || !x.canAct) return null;
+  const today = st.openDay;
+  if (keys.some((k) => st.indicators.get(k)!.values.has(today))) return null;
+  return h("section", { class: "vitals" },
+    h("h2", { class: "marg" }, c.ui.vitalsTitle),
+    h("p", { class: "fine" }, c.ui.vitalsHint),
+    ...keys.map((k) => {
+      const i = st.indicators.get(k)!;
+      const v = x.vitals[k] ?? [...i.values.values()].at(-1)?.[0] ?? 0;
+      return stepper({ id: `v-${k}`, label: cap(label(c, k).replace(/ \(.*\)/, "")), value: shown(i, v), step: STEP[k]! / 10 ** i.decimals, decimals: i.decimals, unit: c.indicator[k]?.unit ?? "", disabled: false,
+        onChange: (n) => x.act.setVital(k, Math.round(n * 10 ** i.decimals)) });
+    }),
+    h("p", { class: "share-state" }, h("span", { class: "marg" }, "Where it goes"), ` ${c.ui.staysHere} Values past a pre-agreed safety line go to ${who(c, st.routes.get("safety")?.[0] ?? null)}.`),
+    h("button", { type: "button", class: "secondary", onclick: () => x.act.saveVitals() }, c.ui.saveVitals));
+}
+
+/** "About this measure": how to take it, why it changes in space, what helps, its safety line. */
+function about(c: Catalogue, st: State, k: string): HTMLElement | null {
+  const a = c.about[k];
+  if (!a) return null;
+  const i = st.indicators.get(k);
+  const line = st.table?.lines.find((l) => l.indicator === k && !l.high);
+  const area = c.area[k];
+  return h("section", { class: "about" },
+    h("h2", { class: "marg" }, c.ui.aboutTitle),
+    h("dl", {},
+      h("dt", {}, "How to measure"), h("dd", {}, a.how),
+      h("dt", {}, "Why it changes in space"), h("dd", {}, a.space),
+      h("dt", {}, "What helps"), h("dd", {}, a.helps),
+      line && i ? h("dt", {}, "Safety line") : null,
+      line && i ? h("dd", {}, `A value ${line.op} ${fmt(c, i, line.limit)} goes to ${who(c, st.routes.get("safety")?.[0] ?? null)}, as agreed before flight.`) : null),
+    area ? h("p", { class: "fine" }, "NASA research area: ", h("a", { href: area.url, target: "_blank", rel: "noopener" }, area.name), ".") : null);
 }
 
 // ---------- Course: the survey sheet ----------
@@ -519,7 +565,7 @@ export function course(x: Ctx): HTMLElement {
       ),
       last ? h("p", { class: "fine sheet__detail" }, `${covered} of ${upto} days with data. Latest usual range ${statShown(i, last.lo).toFixed(i.slider ? 0 : 1)} to ${statShown(i, last.hi).toFixed(i.slider ? 0 : 1)}.${eps.length ? ` Change noticed on days ${eps.join(", ")}.` : ""}`) : null,
     ),
-    h("div", { class: "cols" }, h("div", { class: "col" }, h("p", { class: "fine" }, c.ui.rangeNote), table),
+    h("div", { class: "cols" }, h("div", { class: "col" }, about(c, st, k), h("p", { class: "fine" }, c.ui.rangeNote), table),
     h(
       "section",
       { class: "col actions" },

@@ -34,8 +34,9 @@ NASA's Human Research Program lists the risks this tool addresses. The mapping, 
 | | |
 |---|---|
 | **90-second evening check-in** | Three bipolar sliders (mood, energy, calm), rated *before* the astronaut sees their data. Sleep and SpO2 come from a wearable. |
+| **Morning vitals** | Pulse, blood pressure, temperature and (every third morning) glucose, entered with large steppers. Each of the nine measures has an "About this measure" card: how it is measured, why it matters in space, what helps. |
 | **Personal range** | A Bayesian baseline anchored on pre-flight days. The band on screen holds about 8 in 10 days, and that claim was checked on real people (below). |
-| **Calm by construction** | Sustained-change detection (CUSUM) with a calibrated false-alert budget: at most one unwanted note per 30 days, verified end to end at one per 39 days. No single-reading alerts except pre-agreed safety lines. |
+| **Calm by construction** | Sustained-change detection (CUSUM) with a calibrated false-alert budget: at most one unwanted note per 30 days, verified end to end at one per 39 days. No single-reading alerts except pre-agreed safety lines: one day's evidence is capped, so a single fever morning goes to the surgeon but never becomes a "several days" note ([ADR-0011](docs/adr/ADR-0011-single-day-cap.md)). |
 | **"This is my new normal"** | The astronaut may accept a new level (reversible, at most once per 30 days, within 2 SD of pre-flight). It is drawn as a hinge in the range. |
 | **Disclosure contract** | Private by default; sharing per category. Every share appears in a visible log *before* it is sent, recipients can be excluded without exception, and safety notices re-route to the CMO on board during loss of signal. |
 | **Safety kernel** | Pre-agreed physiological lines, checked by two independently written kernels (Rust and TypeScript) with triple redundancy. A disagreement is recorded and treated as unconfirmed, never as "fine". |
@@ -48,13 +49,14 @@ NASA's Human Research Program lists the risks this tool addresses. The mapping, 
 
 - **Real people, unmodified engine** ([docs/VALIDATION.md](docs/VALIDATION.md)). LifeSnaps: 71 adults, about 4 months of Fitbit and mood data, CC BY 4.0.
   - The 80 % personal range held **79 % (mood)** and **78 % (sleep)** of real days.
-  - ANCHOR raised a sustained-change note about once per 95–104 days per indicator. A naive single-day 2 SD rule warned 2–5× as often.
+  - ANCHOR raised a sustained-change note about once per 95–125 days per indicator. A naive single-day 2 SD rule warned 2–6× as often.
   - 13,376 real records produced 0 errors, at 6.7 ms per record.
-  - **Injected change:** a known, sustained change was injected into real sleep series (23 people). ANCHOR noticed a 1 SD drop within 4 weeks for 52 % of people, against 13 % by chance with nothing injected. The naive rule "noticed" 39 % by chance and raised four times as many notes beforehand (one per 45 days against one per 179).
+  - **Injected change:** a known, sustained change was injected into real sleep series (23 people). ANCHOR noticed a 1 SD drop within 4 weeks for 52 % of people, against 9 % by chance with nothing injected. The naive rule "noticed" 39 % by chance and raised five times as many notes beforehand (one per 45 days against one per 224).
   - **Finding:** for smoothed device signals such as Fitbit resting heart rate (lag-1 autocorrelation 0.87), the band is too narrow (58 %). Two fixes were tested and rejected with numbers (a conformal band, and removing the guard band). The band is now defined as a settled reference, and such signals are shown as trends only ([ADR-0010](docs/adr/ADR-0010-personal-range-semantics.md)).
 - **Synthetic, end to end.**
-  - 7,200 healthy person-days give one alert per 39.1 days, against a budget of 30.
+  - 7,200 healthy person-days give one alert per 38.9 days, against a budget of 30.
   - A scripted 150-day mission demonstrates every mechanism. A Rust test fails if the demo stops demonstrating it.
+- **Web quality (Lighthouse 12, live site, 14 Nov 2026).** Mobile: performance 98, accessibility 100, best practices 100, SEO 100. Desktop: performance 84, the other three 100. Total blocking time is 70 ms, because the demo mission is prebuilt by the engine instead of recomputed in the browser.
 - **Independent implementations.** Python reference oracles and reference vectors cover numerics, baseline, detection and the safety kernel.
 - **Tests.** About 70 automated tests across Rust, WebAssembly, TypeScript and the interface. They include a machine audit of every sentence the astronaut can read (no disease names, no alarm vocabulary, every message names an action and an owner), plus colour and contrast tests derived from NASA-STD-3001 Appendix F.
 

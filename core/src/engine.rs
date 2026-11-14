@@ -3,8 +3,8 @@
 
 use crate::baseline::{Anchor, Population, WINDOW, anchor, logit_slider};
 use crate::detect::{
-    BernoulliCusum, Calibration, Cusum, DRIFT_WINDOW, Direction, Drift, DriftOutcome, K_REF, anchor_run_prompt,
-    calibrate_bank, calibrate_bernoulli, choose_model, day_value, drift_test, estimate_rho_w, miss_rate,
+    BernoulliCusum, Calibration, Cusum, DRIFT_WINDOW, Direction, Drift, DriftOutcome, anchor_run_prompt,
+    calibrate_bank, calibrate_bernoulli, choose_model, day_value, drift_test, estimate_rho_w, increment, miss_rate,
     offer_extra_sample, split_budget,
 };
 use crate::kernel::{Class, Hit, Outcome, SafetyTable, tmr_evaluate, verified_copy};
@@ -671,7 +671,7 @@ impl Engine {
             }
             let (Some(h), Some(a)) = (self.bank_h, ind.anchor.as_ref()) else { continue };
             let z = a.rolling(&ind.window.iter().copied().collect::<Vec<_>>()).and_then(|s| s.z(y)).map_err(|e| format!("{e:?}"))?;
-            let provisional = (ind.cusum.s + ind.dir.sign() * z - K_REF).max(0.0);
+            let provisional = (ind.cusum.s + increment(z, ind.dir)).max(0.0);
             if offer_extra_sample(provisional, h, estimate_rho_w(&ind.pairs)) {
                 out.push(Output::OfferExtraSample { day, indicator: k.clone() });
             }
@@ -721,7 +721,7 @@ impl Engine {
             }
             let mut learnable = true; // before the first calibration nothing is suspected
             if let Some(h) = self.bank_h {
-                let before = (ind.cusum.s + ind.dir.sign() * zd - K_REF).max(0.0);
+                let before = (ind.cusum.s + increment(zd, ind.dir)).max(0.0);
                 let fired = ind.cusum.step(zd, ind.dir, h);
                 if fired {
                     // Hold the evidence at h instead of resetting it, so an episode ends only when

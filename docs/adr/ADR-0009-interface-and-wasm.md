@@ -171,11 +171,13 @@ These constraints are binding:
     - an astronaut re-anchoring on day 125;
     - a loss of signal on days 118–122;
     - an SpO2 safety crossing during that loss of signal (re-routed to the CMO on board);
+    - a one-morning fever (38.4 °C) on day 80, which crosses the temperature safety line and goes to the flight surgeon, and opens no sustained-change note (ADR-0011);
+    - morning vitals (pulse, blood pressure, temperature; glucose every third day) drawn from their own random stream, so adding them did not move the other scripted events;
     - a check-in gap on days 130–138;
     - a weekly sleep summary shared and then withdrawn;
     - a screener and a consent change;
     - a simulated transport acknowledging every transmittable share.
-  - **Seed choice (stated).** The generator's first seed (2026) produced a false mood alarm on day 87. It stayed latched into the scripted shift, so the demo could not show the shift being noticed. The ignored test `find_demo_seed` picks the first seed whose mood episode starts after the shift: seed 1, alarm on day 103. False alarms on other indicators fall as they fall and are shown: on days 55, 62 and 110, among others. The false-alert rate is established separately by the end-to-end budget test (ADR-0006, N4), not by this demo.
+  - **Seed choice (stated).** The generator's first seed (2026) produced a false mood alarm on day 87. It stayed latched into the scripted shift, so the demo could not show the shift being noticed. The ignored test `find_demo_seed` picks the first seed whose mood episode starts after the shift: seed 1, alarm on day 102. False alarms fall as they fall and are shown: calm and sleep on days 30–31, mood on day 55 (cleared on day 72) and energy on day 65, among others. The fever day was moved from 64 to 80 because on days 64 and 72 it coincided with evidence already building, which is a legitimate note but would blur what the demo shows. The false-alert rate is established separately by the end-to-end budget test (ADR-0006, N4), not by this demo.
   - The app shows "Synthetic replay" in the top line whenever this log is loaded.
   - The live log and the demo log never share storage.
 - **Why in Rust.** The scenario then has a Rust test that asserts each scripted event produces its expected outputs, so the demo cannot silently stop demonstrating what it claims.

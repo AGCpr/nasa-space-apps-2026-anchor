@@ -1,6 +1,6 @@
 import { isSilent } from "./catalogue.js";
 import { shown } from "./model.js";
-import { bipolar, card, h, s, segmented } from "./ui.js";
+import { bipolar, card, h, s, segmented, stepper } from "./ui.js";
 const SLIDERS = ["mood", "energy", "calm"];
 /** Replay is read-only; say so where the controls are rather than leave them silently dimmed. */
 const readOnly = (x) => (x.mode === "replay" ? h("p", { class: "readonly" }, `Replay is read-only. Choose “${x.cat.ui.continueHere}” below to try this.`) : null);
@@ -215,7 +215,35 @@ export function today(x) {
     const notes = [...open, ...dayNotes].sort((a, b) => RANK[a.register] - RANK[b.register]);
     const recent = [...st.checkinDays].filter((d) => d > shownDay - 14 && d <= shownDay).length;
     const queued = [...st.shares.values()].filter((sh) => sh.day === shownDay).length;
-    return h("section", { class: "view" }, head, h("div", { class: "cols" }, h("div", { class: "col" }, ...body), h("section", { class: "col notes" }, h("h2", { class: "marg" }, "Notes"), ...(notes.length ? notes.map((m) => card(m)) : [h("p", {}, c.ui.nothingToday)]), h("p", { class: "fine" }, `Coverage: ${recent} check-ins in the last 14 days.${queued ? ` ${queued} item${queued > 1 ? "s" : ""} listed on Sharing today.` : ""}`))));
+    return h("section", { class: "view" }, head, h("div", { class: "cols" }, h("div", { class: "col" }, ...body, vitalsCard(x)), h("section", { class: "col notes" }, h("h2", { class: "marg" }, "Notes"), ...(notes.length ? notes.map((m) => card(m)) : [h("p", {}, c.ui.nothingToday)]), h("p", { class: "fine" }, `Coverage: ${recent} check-ins in the last 14 days.${queued ? ` ${queued} item${queued > 1 ? "s" : ""} listed on Sharing today.` : ""}`))));
+}
+// ---------- Morning measurements (challenge: prompt measurements as part of the routine) ----------
+export const VITALS = ["pulse_bpm", "sbp_mmhg", "temp_c", "glucose_mgdl"];
+const STEP = { pulse_bpm: 1, sbp_mmhg: 2, temp_c: 1, glucose_mgdl: 1 };
+function vitalsCard(x) {
+    const { st, cat: c } = x;
+    const keys = VITALS.filter((k) => st.indicators.has(k));
+    if (!keys.length || !x.canAct)
+        return null;
+    const today = st.openDay;
+    if (keys.some((k) => st.indicators.get(k).values.has(today)))
+        return null;
+    return h("section", { class: "vitals" }, h("h2", { class: "marg" }, c.ui.vitalsTitle), h("p", { class: "fine" }, c.ui.vitalsHint), ...keys.map((k) => {
+        const i = st.indicators.get(k);
+        const v = x.vitals[k] ?? [...i.values.values()].at(-1)?.[0] ?? 0;
+        return stepper({ id: `v-${k}`, label: cap(label(c, k).replace(/ \(.*\)/, "")), value: shown(i, v), step: STEP[k] / 10 ** i.decimals, decimals: i.decimals, unit: c.indicator[k]?.unit ?? "", disabled: false,
+            onChange: (n) => x.act.setVital(k, Math.round(n * 10 ** i.decimals)) });
+    }), h("p", { class: "share-state" }, h("span", { class: "marg" }, "Where it goes"), ` ${c.ui.staysHere} Values past a pre-agreed safety line go to ${who(c, st.routes.get("safety")?.[0] ?? null)}.`), h("button", { type: "button", class: "secondary", onclick: () => x.act.saveVitals() }, c.ui.saveVitals));
+}
+/** "About this measure": how to take it, why it changes in space, what helps, its safety line. */
+function about(c, st, k) {
+    const a = c.about[k];
+    if (!a)
+        return null;
+    const i = st.indicators.get(k);
+    const line = st.table?.lines.find((l) => l.indicator === k && !l.high);
+    const area = c.area[k];
+    return h("section", { class: "about" }, h("h2", { class: "marg" }, c.ui.aboutTitle), h("dl", {}, h("dt", {}, "How to measure"), h("dd", {}, a.how), h("dt", {}, "Why it changes in space"), h("dd", {}, a.space), h("dt", {}, "What helps"), h("dd", {}, a.helps), line && i ? h("dt", {}, "Safety line") : null, line && i ? h("dd", {}, `A value ${line.op} ${fmt(c, i, line.limit)} goes to ${who(c, st.routes.get("safety")?.[0] ?? null)}, as agreed before flight.`) : null), area ? h("p", { class: "fine" }, "NASA research area: ", h("a", { href: area.url, target: "_blank", rel: "noopener" }, area.name), ".") : null);
 }
 // ---------- Course: the survey sheet ----------
 function ticks(lo, hi) {
@@ -437,7 +465,7 @@ export function course(x) {
         : `${cap(label(c, k))}: no data yet.`;
     const active = i.hinges.filter((hg) => hg.reverted === null).length > 0;
     const table = h("details", { class: "datatable" }, h("summary", {}, "Show the values as a table"), h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Day"), h("th", {}, "Value"), h("th", {}, "Usual range"), h("th", {}, "Pre-flight level"))), h("tbody", {}, ...i.stats.slice(-30).reverse().map((d) => h("tr", {}, h("td", {}, String(d.day)), h("td", {}, statShown(i, d.y).toFixed(1)), h("td", {}, `${statShown(i, d.lo).toFixed(1)}–${statShown(i, d.hi).toFixed(1)}`), h("td", {}, statShown(i, d.anchor).toFixed(1)))))));
-    return h("section", { class: "view" }, h("header", { class: "view__head" }, h("h1", {}, "Course"), h("p", { class: "subtitle" }, `Mission days 1–${upto}`)), segmented("Value", keys.map((key) => ({ value: key, label: cap(label(c, key).replace(/ \(.*\)/, "")) })), k, (v) => x.act.setCourse(v), "seg--wide"), h("figure", { class: "sheet" }, h("figcaption", { class: "sheet__head", id: "chart-sum" }, h("h2", { class: "sheet__title" }, cap(label(c, k))), h("p", {}, last ? evidence(st, i, upto) : sum)), corridorChart(c, st, i, g), strip(st, g, { shares: false }), h("div", { class: "legend" }, h("span", { class: "key key--corridor" }, "Usual range (8 in 10 days)"), h("span", { class: "key key--benchmark" }, "Pre-flight level"), h("span", { class: "key key--hinge" }, "New normal you set"), h("span", { class: "key key--episode" }, "Change noticed")), last ? h("p", { class: "fine sheet__detail" }, `${covered} of ${upto} days with data. Latest usual range ${statShown(i, last.lo).toFixed(i.slider ? 0 : 1)} to ${statShown(i, last.hi).toFixed(i.slider ? 0 : 1)}.${eps.length ? ` Change noticed on days ${eps.join(", ")}.` : ""}`) : null), h("div", { class: "cols" }, h("div", { class: "col" }, h("p", { class: "fine" }, c.ui.rangeNote), table), h("section", { class: "col actions" }, h("h2", { class: "marg" }, "Your reference"), readOnly(x), h("p", {}, c.ui.newNormalNote), h("div", { class: "row" }, h("button", { type: "button", class: "secondary", disabled: !x.canAct, onclick: () => x.act.reanchor(k, false) }, c.ui.newNormal), active ? h("button", { type: "button", class: "secondary", disabled: !x.canAct, onclick: () => x.act.reanchor(k, true) }, c.ui.undoNormal) : null))));
+    return h("section", { class: "view" }, h("header", { class: "view__head" }, h("h1", {}, "Course"), h("p", { class: "subtitle" }, `Mission days 1–${upto}`)), segmented("Value", keys.map((key) => ({ value: key, label: cap(label(c, key).replace(/ \(.*\)/, "")) })), k, (v) => x.act.setCourse(v), "seg--wide"), h("figure", { class: "sheet" }, h("figcaption", { class: "sheet__head", id: "chart-sum" }, h("h2", { class: "sheet__title" }, cap(label(c, k))), h("p", {}, last ? evidence(st, i, upto) : sum)), corridorChart(c, st, i, g), strip(st, g, { shares: false }), h("div", { class: "legend" }, h("span", { class: "key key--corridor" }, "Usual range (8 in 10 days)"), h("span", { class: "key key--benchmark" }, "Pre-flight level"), h("span", { class: "key key--hinge" }, "New normal you set"), h("span", { class: "key key--episode" }, "Change noticed")), last ? h("p", { class: "fine sheet__detail" }, `${covered} of ${upto} days with data. Latest usual range ${statShown(i, last.lo).toFixed(i.slider ? 0 : 1)} to ${statShown(i, last.hi).toFixed(i.slider ? 0 : 1)}.${eps.length ? ` Change noticed on days ${eps.join(", ")}.` : ""}`) : null), h("div", { class: "cols" }, h("div", { class: "col" }, about(c, st, k), h("p", { class: "fine" }, c.ui.rangeNote), table), h("section", { class: "col actions" }, h("h2", { class: "marg" }, "Your reference"), readOnly(x), h("p", {}, c.ui.newNormalNote), h("div", { class: "row" }, h("button", { type: "button", class: "secondary", disabled: !x.canAct, onclick: () => x.act.reanchor(k, false) }, c.ui.newNormal), active ? h("button", { type: "button", class: "secondary", disabled: !x.canAct, onclick: () => x.act.reanchor(k, true) }, c.ui.undoNormal) : null))));
 }
 // ---------- Sharing ----------
 function payloadWords(c, st, sh) {

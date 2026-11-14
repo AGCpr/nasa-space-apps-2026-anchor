@@ -120,6 +120,16 @@ main { grid-area: main; overflow-y: auto; container-type: inline-size; }
 .replay__note { display: none; }
 @media (min-width: 1500px) { .replay__note { display: inline; } }
 .tabbar { display: none; }
+.vitals, .about { display: flex; flex-direction: column; gap: 14px; padding: 22px 24px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); }
+.about dl { margin: 0; display: grid; grid-template-columns: minmax(150px, 0.4fr) 1fr; gap: 10px 18px; }
+.about dt { color: var(--muted); font-weight: 650; font-size: var(--t-sub); }
+.about dd { margin: 0; }
+.about a { color: var(--text); text-underline-offset: 3px; }
+.stepper { display: grid; grid-template-columns: minmax(120px, 1fr) var(--hit) minmax(150px, auto) var(--hit); align-items: center; gap: 12px; }
+.stepper__label { font-weight: 650; }
+.stepper__btn { min-height: var(--hit); border-radius: var(--r-m); border: 2px solid var(--accent); background: var(--surface); color: var(--text); font-size: 32px; font-weight: 700; cursor: pointer; }
+.stepper__value { text-align: center; font-size: var(--t-title3); font-weight: 700; font-variant-numeric: tabular-nums slashed-zero; }
+@media (max-width: 600px) { .about dl { grid-template-columns: 1fr; } .stepper { grid-template-columns: 1fr var(--hit) auto var(--hit); } }
 .guide { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; padding: 22px 24px; border-radius: var(--r-l); border: 2px solid var(--accent); background: var(--surface); }
 .guide__head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .guide__head h2 { font-size: var(--t-title3); font-weight: 700; }
@@ -147,6 +157,9 @@ button:disabled, button.primary:disabled { background: var(--ground); color: var
 .seg--wide, .seg--fill { display: flex; }
 .seg--wide button, .seg--fill button { flex: 1; min-width: 0; }
 .seg--fill button { padding: 0 6px; font-size: var(--t-sub); }
+/* Many indicators: the selector wraps into rows of equal segments instead of squeezing labels. */
+.seg--wide { flex-wrap: wrap; }
+.seg--wide button { flex: 1 1 140px; min-width: 140px; padding: 0 10px; }
 .seg--answer { align-self: flex-start; }
 .seg--answer button { min-width: 150px; }
 

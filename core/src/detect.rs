@@ -7,6 +7,15 @@ use crate::rng::Rng;
 
 /// CUSUM reference value, tuned to a 1-SD sustained shift.
 pub const K_REF: f64 = 0.5;
+/// Cap on one day's contribution to the evidence (a Huber-type robust CUSUM): a single extreme
+/// day adds at most STEP_CAP - K_REF = 2.5, and calibrate_bank floors h above that, so no note can rest on one
+/// reading (DESIGN_PAPER F3). Extreme single values are the safety kernel's job (ADR-0003).
+pub const STEP_CAP: f64 = 3.0;
+
+/// One day's increment in the harmful direction, capped (used by the detector and its calibration).
+pub fn increment(z: f64, dir: Direction) -> f64 {
+    (dir.sign() * z).min(STEP_CAP) - K_REF
+}
 /// Prior lag-1 autocorrelation for calibration; non-zero on purpose (independence => false alarms).
 pub const PHI_PRIOR: f64 = 0.3;
 pub const PHI_MAX: f64 = 0.95;
@@ -63,7 +72,7 @@ impl Cusum {
     /// One day's update in the harmful direction; returns true on alarm (and resets).
     pub fn step(&mut self, z: f64, dir: Direction, h: f64) -> bool {
         debug_assert!(z.is_finite() && h > 0.0);
-        self.s = (self.s + dir.sign() * z - K_REF).max(0.0);
+        self.s = (self.s + increment(z, dir)).max(0.0);
         if self.s > h {
             self.s = 0.0;
             return true;
@@ -287,7 +296,7 @@ fn path_record(model: &Model, dirs: &[Direction], horizon: usize, rng: &mut Rng)
             }
         }
         for i in 0..k {
-            s[i] = (s[i] + dirs[i].sign() * x[i] - K_REF).max(0.0);
+            s[i] = (s[i] + increment(x[i], dirs[i])).max(0.0);
             best = best.max(s[i]);
         }
         rec.push(best);
@@ -356,7 +365,11 @@ pub fn calibrate_bank(model: &Model, dirs: &[Direction], budget_days: f64, seed:
         }
         _ => {}
     }
-    calibrate_records(budget_days, seed, |horizon, rng| path_record(model, dirs, horizon, rng))
+    let mut c = calibrate_records(budget_days, seed, |horizon, rng| path_record(model, dirs, horizon, rng))?;
+    // Floor h above one capped day so the single-day guarantee is structural; a higher h only
+    // lengthens the run length, so arl0 stays a valid lower bound.
+    c.h = c.h.max(STEP_CAP - K_REF + 1e-9);
+    Ok(c)
 }
 
 /// Threshold for the missed-check-in CUSUM at in-control miss probability p0.
@@ -579,6 +592,16 @@ mod tests {
         assert_eq!(c.s, 0.0);
         let mut d = Cusum::default();
         assert!(!d.step(3.0, Direction::Down, 2.0) && d.s == 0.0);
+    }
+
+    /// F3 by construction: one extreme day (even at the z cap of 8) adds at most 2.5, so it cannot
+    /// cross any calibrated threshold on its own; two such days can.
+    #[test]
+    fn a_single_extreme_day_never_opens_a_note() {
+        let mut c = Cusum::default();
+        assert!(!c.step(8.0, Direction::Up, 2.6));
+        assert_eq!(c.s, STEP_CAP - K_REF);
+        assert!(c.step(8.0, Direction::Up, 2.6));
     }
 
     #[test]

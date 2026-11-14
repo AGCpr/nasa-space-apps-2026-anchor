@@ -41,6 +41,10 @@ const UI_EN = {
     replayOpen: "Open the synthetic replay",
     liveOpen: "Start with a synthetic pre-flight package",
     nothingToday: "No notes today.",
+    aboutTitle: "About this measure",
+    vitalsTitle: "Morning measurements",
+    vitalsHint: "Measured with the station's medical kit. Each value is checked against your safety lines as soon as it is saved.",
+    saveVitals: "Save measurements",
     kernelAgree: "Independent safety check: both versions agreed on every value shown.",
 };
 const cap = (x) => `${x[0].toUpperCase()}${x.slice(1)}`;
@@ -55,6 +59,10 @@ export const en = {
         calm: { label: "calm", low: "Tense", mid: "Steady", high: "Calm", unit: "" },
         sleep_min: { label: "sleep", low: "", mid: "", high: "", unit: "min" },
         spo2: { label: "blood oxygen (SpO2)", low: "", mid: "", high: "", unit: "%" },
+        pulse_bpm: { label: "resting pulse", low: "", mid: "", high: "", unit: "bpm" },
+        sbp_mmhg: { label: "blood pressure (systolic)", low: "", mid: "", high: "", unit: "mmHg" },
+        temp_c: { label: "body temperature", low: "", mid: "", high: "", unit: "°C" },
+        glucose_mgdl: { label: "blood glucose", low: "", mid: "", high: "", unit: "mg/dL" },
     },
     recipient: {
         surgeon: "your flight surgeon",
@@ -68,12 +76,63 @@ export const en = {
         ppc: "Request for a private conference",
         crew: "Request to talk with a crewmate",
     },
+    about: {
+        mood: {
+            how: "Rate it in the evening check-in, from unpleasant to pleasant, before looking at any data.",
+            space: "Isolation, confinement and distance from Earth can wear on mood over months. NASA counts behavioural health among the main concerns for long missions.",
+            helps: "Regular sleep, exercise, time at a window, contact with family and talking things through. NASA names keeping a journal as one self-care option.",
+        },
+        energy: {
+            how: "Rate it in the evening check-in, from drained to energised.",
+            space: "Workload, sleep loss and shifting light and dark cycles can drain energy across a long mission.",
+            helps: "Protected sleep time, scheduled breaks and the daily exercise session.",
+        },
+        calm: {
+            how: "Rate it in the evening check-in, from tense to calm.",
+            space: "Living in a small space with the same few people can let tension build up.",
+            helps: "Breathing exercises, private time, and a talk with a trusted crewmate.",
+        },
+        sleep_min: {
+            how: "Imported each morning from the wearable; nothing to enter.",
+            space: "The station sees 16 sunrises a day, and lighting schedules and workload both disturb sleep.",
+            helps: "The pre-sleep lighting, a regular sleep window, and dark, quiet crew quarters.",
+        },
+        spo2: {
+            how: "Fingertip oximeter, seated and still, for 30 seconds.",
+            space: "Exploration vehicles may run at reduced cabin pressure, which can lower blood oxygen a little.",
+            helps: "Rest and measure again; tell the CMO if you feel short of breath.",
+        },
+        pulse_bpm: {
+            how: "Before getting up, count your pulse for 60 seconds, or read it from the cuff.",
+            space: "In weightlessness the heart and blood vessels adapt; the resting pulse helps follow that over the mission.",
+            helps: "The daily exercise session and enough fluids.",
+        },
+        sbp_mmhg: {
+            how: "Cuff on the upper arm, seated and strapped in, after five minutes of rest; note the upper number.",
+            space: "Fluids shift towards the head in weightlessness and the circulation adapts. Low pressure can make standing up after landing harder.",
+            helps: "Exercise, fluids, and the compression garments worn before landing.",
+        },
+        temp_c: {
+            how: "Each morning before eating or drinking, with the oral or forehead thermometer.",
+            space: "Spaceflight can change how the immune system responds, and dormant viruses can wake up. A raised temperature is worth knowing early.",
+            helps: "Rest, fluids, and a word with the CMO.",
+        },
+        glucose_mgdl: {
+            how: "Fingerstick meter every third morning, before breakfast.",
+            space: "Menus are fixed for months on long missions; glucose shows how the body is handling the space diet.",
+            helps: "Regular meals and the variety on the menu. Ask the flight surgeon about lasting changes.",
+        },
+    },
     area: {
         mood: { name: "behavioural health and performance", url: "https://www.nasa.gov/reference/risk-of-behavioral-changes-and-psychiatric-disorders/" },
         energy: { name: "behavioural health and performance", url: "https://www.nasa.gov/reference/risk-of-behavioral-changes-and-psychiatric-disorders/" },
         calm: { name: "behavioural health and performance", url: "https://www.nasa.gov/reference/risk-of-behavioral-changes-and-psychiatric-disorders/" },
         sleep_min: { name: "sleep and irregular schedules", url: "https://www.nasa.gov/reference/risk-from-inadequate-sleep-and-irregular-schedules/" },
         spo2: { name: "oxygen in reduced-pressure cabins (hypoxia)", url: "https://www.nasa.gov/reference/risk-of-hypoxia/" },
+        pulse_bpm: { name: "heart and blood vessels in weightlessness", url: "https://www.nasa.gov/reference/risk-of-cardiovascular-adaptations/" },
+        sbp_mmhg: { name: "heart and blood vessels in weightlessness", url: "https://www.nasa.gov/reference/risk-of-cardiovascular-adaptations/" },
+        temp_c: { name: "the immune system in spaceflight", url: "https://www.nasa.gov/reference/risk-of-altered-immune-system-responses/" },
+        glucose_mgdl: { name: "food and nutrition on long missions", url: "https://www.nasa.gov/reference/risk-of-inadequate-food-and-nutrition/" },
         crew: { name: "teamwork in isolation", url: "https://www.nasa.gov/reference/risk-of-inadequate-teamwork/" },
         support: { name: "independent operation far from Earth", url: "https://www.nasa.gov/reference/risk-of-inadequate-systems-operations-support/" },
     },

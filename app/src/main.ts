@@ -32,6 +32,7 @@ const app = {
   draft: {} as Record<string, number>,
   courseInd: "mood",
   screen: {} as Record<string, 0 | 1>,
+  vitals: {} as Record<string, number>,
   flash: [] as Msg[],
   kernel: { compared: 0, disagreements: 0, injected: new URLSearchParams(location.search).has("inject-kernel-b-fault") },
   busy: "" as string,
@@ -378,6 +379,7 @@ function render() {
     draft: app.draft,
     courseInd: app.courseInd,
     screen: app.screen,
+    vitals: app.vitals,
     kernel: app.kernel,
     sheetWidth: sheetWidth(),
     flash: app.flash,
@@ -392,6 +394,18 @@ function render() {
       link: (up) => void act("link", { up: up ? 1 : 0 }),
       request: (kind) => void act(kind, { day: st.openDay }),
       setScreen: (k, v) => { app.screen[k] = v; render(); },
+      setVital: (k, v) => { app.vitals[k] = v; render(); },
+      saveVitals: () => {
+        // Untouched steppers save the value shown (the last measurement), so every field is explicit.
+        const st2 = project(app.events);
+        const vals: Record<string, number> = { day: st2.openDay };
+        for (const k of V.VITALS) {
+          const i = st2.indicators.get(k);
+          if (!i) continue;
+          vals[k] = app.vitals[k] ?? [...i.values.values()].at(-1)?.[0] ?? 0;
+        }
+        void act("sample", vals).then(() => { app.vitals = {}; render(); });
+      },
       saveScreen: () => void act("screen", { day: st.openDay, ...app.screen }).then(() => { app.screen = {}; render(); }),
       go: (v) => { app.view = v; render(); },
     },

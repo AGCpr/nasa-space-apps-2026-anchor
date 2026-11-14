@@ -36,9 +36,9 @@ https://github.com/AGCpr/nasa-space-apps-2026-anchor (source, documentation, val
 
 **What it does**
 
-- **Check-in.** A 90-second evening check-in with three bipolar sliders (mood, energy, calm). The astronaut rates *before* seeing any data, so the number never overwrites how they feel. Sleep and SpO2 are imported from a wearable.
+- **Check-in.** A 90-second evening check-in with three bipolar sliders (mood, energy, calm). The astronaut rates *before* seeing any data, so the number never overwrites how they feel. Sleep and SpO2 are imported from a wearable. In the morning, pulse, blood pressure, temperature and (every third day) glucose are entered with large steppers. Each measure has an "About this measure" card: how it is measured, why it matters in space, what helps.
 - **Personal range.** Each value is compared with the astronaut's own range: a Bayesian baseline anchored on pre-flight days. It is drawn as a corridor, with the pre-flight level as a dashed benchmark.
-- **Sustained change.** A CUSUM detector notices sustained change. Its threshold is calibrated so a stable person sees at most one unwanted note per 30 days; the end-to-end test gives one per 39 days.
+- **Sustained change.** A CUSUM detector notices sustained change. Its threshold is calibrated so a stable person sees at most one unwanted note per 30 days; the end-to-end test gives one per 39 days. One day's evidence is capped (a robust CUSUM), so a single extreme reading can never open a "several days" note; single readings are the safety kernel's job.
 - **Notes.** Notes use calm, audited language and always name a next step and who takes it. Every note has a "Why this note?" panel: the data, the rule, what would close it, and the NASA research area it relates to.
 - **New normal.** "This is my new normal": after a sustained change the astronaut may accept a new level. It is reversible, limited to once per 30 days and to within 2 SD of pre-flight, and drawn as a hinge in the range.
 - **Disclosure contract.**
@@ -47,7 +47,7 @@ https://github.com/AGCpr/nasa-space-apps-2026-anchor (source, documentation, val
   - Every share appears in a sharing log before it is sent.
   - Any recipient can be excluded, including the CMO.
   - Safety notices re-route to the CMO on board during loss of signal.
-- **Safety lines.** Pre-agreed lines (for example SpO2 below 90 %) are checked by two independently written safety kernels, in Rust and TypeScript, with triple redundancy. If they ever disagree, the value is recorded as unconfirmed and shared as such, never shown as "fine".
+- **Safety lines.** Pre-agreed lines (SpO2 below 90 %, temperature above 38.0 °C, systolic pressure above 160 mmHg, glucose below 70 mg/dL) are checked by two independently written safety kernels, in Rust and TypeScript, with triple redundancy. If they ever disagree, the value is recorded as unconfirmed and shared as such, never shown as "fine".
 - **Support.** A private conference or a talk with a trusted crewmate is one tap away. An optional screener shows, before each question, exactly where a "yes" would go.
 - **Evening rendering.** The interface follows the ISS pre-sleep lighting: no colour bluer than 2700 K. It meets NASA-STD-3001 Appendix F display rules: reserved red, yellow and blue meanings, at least 6:1 contrast, and touch targets of 15–20 mm for microgravity.
 
@@ -62,7 +62,7 @@ https://github.com/AGCpr/nasa-space-apps-2026-anchor (source, documentation, val
 
 - **Real data.** On LifeSnaps (71 adults, 4 months, CC BY 4.0), the unmodified engine processed 13,376 records with 0 errors at 6.7 ms per record.
   - The personal range was calibrated for mood and sleep: 79 % and 78 % of days inside the 80 % band.
-  - ANCHOR raised one note per 95–104 days per indicator, against one per 21–46 days for a naive rule.
+  - ANCHOR raised one note per 95–125 days per indicator, against one per 22–46 days for a naive rule.
   - A known change injected into real sleep series (23 people) was noticed within 4 weeks by ANCHOR in 52 % of people at 1 SD, against 13 % by chance. ANCHOR's notes were four times rarer than the naive rule's before the change.
   - We also report a negative finding. The band is too narrow for smoothed device signals such as Fitbit resting heart rate (lag-1 autocorrelation 0.87), and this is now a configuration rule.
 - **Checks.** About 70 automated tests, Python reference oracles, mutation checks, and a machine audit of every sentence the astronaut can read.
@@ -97,6 +97,9 @@ We used the NASA Human Research Program resources listed for this challenge: *Ri
 - **Risk of Behavioral Changes and Psychiatric Disorders.** Mood, energy and calm; calm detection without diagnosis; privacy by design, which the page calls a top priority.
 - **Risk from Inadequate Sleep and Irregular Schedules.** The sleep indicator, the exclusion of workload days, and the 2700 K evening rendering modelled on the ISS LED lighting schedule.
 - **Risk of Hypoxia.** The SpO2 safety line, motivated by partially depressurised exploration cabins.
+- **Risk of Cardiovascular Adaptations.** Morning pulse and blood pressure, with a systolic safety line.
+- **Risk of Altered Immune System Responses.** Morning temperature, with a fever safety line.
+- **Risk of Inadequate Food and Nutrition.** Fasting glucose every third morning, with a low-glucose safety line.
 - **Risk of Inadequate Teamwork.** The trusted-crewmate route and recipient exclusions.
 - **Risk of Inadequate Systems Operations Support.** Offline operation, the "Why this note?" explanations, and deterministic, auditable outputs.
 

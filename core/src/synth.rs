@@ -11,8 +11,9 @@ const HOUR_MS: i64 = 3_600_000;
 pub const DEMO_DAYS: i64 = 150;
 /// Chosen by `find_demo_seed` (ADR-0009 §12).
 pub const DEMO_SEED: u64 = 1;
-pub const DEMO_TABLE: &str =
-    "t1|1,spo2,below,900,phys,1;2,sleep_min,below,120,phys,1;3,cssrs_plan,above,0,high,0;4,cssrs_intent,above,0,high,1";
+/// Safety lines (record units): SpO2 < 90.0 %, sleep < 120 min, two screener items, body
+/// temperature > 38.0 C, systolic blood pressure > 160 mmHg, blood glucose < 70 mg/dL.
+pub const DEMO_TABLE: &str = "t1|1,spo2,below,900,phys,1;2,sleep_min,below,120,phys,1;3,cssrs_plan,above,0,high,0;4,cssrs_intent,above,0,high,1;5,temp_c,above,380,phys,1;6,sbp_mmhg,above,160,phys,1;7,glucose_mgdl,below,70,phys,1";
 pub const RECIPIENTS: [(&str, i64); 4] = [("surgeon", 0), ("bhp", 0), ("cmo", 1), ("crewmate", 1)];
 pub const ROUTES: [(&str, &str); 7] = [
     ("safety", "surgeon"),
@@ -30,6 +31,7 @@ pub const LOS_DAYS: (i64, i64) = (118, 122);
 pub const SPO2_CROSSING_DAY: i64 = 120;
 pub const REANCHOR_DAY: i64 = 125;
 pub const GAP_DAYS: (i64, i64) = (130, 138);
+pub const FEVER_DAY: i64 = 80;
 
 fn slider(y: f64) -> i64 {
     (1000.0 / (1.0 + (-y).exp())).round().clamp(0.0, 1000.0) as i64
@@ -47,16 +49,22 @@ pub fn preflight(seed: u64) -> Result<(Session, Vec<Event>), String> {
     let mut rng = Rng::new(seed);
     let r = s.record(0, "setup").int("budget_days", 30).map_err(|e| e.to_string())?;
     push(&mut s, &mut ev, r)?;
-    // key, transform, decimals, population (mu, tau2, sigma2, nu_p) x 1e6 on the model scale
-    let inds: [(&str, i64, i64, [i64; 4]); 5] = [
-        ("mood", 0, 0, [400_000, 300_000, 250_000, 5_000_000]),
-        ("energy", 0, 0, [300_000, 300_000, 250_000, 5_000_000]),
-        ("calm", 0, 0, [500_000, 300_000, 250_000, 5_000_000]),
-        ("sleep_min", 1, 0, [380_000_000, 900_000_000, 1_600_000_000, 5_000_000]),
-        ("spo2", 1, 1, [97_500_000, 250_000, 160_000, 5_000_000]),
+    // key, harmful direction, transform, decimals, population (mu, tau2, sigma2, nu_p) x 1e6 on the
+    // model scale. Vitals follow the challenge's suggested indicators (pulse, blood pressure,
+    // temperature, glucose); their population values are generic adult ones, deliberately weak.
+    let inds: [(&str, i64, i64, i64, [i64; 4]); 9] = [
+        ("mood", -1, 0, 0, [400_000, 300_000, 250_000, 5_000_000]),
+        ("energy", -1, 0, 0, [300_000, 300_000, 250_000, 5_000_000]),
+        ("calm", -1, 0, 0, [500_000, 300_000, 250_000, 5_000_000]),
+        ("sleep_min", -1, 1, 0, [380_000_000, 900_000_000, 1_600_000_000, 5_000_000]),
+        ("spo2", -1, 1, 1, [97_500_000, 250_000, 160_000, 5_000_000]),
+        ("pulse_bpm", 1, 1, 0, [62_000_000, 64_000_000, 16_000_000, 5_000_000]),
+        ("sbp_mmhg", 1, 1, 0, [118_000_000, 100_000_000, 36_000_000, 5_000_000]),
+        ("temp_c", 1, 1, 1, [36_600_000, 90_000, 40_000, 5_000_000]),
+        ("glucose_mgdl", 1, 1, 0, [95_000_000, 100_000_000, 81_000_000, 5_000_000]),
     ];
-    for (key, tr, dec, p) in inds {
-        let r = s.record(0, "indicator").text("key_txt", key).and_then(|r| r.int("dir", -1)).and_then(|r| r.int("transform", tr))
+    for (key, dir, tr, dec, p) in inds {
+        let r = s.record(0, "indicator").text("key_txt", key).and_then(|r| r.int("dir", dir)).and_then(|r| r.int("transform", tr))
             .and_then(|r| r.int("decimals", dec)).and_then(|r| r.int("mu_e6", p[0])).and_then(|r| r.int("tau2_e6", p[1]))
             .and_then(|r| r.int("sigma2_e6", p[2])).and_then(|r| r.int("nu_p_e6", p[3])).map_err(|e| e.to_string())?;
         push(&mut s, &mut ev, r)?;
@@ -73,23 +81,37 @@ pub fn preflight(seed: u64) -> Result<(Session, Vec<Event>), String> {
     }
     let r = s.record(0, "link").int("up", 1).map_err(|e| e.to_string())?;
     push(&mut s, &mut ev, r)?;
-    for _ in 0..30 {
+    // Vitals draw from their own stream, so adding them left the other series unchanged.
+    let mut vit = Rng::new(seed ^ 0x5157);
+    for k in 0..30 {
         let r = s.record(0, "preflight")
             .int("mood", slider(0.6 + 0.5 * rng.normal()))
             .and_then(|r| r.int("energy", slider(0.4 + 0.5 * rng.normal())))
             .and_then(|r| r.int("calm", slider(0.7 + 0.5 * rng.normal())))
             .and_then(|r| r.int("sleep_min", (390.0 + 40.0 * rng.normal()).round() as i64))
             .and_then(|r| r.int("spo2", (975.0 + 4.0 * rng.normal()).round() as i64))
+            .and_then(|r| vitals(r, &mut vit, k % 3 == 0, false))
             .map_err(|e| e.to_string())?;
         push(&mut s, &mut ev, r)?;
     }
     Ok((s, ev))
 }
 
+/// Morning vitals: resting pulse (60 s count), systolic blood pressure (cuff), body temperature,
+/// and blood glucose every third day (fingerstick).
+fn vitals(r: crate::log::Record, rng: &mut Rng, glucose: bool, fever: bool) -> Result<crate::log::Record, crate::log::LogError> {
+    let r = r
+        .int("pulse_bpm", (62.0 + 3.5 * rng.normal()).round() as i64)?
+        .int("sbp_mmhg", (118.0 + 6.0 * rng.normal()).round() as i64)?
+        .int("temp_c", if fever { 384 } else { (366.0 + 1.8 * rng.normal()).round() as i64 })?;
+    if glucose { r.int("glucose_mgdl", (95.0 + 8.0 * rng.normal()).round() as i64) } else { Ok(r) }
+}
+
 /// The 150-day demonstration mission (scripted events: see ADR-0009 §12 and the test below).
 pub fn mission(seed: u64) -> Result<(Session, Vec<Event>), String> {
     let (mut s, mut ev) = preflight(seed)?;
     let mut rng = Rng::new(seed ^ 0xA5A5);
+    let mut vit = Rng::new(seed ^ 0xA157);
     let mut ar = [0.0f64; 4]; // AR(1) states: mood, energy, calm, sleep
     for day in 1..=DEMO_DAYS {
         let base = day * DAY_MS;
@@ -111,7 +133,8 @@ pub fn mission(seed: u64) -> Result<(Session, Vec<Event>), String> {
         }
         // Morning: imported wearable samples (continue through the check-in gap).
         let spo2 = if day == SPO2_CROSSING_DAY { 884 } else { (975.0 + 4.0 * rng.normal()).round() as i64 };
-        let r = e(s.record(morning, "sample").int("day", day).and_then(|r| r.int("sleep_min", (390.0 + 40.0 * ar[3]).round() as i64)).and_then(|r| r.int("spo2", spo2)))?;
+        let r = e(s.record(morning, "sample").int("day", day).and_then(|r| r.int("sleep_min", (390.0 + 40.0 * ar[3]).round() as i64)).and_then(|r| r.int("spo2", spo2))
+            .and_then(|r| vitals(r, &mut vit, day % 3 == 0, day == FEVER_DAY)))?;
         push(&mut s, &mut ev, r)?;
         ev.extend(s.transmit(morning)?);
         // Evening check-in (pre-sleep lighting): three bipolar sliders.
@@ -163,10 +186,16 @@ mod tests {
         assert!(any(&|o| matches!(o, Output::Reanchored { day: REANCHOR_DAY, indicator, .. } if indicator == "mood")));
         assert!(any(&|o| matches!(o, Output::Safety { day: SPO2_CROSSING_DAY, indicator, .. } if indicator == "spo2")));
         // Safety notice during loss of signal goes to the CMO on board, and is sent.
+        let day120 = format!(";day={SPO2_CROSSING_DAY};");
         let safety = outs.iter().find_map(|o| match o {
-            Output::ShareQueued { share, class: "safety", to, .. } => Some((*share, to.clone())),
+            Output::ShareQueued { share, class: "safety", to, payload } if payload.contains(&day120) => Some((*share, to.clone())),
             _ => None,
         });
+        // Single-day spikes reach the safety kernel, never the sustained-change detector (F3).
+        assert!(!any(&|o| matches!(o, Output::Alarm { indicator, day, .. } if (indicator == "temp_c" && *day == FEVER_DAY) || (indicator == "spo2" && *day == SPO2_CROSSING_DAY))));
+        // A fever on day 72 crosses the temperature line while the ground link is up: the surgeon.
+        assert!(any(&|o| matches!(o, Output::Safety { day: FEVER_DAY, indicator, .. } if indicator == "temp_c")));
+        assert!(any(&|o| matches!(o, Output::ShareQueued { class: "safety", to: Some(t), payload, .. } if t == "surgeon" && payload.contains(&format!(";day={FEVER_DAY};")))));
         assert_eq!(safety.as_ref().map(|s| s.1.as_deref()), Some(Some("cmo")));
         assert!(any(&|o| matches!(o, Output::ShareSent { share, to } if Some(*share) == safety.as_ref().map(|s| s.0) && to == "cmo")));
         assert!(any(&|o| matches!(o, Output::MissingnessAlarm { day } if (GAP_DAYS.0..=GAP_DAYS.1 + 1).contains(day))));
