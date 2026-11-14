@@ -1,7 +1,7 @@
 // R1, R3 and R10 as tests (ADR-0009 §9): the tokens checked are the tokens rendered.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { contrast, day, evening, hue, rgb, type Tokens } from "../src/tokens.ts";
+import { contrast, day, evening, hue, moreContrast, rgb, type Tokens } from "../src/tokens.ts";
 
 const sat = (h: string) => {
   const c = rgb(h);
@@ -53,3 +53,13 @@ test("contour ochre is never a text colour (tokens.ts: lines only)", async () =>
   const misuse = css.split("}").filter((rule) => /(^|[;{\s])color:\s*var\(--contour\)/.test(rule) || (/text|label/.test(rule.split("{")[0] ?? "") && /fill:\s*var\(--contour\)/.test(rule)));
   assert.deepEqual(misuse, []);
 });
+
+for (const [name, t] of [["day", day], ["evening", evening]] as const) {
+  test(`${name}, increased contrast: all text reaches 7:1 (WCAG AAA) and rules reach 3:1`, () => {
+    const m = moreContrast(t);
+    for (const [fg, bg] of [["text", "ground"], ["text", "surface"], ["muted", "ground"], ["muted", "surface"]] as const) {
+      assert.ok(contrast(m[fg], m[bg]) >= 7, `${fg} on ${bg}: ${contrast(m[fg], m[bg]).toFixed(2)}`);
+    }
+    for (const bg of ["ground", "surface"] as const) assert.ok(contrast(m.line, m[bg]) >= 3, `line on ${bg}`);
+  });
+}

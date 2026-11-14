@@ -3,7 +3,7 @@
 import { compareKernels, tmrEvaluate } from "../../kernel-b/src/kernel.js";
 import { en } from "./catalogue.js";
 import { DAY_MS, kernelA, prefixEnd, project } from "./model.js";
-import { day as dayTokens, evening as eveningTokens, toCss } from "./tokens.js";
+import { day as dayTokens, evening as eveningTokens, toCss, moreContrast } from "./tokens.js";
 import { card, glyph, h, segmented } from "./ui.js";
 import * as V from "./views.js";
 import { Engine, wire } from "./wasm.js";
@@ -301,6 +301,9 @@ function sheetWidth() {
     const w = content ? content.clientWidth : Math.min(1200, innerWidth - (innerWidth >= 1000 ? 300 : 0) - 64);
     return Math.max(300, w - 2 * 24 - 2);
 }
+/** The system's increased-contrast setting, followed live. */
+const contrastMore = matchMedia("(prefers-contrast: more)");
+contrastMore.addEventListener("change", () => render());
 let resizeTimer;
 window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = window.setTimeout(render, 120); });
 /** Three places that show what ANCHOR does, one tap each (replay only). */
@@ -343,7 +346,8 @@ function render() {
     const st = project(current());
     const ev = evening(st);
     document.documentElement.dataset.light = ev ? "evening" : "day";
-    document.documentElement.style.cssText = toCss(ev ? eveningTokens : dayTokens);
+    const base = ev ? eveningTokens : dayTokens;
+    document.documentElement.style.cssText = toCss(contrastMore.matches ? moreContrast(base) : base);
     const ctx = {
         st,
         cat: c,
@@ -400,6 +404,9 @@ setInterval(() => { if (app.mode === "live") {
     rollover();
     render();
 } }, 60_000);
+// Offline after the first visit (N1): the service worker precaches every file the app needs.
+if ("serviceWorker" in navigator && location.protocol !== "file:")
+    void navigator.serviceWorker.register("sw.js").catch(() => undefined);
 (async () => {
     render();
     void navigator.storage?.persist?.();

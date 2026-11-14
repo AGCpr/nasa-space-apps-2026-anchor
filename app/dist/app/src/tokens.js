@@ -34,6 +34,12 @@ export const evening = {
     warning: "#ff6a3d",
     onSignal: "#0d0904",
 };
+/** Increased contrast (HIG accessibility; system "Increase contrast"): secondary text becomes primary
+ *  text and rules take the old secondary colour, so every edge and label stands out. Hues are unchanged,
+ *  so R1 and R10 still hold. */
+export function moreContrast(t) {
+    return { ...t, muted: t.text, line: t.muted, contour: t.muted };
+}
 export function rgb(hex) {
     const n = parseInt(hex.slice(1), 16);
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];

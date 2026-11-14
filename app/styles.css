@@ -350,6 +350,23 @@ input.scrub::-moz-range-thumb { width: 44px; height: 64px; border-radius: var(--
   .log__row { grid-template-columns: 1fr auto; }
   .log__day { grid-column: 1 / -1; }
 }
+/* Windows High Contrast and other forced-colour modes: the chart and instruments take system colours,
+   so nothing drawn in a custom colour disappears (shape and label still carry every meaning, R2). */
+@media (forced-colors: active) {
+  .corridor, .rbar__range, .slider__fill { fill: GrayText; background: GrayText; opacity: 0.5; forced-color-adjust: none; }
+  .trace, .benchmark, .contour, .hinge, .hinge__leader, .episode__leader { stroke: CanvasText; }
+  .trace__dot, .strip__in, .strip__share { fill: CanvasText; }
+  .episode, .episode__glyph, .safety-mark { fill: Highlight; }
+  .limit { stroke: Highlight; }
+  .chart text, .strip text { fill: CanvasText; }
+  .rbar__tonight, .slider__thumb, .switch__knob { background: Highlight; forced-color-adjust: none; }
+  .rbar__anchor { border-color: CanvasText; }
+  .switch__track { border: 2px solid CanvasText; }
+  /* Selection must survive: the selected item takes the system highlight pair. */
+  .sidebar__nav button[aria-current="page"], .seg button[aria-checked="true"], .switch--on .switch__track { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+  .tabbar button[aria-current="page"] { box-shadow: inset 0 4px 0 Highlight; }
+  .link--up strong::before { forced-color-adjust: none; background: CanvasText; }
+}
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; transition: none !important; animation: none !important; } }
 @media (prefers-reduced-transparency: reduce) { .status { backdrop-filter: none; background: var(--ground); } }
 .sheet__detail { padding-top: 10px; }

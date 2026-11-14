@@ -3,7 +3,7 @@
 import { compareKernels, tmrEvaluate } from "../../kernel-b/src/kernel.ts";
 import { en, type Msg } from "./catalogue.ts";
 import { DAY_MS, kernelA, prefixEnd, project, type Event, type State } from "./model.ts";
-import { day as dayTokens, evening as eveningTokens, toCss } from "./tokens.ts";
+import { day as dayTokens, evening as eveningTokens, toCss, moreContrast } from "./tokens.ts";
 import { card, glyph, h, segmented } from "./ui.ts";
 import * as V from "./views.ts";
 import { Engine, wire } from "./wasm.ts";
@@ -329,6 +329,10 @@ function sheetWidth(): number {
   return Math.max(300, w - 2 * 24 - 2);
 }
 
+/** The system's increased-contrast setting, followed live. */
+const contrastMore = matchMedia("(prefers-contrast: more)");
+contrastMore.addEventListener("change", () => render());
+
 let resizeTimer: number | undefined;
 window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = window.setTimeout(render, 120); });
 
@@ -383,7 +387,8 @@ function render() {
   const st = project(current());
   const ev = evening(st);
   document.documentElement.dataset.light = ev ? "evening" : "day";
-  document.documentElement.style.cssText = toCss(ev ? eveningTokens : dayTokens);
+  const base = ev ? eveningTokens : dayTokens;
+  document.documentElement.style.cssText = toCss(contrastMore.matches ? moreContrast(base) : base);
   const ctx: V.Ctx = {
     st,
     cat: c,
@@ -433,6 +438,9 @@ function render() {
 window.addEventListener("error", (e) => { app.fatal = String(e.error ?? e.message); render(); });
 window.addEventListener("unhandledrejection", (e) => { app.fatal = String(e.reason); render(); });
 setInterval(() => { if (app.mode === "live") { rollover(); render(); } }, 60_000);
+
+// Offline after the first visit (N1): the service worker precaches every file the app needs.
+if ("serviceWorker" in navigator && location.protocol !== "file:") void navigator.serviceWorker.register("sw.js").catch(() => undefined);
 
 (async () => {
   render();

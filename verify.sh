@@ -39,6 +39,7 @@ TSC=kernel-b/node_modules/.bin/tsc
 # One command per line: under set -e, a failure left of && would not stop the run.
 $TSC -p app
 $TSC -p app/tsconfig.test.json
+node app/scripts/build-sw.ts
 (cd app && node --test --test-reporter=dot test/*.test.ts)
 
 echo "all checks passed"
