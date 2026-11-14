@@ -133,11 +133,11 @@ await scene("s3_checkin", async () => {
 
 // S4: the mission as a time-lapse: the corridor grows, change is noticed, a new normal is set.
 await open("view=course&day=20&light=evening");
-await page.evaluate(() => document.querySelector("main").scrollTo(0, 150));
+await page.evaluate(() => document.querySelector("main").scrollTo(0, 265));
 await scene("s4_course", async () => {
   for (let d = 20; d <= 150; d += 1) {
     await page.evaluate((day) => { const s = document.querySelector(".scrub"); s.value = String(day); s.dispatchEvent(new Event("input")); }, d);
-    await page.evaluate(() => document.querySelector("main").scrollTo(0, 150));
+    await page.evaluate(() => document.querySelector("main").scrollTo(0, 265));
     await snap();
   }
   await hold(1.0);
@@ -147,7 +147,12 @@ await scene("s4_course", async () => {
 await open("view=today&day=110&light=evening&why=open");
 await scene("s5_why", async () => {
   await hold(0.6);
-  await scrollTo(300, 30);
+  // Scroll the first note to the top of the view so its open "Why this note?" panel is on screen.
+  const target = await page.evaluate(() => {
+    const m = document.querySelector("main"), n = document.querySelector(".msg--caution, .msg--warning");
+    return m.scrollTop + n.getBoundingClientRect().top - m.getBoundingClientRect().top - 90;
+  });
+  await scrollTo(target, 30);
   await hold(1.6);
 });
 
@@ -160,7 +165,7 @@ await scene("s6_sharing", async () => {
   const row = await page.evaluate(() => {
     const li = [...document.querySelectorAll(".log__row")].find((r) => r.textContent.includes("safety notice"));
     const b = li.getBoundingClientRect();
-    return { x: b.left + 160, y: b.top + b.height / 2 };
+    return { x: b.right - 140, y: b.top + b.height / 2 };
   });
   await moveTo(row.x, row.y, 12);
   await hold(2.0);

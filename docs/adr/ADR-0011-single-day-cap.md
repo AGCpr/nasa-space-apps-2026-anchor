@@ -36,6 +36,8 @@ $$S_t = \max\bigl(0,\; S_{t-1} + \min(s\,z_t,\, c) - k\bigr), \qquad c = 3.0,\; 
 
 The cap removed chance notes without losing any detection of a real sustained change.
 
+![The day-80 fever in the demo mission: the safety line fires, the sustained-change summary stays "No sign of sustained change."](../img/fever.jpg)
+
 ## Consequences
 
 - A truly abrupt and lasting change (a step of 5 SD) is noticed one day later than before: two capped days instead of one. Abrupt extreme values are the safety kernel's job, which reacts on the first reading.

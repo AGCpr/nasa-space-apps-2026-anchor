@@ -154,13 +154,16 @@ button:disabled, button.primary:disabled { background: var(--ground); color: var
 .seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: var(--r-m); background: var(--ground); border: 1px solid var(--line); }
 .seg button { min-height: calc(var(--hit) - 10px); min-width: 72px; padding: 0 18px; border: 0; border-radius: var(--r-s); background: none; color: var(--text); font-weight: 650; cursor: pointer; }
 .seg button[aria-checked="true"] { background: var(--accent); color: var(--on-accent); }
-.seg--wide, .seg--fill { display: flex; }
-.seg--wide button, .seg--fill button { flex: 1; min-width: 0; }
+.seg--fill { display: flex; }
+.seg--fill button { flex: 1; min-width: 0; }
 .seg--fill button { padding: 0 6px; font-size: var(--t-sub); }
-/* Many indicators: the selector wraps into rows of equal segments instead of squeezing labels. */
-.seg--wide { flex-wrap: wrap; }
-.seg--wide button { flex: 1 1 140px; min-width: 140px; padding: 0 10px; }
 .seg--answer { align-self: flex-start; }
+.popup { display: flex; align-items: center; gap: 16px; }
+.popup__label { color: var(--muted); font-weight: 650; font-size: var(--t-sub); }
+.popup__select { appearance: none; min-height: var(--hit); flex: 0 1 360px; min-width: 0; padding: 0 56px 0 20px; border-radius: var(--r-m); border: 1px solid var(--line); color: var(--text); font: inherit; font-weight: 650; cursor: pointer;
+  background: var(--ground) no-repeat right 20px center / 14px 9px url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 14 9%27%3E%3Cpath d=%27M1 1l6 6 6-6%27 fill=%27none%27 stroke=%27%23777%27 stroke-width=%272%27/%3E%3C/svg%3E"); }
+.popup__select:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.popup__select optgroup, .popup__select option { background: var(--surface, var(--ground)); color: var(--text); }
 .seg--answer button { min-width: 150px; }
 
 /* Switch: state carried by position, fill and words (R2). The whole control is the 80 px target. */
@@ -330,8 +333,6 @@ input.scrub::-moz-range-thumb { width: 44px; height: 64px; border-radius: var(--
   .replay:has(.ghost) > button { grid-column: auto; }
   .replay button { padding: 0 14px; font-size: var(--t-sub); }
   .rbar { grid-template-columns: 1fr; gap: 6px; }
-  .seg--wide { overflow-x: auto; }
-  .seg--wide button { flex: 0 0 auto; }
   .log__row { grid-template-columns: 1fr auto; }
   .log__day { grid-column: 1 / -1; }
 }

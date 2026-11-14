@@ -5,7 +5,7 @@ import type { Catalogue, Msg, Slots, Why } from "./catalogue.ts";
 import { isSilent } from "./catalogue.ts";
 import type { Indicator, Note, Share, State } from "./model.ts";
 import { shown } from "./model.ts";
-import { bipolar, card, h, s, segmented, stepper } from "./ui.ts";
+import { bipolar, card, h, s, popUp, segmented, stepper } from "./ui.ts";
 
 export type View = "today" | "course" | "sharing" | "support";
 
@@ -548,7 +548,11 @@ export function course(x: Ctx): HTMLElement {
     "section",
     { class: "view" },
     h("header", { class: "view__head" }, h("h1", {}, "Course"), h("p", { class: "subtitle" }, `Mission days 1–${upto}`)),
-    segmented("Value", keys.map((key) => ({ value: key, label: cap(label(c, key).replace(/ \(.*\)/, "")) })), k, (v) => x.act.setCourse(v), "seg--wide"),
+    popUp("Measure", [
+      { label: "Evening check-in", keys: keys.filter((key) => !VITALS.includes(key) && key !== "sleep_min" && key !== "spo2") },
+      { label: "Wearable", keys: keys.filter((key) => key === "sleep_min" || key === "spo2") },
+      { label: c.ui.vitalsTitle, keys: keys.filter((key) => VITALS.includes(key)) },
+    ].map((g) => ({ label: g.label, options: g.keys.map((key) => ({ value: key, label: cap(label(c, key).replace(/ \(.*\)/, "")) })) })), k, (v) => x.act.setCourse(v)),
     h(
       "figure",
       { class: "sheet" },

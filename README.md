@@ -45,6 +45,8 @@ NASA's Human Research Program lists the risks this tool addresses. The mapping, 
 
 ![Today: a calm note with its explanation open](docs/img/today-why.jpg)
 
+![Course, body temperature: one fever morning crosses the safety line and reaches the flight surgeon, yet opens no "several days" note](docs/img/fever.jpg)
+
 ## Evidence
 
 - **Real people, unmodified engine** ([docs/VALIDATION.md](docs/VALIDATION.md)). LifeSnaps: 71 adults, about 4 months of Fitbit and mood data, CC BY 4.0.

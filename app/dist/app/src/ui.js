@@ -45,6 +45,14 @@ export function card(m, extra) {
 export function segmented(name, options, current, onPick, cls = "") {
     return h("div", { class: `seg ${cls}`, role: "radiogroup", "aria-label": name }, ...options.map((o) => h("button", { type: "button", role: "radio", "aria-checked": o.value === current ? "true" : "false", onclick: () => onPick(o.value) }, o.label)));
 }
+/**
+ * Pop-up button (HIG pop-up-buttons.md): a flat list of mutually exclusive options, used where a
+ * segmented control would exceed HIG's "about five to seven segments". Native select, so the
+ * platform supplies the menu, keyboard and screen-reader behaviour.
+ */
+export function popUp(name, groups, current, onPick) {
+    return h("label", { class: "popup" }, h("span", { class: "popup__label" }, name), h("select", { class: "popup__select", onchange: (e) => onPick(e.target.value) }, ...groups.filter((g) => g.options.length).map((g) => h("optgroup", { label: g.label }, ...g.options.map((o) => h("option", { value: o.value, selected: o.value === current }, o.label))))));
+}
 /** Stepper for a measured value: large minus and plus targets around the value (R7), no typing. */
 export function stepper(opts) {
     const show = (v) => `${v.toFixed(opts.decimals)} ${opts.unit}`;

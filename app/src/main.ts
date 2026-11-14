@@ -357,8 +357,14 @@ function playMission() {
   step();
 }
 
+/** Identity of a disclosure across re-renders: its card's title plus its own summary. */
+const detailsKey = (d: HTMLDetailsElement) =>
+  `${d.parentElement?.closest("article, section, figure")?.querySelector("h2, h3")?.textContent ?? ""}|${d.querySelector("summary")?.textContent ?? ""}`;
+
 function render() {
   const scroll = document.querySelector("main")?.scrollTop ?? 0;
+  // Re-renders (audit finished, resize, minute tick) must not close what the astronaut opened.
+  const opened = new Set([...document.querySelectorAll<HTMLDetailsElement>("main details[open]")].map(detailsKey));
   if (app.fatal) {
     root.replaceChildren(h("main", { class: "fatal" }, h("h1", {}, "ANCHOR stopped"), h("p", {}, "The engine stopped unexpectedly. Your stored log is unchanged. Reload to replay it."), h("pre", {}, app.fatal)));
     return;
@@ -415,6 +421,7 @@ function render() {
   const flash = app.flash.length ? h("section", { class: "flash", role: "status", "aria-live": "polite" }, ...app.flash.map((m) => card(m))) : null;
   const busy = app.busy ? h("p", { class: "busy", role: "status" }, glyph("info"), ` ${app.busy}…`) : null;
   root.replaceChildren(sidebar(), h("main", { id: "main" }, statusBar(st), h("div", { class: "content" }, busy ?? "", guide ?? "", flash ?? "", view)), replayBar(st) ?? "", tabBar());
+  for (const d of document.querySelectorAll<HTMLDetailsElement>("main details")) if (opened.has(detailsKey(d))) d.open = true;
   const main = document.querySelector("main");
   if (main) main.scrollTop = scroll;
 }

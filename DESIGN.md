@@ -230,7 +230,7 @@ The shell is a CSS grid filling 100dvh. It has a full-width top line (minimum 84
 
 Breakpoints:
 - **900 px (portrait tablet):** the rail narrows to 104 px, the main padding drops to 24 / 20 / 40 px, and the top line wraps into two full rows, with the mode controls on their own ruled row. The footer becomes two columns, and range bars stack.
-- **600 px (phone, not a target device):** a single column. The rail moves to the top as a horizontal row of 80 px items, the page scrolls as a whole, and the replay footer is sticky at the bottom edge with its long note dropped. Wide segmented controls scroll horizontally.
+- **600 px (phone, not a target device):** a single column. The rail moves to the top as a horizontal row of 80 px items, the page scrolls as a whole, and the replay footer is sticky at the bottom edge with its long note dropped.
 
 Charts size the SVG width to the sheet, so one SVG unit is one CSS px. Stroke widths and chart type sizes (16 px axes, 17 px hinge label) are therefore real pixels.
 
@@ -336,6 +336,7 @@ This revision supersedes the shell and type sections above wherever they conflic
 - **Components.**
   - **Cards:** one surface colour, a 20 px radius and a 1 px rule.
   - **Segmented controls:** a track holding selected pills, 80 px tall.
+  - **Pop-up button (measure picker on Course):** nine measures exceed HIG's "about five to seven segments" (segmented-controls.md), so Course uses a native pop-up button (pop-up-buttons.md), 80 px tall, grouped by source: evening check-in, wearable, morning measurements. The chart moves up by one row of controls, and the platform supplies the menu, keyboard and screen-reader behaviour.
   - **Switches:** a 66 × 40 px track whose knob position, fill and word all state the setting (R2); the whole control is the 80 px target.
   - **Sharing settings:** inset grouped lists.
   - **Chart cards:** open with a title and a one-sentence main message; the coverage and episode details sit below the chart (HIG charts.md).
