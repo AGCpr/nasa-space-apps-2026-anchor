@@ -47,6 +47,7 @@ Claude (Anthropic), used as a coding and research assistant in Claude Code, in N
 
 ## What is not AI-generated
 
-- No images, video or audio in this repository are AI-generated. Screenshots are captures of the running app.
+- No images are AI-generated. Screenshots and every app shot in the demo video are captures of the running app, recorded by `demo/record.mjs`.
+- **Audio is the one exception.** The demo video's narration is synthetic speech (Microsoft Edge neural text-to-speech, voice en-US-AvaNeural). It is disclosed on the video's end card and in the MP4 file's metadata (`comment` field), and the script is `demo/make_video.py`.
 - The font is Atkinson Hyperlegible (Braille Institute, OFL).
 - No NASA branding is used.

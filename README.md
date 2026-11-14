@@ -92,7 +92,7 @@ bash verify.sh                    # rebuilds and runs every check (needs Rust, N
 
 ## Use of AI
 
-This project was built with an AI coding assistant (Claude, by Anthropic) during the software phase. See [AI_ASSISTANCE.md](AI_ASSISTANCE.md) for what was assisted and how it was checked. Commits made with the assistant carry a `Co-Authored-By` trailer. No images, audio or video in this repository are AI-generated.
+This project was built with an AI coding assistant (Claude, by Anthropic) during the software phase. See [AI_ASSISTANCE.md](AI_ASSISTANCE.md) for what was assisted and how it was checked. Commits made with the assistant carry a `Co-Authored-By` trailer. No images are AI-generated. The demo video narration is synthetic speech (Microsoft Edge neural TTS), disclosed on its end card and in the file metadata.
 
 ## Data, licences, credits
 

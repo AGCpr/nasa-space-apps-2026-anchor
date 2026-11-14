@@ -89,6 +89,7 @@ export type Catalogue = {
   };
 };
 
+const cap = (x: string) => `${x[0]!.toUpperCase()}${x.slice(1)}`;
 const label = (s: Slots) => en.indicator[s.ind]?.label ?? s.ind.replace(/_/g, " ");
 const who = (to: string | null) => (to === null ? "no one yet" : (en.recipient[to] ?? to));
 const lower = (s: Slots) => (s.dir === -1 ? "lower" : "higher");
@@ -341,21 +342,21 @@ export const en: Catalogue = {
   insight: {
     inside: (ind, below, of) => ({
       register: "info",
-      title: "Tonight",
+      title: `${cap(en.indicator[ind]?.label ?? ind)} tonight`,
       text: `Your ${en.indicator[ind]?.label ?? ind} tonight is inside your usual range, higher than ${below} of your last ${of} check-ins.`,
       action: "look at how it has moved over the mission on Course",
       owner: "You",
     }),
     outside: (ind, dirWord, below, of) => ({
       register: "info",
-      title: "Tonight",
+      title: `${cap(en.indicator[ind]?.label ?? ind)} tonight`,
       text: `Your ${en.indicator[ind]?.label ?? ind} tonight is ${dirWord} than your usual range, higher than ${below} of your last ${of} check-ins. One evening on its own says little.`,
       action: "look at how it has moved over the mission on Course",
       owner: "You",
     }),
     early: (ind) => ({
       register: "info",
-      title: "Tonight",
+      title: `${cap(en.indicator[ind]?.label ?? ind)} tonight`,
       text: `Saved. Your usual range for ${en.indicator[ind]?.label ?? ind} is still being learned, so tonight is not compared yet.`,
       action: "keep checking in when it suits you",
       owner: "You",

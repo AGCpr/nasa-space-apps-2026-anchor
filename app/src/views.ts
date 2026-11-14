@@ -266,13 +266,17 @@ export function today(x: Ctx): HTMLElement {
     "section",
     { class: "view" },
     head,
-    ...body,
     h(
-      "section",
-      { class: "notes" },
-      h("h2", { class: "marg" }, "Notes"),
-      ...(notes.length ? notes.map((m) => card(m)) : [h("p", {}, c.ui.nothingToday)]),
-      h("p", { class: "fine" }, `Coverage: ${recent} check-ins in the last 14 days.${queued ? ` ${queued} item${queued > 1 ? "s" : ""} listed on Sharing today.` : ""}`),
+      "div",
+      { class: "cols" },
+      h("div", { class: "col" }, ...body),
+      h(
+        "section",
+        { class: "col notes" },
+        h("h2", { class: "marg" }, "Notes"),
+        ...(notes.length ? notes.map((m) => card(m)) : [h("p", {}, c.ui.nothingToday)]),
+        h("p", { class: "fine" }, `Coverage: ${recent} check-ins in the last 14 days.${queued ? ` ${queued} item${queued > 1 ? "s" : ""} listed on Sharing today.` : ""}`),
+      ),
     ),
   );
 }
@@ -497,29 +501,35 @@ export function course(x: Ctx): HTMLElement {
   return h(
     "section",
     { class: "view" },
-    h("header", { class: "view__head" }, h("h1", {}, `Course, days 1–${upto}`)),
+    h("header", { class: "view__head" }, h("h1", {}, "Course"), h("p", { class: "subtitle" }, `Mission days 1–${upto}`)),
     segmented("Value", keys.map((key) => ({ value: key, label: cap(label(c, key).replace(/ \(.*\)/, "")) })), k, (v) => x.act.setCourse(v), "seg--wide"),
-    h("figure", { class: "sheet" }, corridorChart(c, st, i, g), strip(st, g, { shares: false }), h("figcaption", { id: "chart-sum" }, sum)),
     h(
-      "div",
-      { class: "legend" },
-      h("span", { class: "key key--corridor" }, "Usual range (8 in 10 days)"),
-      h("span", { class: "key key--benchmark" }, "Pre-flight level"),
-      h("span", { class: "key key--hinge" }, "New normal you set"),
-      h("span", { class: "key key--episode" }, "Change noticed"),
+      "figure",
+      { class: "sheet" },
+      h("figcaption", { class: "sheet__head", id: "chart-sum" }, h("h2", { class: "sheet__title" }, cap(label(c, k))), h("p", {}, last ? evidence(st, i, upto) : sum)),
+      corridorChart(c, st, i, g),
+      strip(st, g, { shares: false }),
+      h(
+        "div",
+        { class: "legend" },
+        h("span", { class: "key key--corridor" }, "Usual range (8 in 10 days)"),
+        h("span", { class: "key key--benchmark" }, "Pre-flight level"),
+        h("span", { class: "key key--hinge" }, "New normal you set"),
+        h("span", { class: "key key--episode" }, "Change noticed"),
+      ),
+      last ? h("p", { class: "fine sheet__detail" }, `${covered} of ${upto} days with data. Latest usual range ${statShown(i, last.lo).toFixed(i.slider ? 0 : 1)} to ${statShown(i, last.hi).toFixed(i.slider ? 0 : 1)}.${eps.length ? ` Change noticed on days ${eps.join(", ")}.` : ""}`) : null,
     ),
-    h("p", { class: "fine" }, c.ui.rangeNote),
-    table,
+    h("div", { class: "cols" }, h("div", { class: "col" }, h("p", { class: "fine" }, c.ui.rangeNote), table),
     h(
       "section",
-      { class: "actions" },
+      { class: "col actions" },
       h("h2", { class: "marg" }, "Your reference"),
       readOnly(x),
       h("p", {}, c.ui.newNormalNote),
       h("div", { class: "row" },
         h("button", { type: "button", class: "secondary", disabled: !x.canAct, onclick: () => x.act.reanchor(k, false) }, c.ui.newNormal),
         active ? h("button", { type: "button", class: "secondary", disabled: !x.canAct, onclick: () => x.act.reanchor(k, true) }, c.ui.undoNormal) : null),
-    ),
+    )),
   );
 }
 
@@ -551,24 +561,26 @@ export function sharing(x: Ctx): HTMLElement {
   const upto = Math.max(1, st.lastClosed);
   const shares = [...st.shares.values()].reverse();
   const toggle = (on: boolean, labelOn: string, labelOff: string, f: () => void, disabled: boolean) =>
-    h("button", { type: "button", class: `switch${on ? " switch--on" : ""}`, role: "switch", "aria-checked": on ? "true" : "false", disabled, onclick: f }, on ? labelOn : labelOff);
+    h("button", { type: "button", class: `switch${on ? " switch--on" : ""}`, role: "switch", "aria-checked": on ? "true" : "false", disabled, onclick: f },
+      h("span", { class: "switch__text" }, on ? labelOn : labelOff), h("span", { class: "switch__track", "aria-hidden": "true" }, h("span", { class: "switch__knob" })));
   return h(
     "section",
     { class: "view" },
-    h("header", { class: "view__head" }, h("h1", {}, "Sharing")),
-    h("p", { class: "lede" }, "Nothing leaves this tablet unless it is listed here first. Journal text and how you use the app never leave."),
+    h("header", { class: "view__head" }, h("h1", {}, "Sharing"), h("p", { class: "subtitle" }, "Nothing leaves this tablet unless it is listed here first. Journal text and how you use the app never leave.")),
     h("figure", { class: "sheet sheet--strip" }, strip(st, geo(upto, x.sheetWidth), { shares: true }), h("figcaption", {}, "Check-ins, loss of signal, and each listed item (top row) by mission day.")),
+    h("div", { class: "cols" }, h("div", { class: "col" },
     h("section", { class: "block" }, h("h2", { class: "marg" }, `Sharing log · ${shares.length} items`),
       shares.length === 0 ? h("p", {}, "Nothing has been listed yet.") : h("ol", { class: "log" }, ...shares.slice(0, 40).map((sh) =>
         h("li", { class: `log__row log__row--${sh.status}` },
           h("span", { class: "log__day" }, `Day ${sh.day}`),
           h("span", { class: "log__what" }, h("strong", {}, c.shareClass[sh.cls]), ` to ${who(c, sh.to)}`, h("br", {}), h("span", { class: "fine" }, payloadWords(c, st, sh))),
-          h("span", { class: "chip" }, STATUS[sh.status]))))),
-    h("section", { class: "block" }, h("h2", { class: "marg" }, "Weekly summaries (your choice)"), readOnly(x),
+          h("span", { class: "chip" }, STATUS[sh.status])))))),
+    h("div", { class: "col" },
+    h("section", { class: "block group" }, h("h2", { class: "marg" }, "Weekly summaries (your choice)"), readOnly(x),
       ...[...st.indicators.values()].map((i) => h("div", { class: "setting" },
         h("span", {}, cap(label(c, i.key)), h("br", {}), h("span", { class: "fine" }, i.shared ? `To ${who(c, st.routes.get("summary")?.[0] ?? null)}, once a week.` : c.ui.staysHere)),
         toggle(i.shared, "Shared weekly", "Not shared", () => x.act.shareCategory(i.key, !i.shared), !x.canAct)))),
-    h("section", { class: "block" }, h("h2", { class: "marg" }, "Safety lines agreed before flight"),
+    h("section", { class: "block group" }, h("h2", { class: "marg" }, "Safety lines agreed before flight"),
       ...(st.table?.lines ?? []).map((l) => {
         const i = st.indicators.get(l.indicator);
         const what = l.high ? `A yes to ${c.item[l.indicator]?.label ?? l.indicator}` : `${cap(label(c, l.indicator))} ${l.op} ${i ? fmt(c, i, l.limit) : l.limit}`;
@@ -576,13 +588,13 @@ export function sharing(x: Ctx): HTMLElement {
           h("span", {}, what, h("br", {}), h("span", { class: "fine" }, l.high ? (l.share ? `Goes to ${who(c, st.routes.get("safety")?.[0] ?? null)}, as you chose.` : c.ui.staysHere) : `Always goes to ${who(c, st.routes.get("safety")?.[0] ?? null)}: agreed before flight.`)),
           l.high ? toggle(l.share, "Shared", "Stays here", () => x.act.consent(l.id, !l.share), !x.canAct) : h("span", { class: "chip" }, "Fixed"));
       })),
-    h("section", { class: "block" }, h("h2", { class: "marg" }, "People"),
+    h("section", { class: "block group" }, h("h2", { class: "marg" }, "People"),
       ...[...st.recipients.entries()].map(([k, r]) => h("div", { class: "setting" },
         h("span", {}, cap(who(c, k)), h("br", {}), h("span", { class: "fine" }, `${r.crew ? "On board" : "On the ground"} · receives ${[...st.routes.entries()].filter(([, to]) => to.includes(k)).map(([cl]) => c.shareClass[cl].toLowerCase()).join(", ") || "nothing"}`)),
         toggle(!r.excluded, "Can receive", "Excluded", () => x.act.exclude(k, !r.excluded), !x.canAct)))),
-    x.mode === "live" ? null : h("section", { class: "block" }, h("h2", { class: "marg" }, "Demonstration"),
+    x.mode === "live" ? null : h("section", { class: "block group" }, h("h2", { class: "marg" }, "Demonstration"),
       h("div", { class: "setting" }, h("span", {}, st.linkUp ? c.ui.linkUp : c.ui.linkDown, h("br", {}), h("span", { class: "fine" }, "In flight this comes from the communication system.")),
-        toggle(st.linkUp, "Ground link up", "Loss of signal", () => x.act.link(!st.linkUp), !x.canAct))),
+        toggle(st.linkUp, "Ground link up", "Loss of signal", () => x.act.link(!st.linkUp), !x.canAct))))),
   );
 }
 
@@ -600,7 +612,8 @@ export function support(x: Ctx): HTMLElement {
   return h(
     "section",
     { class: "view" },
-    h("header", { class: "view__head" }, h("h1", {}, "Support"), h("p", { class: "lede" }, "A person, whenever you want one. Asking needs no reason."), readOnly(x)),
+    h("header", { class: "view__head" }, h("h1", {}, "Support"), h("p", { class: "subtitle" }, "A person, whenever you want one. Asking needs no reason."), readOnly(x)),
+    h("div", { class: "cols" }, h("div", { class: "col" },
     h("div", { class: "row row--big" },
       h("div", { class: "reach" },
         h("button", { type: "button", class: "primary", disabled: !x.canAct, onclick: () => x.act.request("ppc_request") }, c.ui.ppc),
@@ -608,14 +621,15 @@ export function support(x: Ctx): HTMLElement {
       h("div", { class: "reach" },
         h("button", { type: "button", class: "primary", disabled: !x.canAct, onclick: () => x.act.request("crew_request") }, c.ui.crew),
         h("p", { class: "fine" }, `Goes to ${who(c, st.routes.get("crew")?.[0] ?? null)}. Only the request is sent. ${reqStatus("crew")}`))),
-    h("section", { class: `block plan${supportShown ? " plan--open" : ""}` }, h("h2", { class: "marg" }, c.ui.planTitle), h("ul", {}, h("li", {}, c.ui.plan1), h("li", {}, c.ui.plan2), h("li", {}, c.ui.plan3)), h("p", { class: "fine" }, "Your plan stays on this tablet.")),
-    h("section", { class: "block" }, h("h2", { class: "marg" }, c.ui.screenerTitle), h("p", {}, c.ui.screenerIntro),
+    h("section", { class: `block plan${supportShown ? " plan--open" : ""}` }, h("h2", { class: "marg" }, c.ui.planTitle), h("ul", {}, h("li", {}, c.ui.plan1), h("li", {}, c.ui.plan2), h("li", {}, c.ui.plan3)), h("p", { class: "fine" }, "Your plan stays on this tablet."))),
+    h("div", { class: "col" },
+    h("section", { class: "block group" }, h("h2", { class: "marg" }, c.ui.screenerTitle), h("p", {}, c.ui.screenerIntro),
       ...items.map((l) => h("div", { class: "question" },
         h("p", { class: "question__text" }, c.item[l.indicator]?.question ?? l.indicator),
         h("p", { class: "share-state" }, h("span", { class: "marg" }, "If you answer yes"), ` ${l.share ? `${cap(who(c, st.routes.get("safety")?.[0] ?? null))} is told that you answered yes, as you agreed before flight. Nothing else is sent.` : "It stays on this tablet."}`),
         segmented(c.item[l.indicator]?.question ?? l.indicator, [{ value: "0", label: c.ui.no }, { value: "1", label: c.ui.yes }], (x.screen[l.indicator] === undefined ? "" : String(x.screen[l.indicator])) as "0" | "1", (v) => x.act.setScreen(l.indicator, v === "1" ? 1 : 0), "seg--answer"))),
       h("button", { type: "button", class: "secondary", disabled: !x.canAct || !answered, onclick: () => x.act.saveScreen() }, c.ui.sendAnswers),
       h("p", { class: "fine" }, c.ui.screenerPlaceholder)),
-    h("p", { class: "fine" }, x.kernel.compared === 0 ? "" : x.kernel.disagreements === 0 ? `${c.ui.kernelAgree} (${x.kernel.compared} values compared${x.kernel.injected ? "; kernel B deliberately altered for this demonstration" : ""}).` : `Independent safety check: ${x.kernel.disagreements} of ${x.kernel.compared} values gave different results in the two versions; each is recorded and treated as unconfirmed.`),
+    h("p", { class: "fine" }, x.kernel.compared === 0 ? "" : x.kernel.disagreements === 0 ? `${c.ui.kernelAgree} (${x.kernel.compared} values compared${x.kernel.injected ? "; kernel B deliberately altered for this demonstration" : ""}).` : `Independent safety check: ${x.kernel.disagreements} of ${x.kernel.compared} values gave different results in the two versions; each is recorded and treated as unconfirmed.`))),
   );
 }

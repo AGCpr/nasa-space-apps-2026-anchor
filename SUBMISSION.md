@@ -24,7 +24,7 @@ On 71 real people's wearable and mood data, the personal range held 79 % of mood
 
 ## Link to Project Demo
 
-https://agcpr.github.io/nasa-space-apps-2026-anchor/demo/anchor-demo.mp4 (30-second video, English captions)
+https://agcpr.github.io/nasa-space-apps-2026-anchor/demo/anchor-demo.mp4 (30 seconds, narrated, English subtitles, real app footage)
 
 ## Link to Final Project
 
@@ -74,17 +74,18 @@ https://github.com/AGCpr/nasa-space-apps-2026-anchor (source, documentation, val
 
 **Tools**
 
-Rust (engine, safety kernel A, WebAssembly), TypeScript (interface, safety kernel B), Python with NumPy and SciPy (reference oracles, simulation, validation), SVG, ffmpeg (demo video), GitHub Pages.
+Rust (engine, safety kernel A, WebAssembly), TypeScript (interface, safety kernel B), Python with NumPy and SciPy (reference oracles, simulation, validation), SVG, ffmpeg, puppeteer-core and Microsoft Edge neural TTS (demo video), GitHub Pages.
 
 ## Use of Super Intelligence (SI)
 
 Yes. We used an AI coding assistant (Claude, by Anthropic) during the software phase.
 
 - **The team decided:** the challenge, the product concept and its requirements, the visual direction, and every design decision. Each decision is recorded with alternatives in the ADRs.
-- **The assistant helped with:** literature and standards research, drafting design documents, writing code and tests, running the validation, and building the demo video from screenshots of the real app.
+- **The assistant helped with:** literature and standards research, drafting design documents, writing code and tests, running the validation, and building the demo video from frame-by-frame recordings of the real app.
 - **How we checked it:** two independent safety-kernel implementations, Python reference oracles, about 70 automated tests including mutation checks, and an independent design review.
 - **Disclosure in the project itself:** the repository's AI_ASSISTANCE.md, `Co-Authored-By` commit metadata, and a caption in the demo video.
-- **Not AI-generated:** no images, video frames or audio. The video consists of screenshots of the running app.
+- **Not AI-generated:** no images or video frames. Every app shot is a recording of the running app.
+- **Narration:** synthetic speech (Microsoft Edge neural text-to-speech), disclosed on the video's end card and in its file metadata.
 
 ## NASA Data
 

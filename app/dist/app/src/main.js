@@ -237,11 +237,14 @@ function evening(st) {
     const tod = app.mode === "live" ? (Date.now() - launch()) % DAY_MS : st.met % DAY_MS;
     return tod >= 19.5 * HOUR || tod < 6 * HOUR;
 }
-function top(st) {
+/** Lighting and data-source controls: in the sidebar on wide layouts, in a disclosure on narrow ones. */
+function displayControls() {
+    return h("div", { class: "controls" }, h("p", { class: "marg" }, "Lighting"), segmented("Lighting", [{ value: "auto", label: c.ui.lightAuto }, { value: "day", label: c.ui.lightDay }, { value: "evening", label: c.ui.lightEvening }], app.light, (v) => { app.light = v; render(); }, "seg--fill"), h("p", { class: "marg" }, "Data"), segmented("Data", [{ value: "replay", label: "Replay" }, { value: "live", label: "Live" }], app.mode === "live" ? "live" : "replay", (v) => void (v === "live" ? startLive() : startReplay()), "seg--fill"));
+}
+/** Mission status, always visible above the content (HIG: the current location and state stay visible). */
+function statusBar(st) {
     const shownDay = app.mode === "replay" ? st.lastClosed : st.openDay;
-    return h("header", { class: "top" }, h("div", { class: "top__mark" }, h("span", { class: "wordmark" }, "ANCHOR"), h("span", { class: "marg" }, "Personal survey")), h("div", { class: "top__cell" }, h("span", { class: "marg" }, "Mission day"), h("strong", { class: "num" }, String(shownDay))), h("div", { class: `top__cell link link--${st.linkUp ? "up" : "down"}` }, h("span", { class: "marg" }, "Ground link"), h("strong", {}, st.linkUp ? "Up" : "Loss of signal")), app.mode === "live"
-        ? h("div", { class: "top__cell badge" }, h("span", { class: "marg" }, "Mode"), h("strong", {}, "Live · synthetic pre-flight"))
-        : h("div", { class: "top__cell badge badge--synthetic" }, h("span", { class: "marg" }, "Mode"), h("strong", {}, c.ui.syntheticReplay)), h("div", { class: "top__end" }, segmented("Lighting", [{ value: "auto", label: c.ui.lightAuto }, { value: "day", label: c.ui.lightDay }, { value: "evening", label: c.ui.lightEvening }], app.light, (v) => { app.light = v; render(); }), segmented("Data", [{ value: "replay", label: "Replay" }, { value: "live", label: "Live" }], app.mode === "live" ? "live" : "replay", (v) => void (v === "live" ? startLive() : startReplay()))));
+    return h("header", { class: "status" }, h("span", { class: "status__mark" }, "ANCHOR"), h("span", { class: "pill" }, h("span", { class: "marg" }, "Mission day"), h("strong", { class: "num" }, h("span", { class: "pill__short" }, "Day "), String(shownDay))), h("span", { class: `pill link link--${st.linkUp ? "up" : "down"}` }, h("strong", {}, st.linkUp ? c.ui.linkUp : c.ui.linkDown)), h("span", { class: `pill badge${app.mode === "live" ? "" : " badge--synthetic"}` }, h("strong", {}, app.mode === "live" ? "Live · synthetic pre-flight" : c.ui.syntheticReplay)), h("details", { class: "status__more" }, h("summary", {}, "Display and data"), displayControls()));
 }
 const RAIL = [
     { v: "today", label: c.ui.today, d: "M12 4a8 8 0 1 0 0 16a8 8 0 1 0 0-16Zm0 4v4l3 2" },
@@ -249,14 +252,22 @@ const RAIL = [
     { v: "sharing", label: c.ui.sharing, d: "M6 12h12M14 7l5 5-5 5M4 4v16" },
     { v: "support", label: c.ui.support, d: "M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z" },
 ];
-function rail() {
-    return h("nav", { class: "rail", "aria-label": "Sections" }, ...RAIL.map((r) => {
+function navItems() {
+    return RAIL.map((r) => {
         const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         icon.setAttribute("viewBox", "0 0 24 24");
         icon.setAttribute("aria-hidden", "true");
         icon.innerHTML = `<path d="${r.d}"/>`;
         return h("button", { type: "button", "aria-current": app.view === r.v ? "page" : null, onclick: () => { app.view = r.v; app.flash = []; render(); document.querySelector("main")?.scrollTo(0, 0); } }, icon, h("span", {}, r.label));
-    }));
+    });
+}
+/** Regular width: a sidebar (HIG layout.md: tab bar becomes a sidebar when space allows). */
+function sidebar() {
+    return h("aside", { class: "sidebar" }, h("div", { class: "sidebar__brand" }, h("span", { class: "wordmark" }, "ANCHOR"), h("span", { class: "fine" }, "A personal baseline for long missions")), h("nav", { class: "sidebar__nav", "aria-label": "Sections" }, ...navItems()), displayControls());
+}
+/** Compact width: a bottom tab bar with the same four destinations. */
+function tabBar() {
+    return h("nav", { class: "tabbar", "aria-label": "Sections" }, ...navItems());
 }
 function replayBar(st) {
     if (app.mode === "live")
@@ -272,10 +283,11 @@ function replayBar(st) {
     });
     return h("footer", { class: "replay" }, h("p", {}, h("span", { class: "marg" }, c.ui.syntheticReplay), ` Day ${app.scrub} of ${app.demoDays}.`, h("span", { class: "replay__note" }, ` ${c.ui.syntheticNote}`)), range, h("button", { type: "button", class: "secondary", onclick: () => void continueHere() }, c.ui.continueHere));
 }
-/** Inner chart width: viewport minus rail, main padding and sheet padding (styles.css). */
+/** Inner chart width: the measured content column minus the sheet's padding (styles.css .sheet). */
 function sheetWidth() {
-    const rail = innerWidth <= 600 ? 0 : innerWidth <= 900 ? 104 : 136; // phone: rail moves to the top
-    return Math.max(300, Math.min(1120, innerWidth - rail - (innerWidth <= 900 ? 40 : 80)) - 26);
+    const content = document.querySelector(".content");
+    const w = content ? content.clientWidth : Math.min(1200, innerWidth - (innerWidth >= 1000 ? 300 : 0) - 64);
+    return Math.max(300, w - 2 * 24 - 2);
 }
 let resizeTimer;
 window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = window.setTimeout(render, 120); });
@@ -322,7 +334,7 @@ function render() {
     const view = { today: V.today, course: V.course, sharing: V.sharing, support: V.support }[app.view](ctx);
     const flash = app.flash.length ? h("section", { class: "flash", role: "status", "aria-live": "polite" }, ...app.flash.map((m) => card(m))) : null;
     const busy = app.busy ? h("p", { class: "busy", role: "status" }, glyph("info"), ` ${app.busy}…`) : null;
-    root.replaceChildren(top(st), rail(), h("main", { id: "main" }, busy ?? "", flash ?? "", view), replayBar(st) ?? "");
+    root.replaceChildren(sidebar(), h("main", { id: "main" }, statusBar(st), h("div", { class: "content" }, busy ?? "", flash ?? "", view)), replayBar(st) ?? "", tabBar());
     const main = document.querySelector("main");
     if (main)
         main.scrollTop = scroll;

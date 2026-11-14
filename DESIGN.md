@@ -313,3 +313,30 @@ Large, calm and unmistakable.
 - **Don't** add drop shadows or lift surfaces. Depth is one tonal step and a rule.
 - **Don't** introduce rings, gauges, composite scores or red/green status cards.
 - **Don't** stack an uppercase label above a heading as a kicker. Marginalia labels cells and sections only.
+
+## Revision, 14 Nov 2026: iPadOS conventions (Apple HIG pass)
+
+This revision supersedes the shell and type sections above wherever they conflict. Colour tokens, the corridor/benchmark/hinge chart and every NASA-STD-3001 App. F rule are unchanged and still tested.
+
+- **Navigation.**
+  - **Regular width (≥ 1000 px):** a 300 px sidebar with icon-and-label rows, each 80 px tall; the selected row is filled with the accent colour. The sidebar also holds the Lighting and Data segmented controls. (HIG layout.md › Size classes: a tab bar becomes a sidebar when there is room.)
+  - **Compact width:** the same four destinations in a bottom tab bar, with Lighting and Data under a "Display and data" disclosure in the status bar.
+- **Status bar.** A sticky bar at the top of the content shows the mission day, the ground link and the synthetic-replay state as pills. It uses a translucent material over the scrolling content, and switches to solid when reduced transparency is requested.
+- **Type scale.** HIG Dynamic Type proportions, scaled for arm's length and floored at 16 px:
+  - Large Title 40 / 700;
+  - Title 2 26 / 700;
+  - Title 3 22 / 650;
+  - Body 19;
+  - Subhead 17;
+  - Footnote 16.
+- **Layout.**
+  - The content column has a maximum width of 1240 px and is centred in the space beside the sidebar.
+  - Views split into two columns when the content area is at least 1000 px wide. This is a container query: the decision follows available space, not the device.
+  - Charts are drawn at the measured column width, so one SVG unit equals one CSS pixel.
+- **Components.**
+  - **Cards:** one surface colour, a 20 px radius and a 1 px rule.
+  - **Segmented controls:** a track holding selected pills, 80 px tall.
+  - **Switches:** a 66 × 40 px track whose knob position, fill and word all state the setting (R2); the whole control is the 80 px target.
+  - **Sharing settings:** inset grouped lists.
+  - **Chart cards:** open with a title and a one-sentence main message; the coverage and episode details sit below the chart (HIG charts.md).
+- **Insight titles** name the value ("Mood tonight") instead of repeating the page title.

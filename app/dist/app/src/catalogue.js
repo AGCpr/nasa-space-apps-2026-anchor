@@ -43,6 +43,7 @@ const UI_EN = {
     nothingToday: "No notes today.",
     kernelAgree: "Independent safety check: both versions agreed on every value shown.",
 };
+const cap = (x) => `${x[0].toUpperCase()}${x.slice(1)}`;
 const label = (s) => en.indicator[s.ind]?.label ?? s.ind.replace(/_/g, " ");
 const who = (to) => (to === null ? "no one yet" : (en.recipient[to] ?? to));
 const lower = (s) => (s.dir === -1 ? "lower" : "higher");
@@ -292,21 +293,21 @@ export const en = {
     insight: {
         inside: (ind, below, of) => ({
             register: "info",
-            title: "Tonight",
+            title: `${cap(en.indicator[ind]?.label ?? ind)} tonight`,
             text: `Your ${en.indicator[ind]?.label ?? ind} tonight is inside your usual range, higher than ${below} of your last ${of} check-ins.`,
             action: "look at how it has moved over the mission on Course",
             owner: "You",
         }),
         outside: (ind, dirWord, below, of) => ({
             register: "info",
-            title: "Tonight",
+            title: `${cap(en.indicator[ind]?.label ?? ind)} tonight`,
             text: `Your ${en.indicator[ind]?.label ?? ind} tonight is ${dirWord} than your usual range, higher than ${below} of your last ${of} check-ins. One evening on its own says little.`,
             action: "look at how it has moved over the mission on Course",
             owner: "You",
         }),
         early: (ind) => ({
             register: "info",
-            title: "Tonight",
+            title: `${cap(en.indicator[ind]?.label ?? ind)} tonight`,
             text: `Saved. Your usual range for ${en.indicator[ind]?.label ?? ind} is still being learned, so tonight is not compared yet.`,
             action: "keep checking in when it suits you",
             owner: "You",
