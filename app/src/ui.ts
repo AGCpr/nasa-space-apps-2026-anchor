@@ -47,7 +47,8 @@ export function card(m: Msg, extra?: Child): HTMLElement {
     h("p", { class: "msg__step" }, h("strong", {}, m.owner === "You" ? "What you can do: " : `Who acts: ${m.owner}. `), `${m.action[0]!.toUpperCase()}${m.action.slice(1)}.`),
     m.why
       ? h("details", { class: "why" }, h("summary", {}, "Why this note?"), h("ul", {}, ...m.why.lines.map((l) => h("li", {}, l))),
-          m.why.area ? h("p", { class: "why__area" }, "NASA research area: ", h("a", { href: m.why.area.url, target: "_blank", rel: "noopener" }, m.why.area.name), ".") : null)
+          m.why.area ? h("p", { class: "why__area" }, m.why.also?.length ? "NASA research areas: " : "NASA research area: ",
+            ...[m.why.area, ...(m.why.also ?? [])].flatMap((a, i, all) => [h("a", { href: a.url, target: "_blank", rel: "noopener" }, a.name), i < all.length - 1 ? "; " : "."])) : null)
       : null,
     extra ?? null,
   );

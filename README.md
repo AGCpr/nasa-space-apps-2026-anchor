@@ -71,7 +71,7 @@ A coded survey of 243 public repositories for this challenge (a reproducible key
 - **Synthetic, end to end.**
   - 7,200 healthy person-days give one alert per 38.9 days, against a budget of 30.
   - A scripted 150-day mission demonstrates every mechanism. A Rust test fails if the demo stops demonstrating it.
-- **Web quality (Lighthouse 12, live site, 14 Nov 2026).** Mobile: performance 98, accessibility 100, best practices 100, SEO 100. Desktop: performance 84, the other three 100. Total blocking time is 70 ms, because the demo mission is prebuilt by the engine instead of recomputed in the browser.
+- **Web quality (Lighthouse 12, live site, 14 Nov 2026).** Mobile: performance 97–98, accessibility 100, best practices 100, SEO 100. Desktop: 100 in all four. Total blocking time is under 20 ms: the demo mission is prebuilt by the engine, and the independent safety re-check of its history runs in one linear pass that yields to the browser.
 - **Independent implementations.** Python reference oracles and reference vectors cover numerics, baseline, detection and the safety kernel.
 - **Tests.** About 70 automated tests across Rust, WebAssembly, TypeScript and the interface. They include a machine audit of every sentence the astronaut can read (no disease names, no alarm vocabulary, every message names an action and an owner), plus colour and contrast tests derived from NASA-STD-3001 Appendix F.
 

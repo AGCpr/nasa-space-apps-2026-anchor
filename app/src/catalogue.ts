@@ -7,7 +7,7 @@ import type { OutKind, ShareClass } from "./model.ts";
 export type Register = "warning" | "caution" | "advisory" | "info";
 export type Msg = { register: Register; title: string; text: string; action: string; owner: string; why?: Why };
 /** "Why this note?": the data, the rule, what closes it, and the NASA research area (docs/HRP_MAPPING.md). */
-export type Why = { lines: string[]; area?: { name: string; url: string } };
+export type Why = { lines: string[]; area?: { name: string; url: string }; also?: { name: string; url: string }[] };
 
 export type Slots = {
   ind: string; // indicator key

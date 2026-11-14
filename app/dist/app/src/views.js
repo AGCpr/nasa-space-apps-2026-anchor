@@ -110,14 +110,15 @@ function why(c, st, n, s) {
 // ---------- Today ----------
 function grouped(c, alarms) {
     const m = c.group(alarms.map((a) => ({ ind: a.i.key, since: a.i.alarmDay, dir: a.i.dir })));
-    const areas = new Set(alarms.map((a) => c.area[a.i.key]?.url));
+    // Every NASA research area the grouped measures belong to, each once.
+    const areas = [...new Map(alarms.map((a) => c.area[a.i.key]).filter((a) => a !== undefined).map((a) => [a.url, a])).values()];
     const lines = [
         ...alarms.map((a) => `${cap(label(c, a.i.key))}: evidence of a sustained shift passed your personal threshold (${a.h.toFixed(1)}) on day ${a.i.alarmDay}.`),
         "Rule: each threshold is set so that a stable person sees a note like this about once in 30 days or less.",
         "Closes: each one after 3 days back in its usual range, or when you set a new normal.",
     ];
-    const area = areas.size === 1 ? c.area[alarms[0].i.key] : undefined;
-    return { ...m, why: area ? { lines, area } : { lines } };
+    const [area, ...also] = areas;
+    return { ...m, why: area ? { lines, area, ...(also.length ? { also } : {}) } : { lines } };
 }
 function rangeBar(c, i, tonight) {
     const last = i.stats.at(-1);

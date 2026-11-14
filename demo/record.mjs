@@ -34,6 +34,7 @@ const hold = (seconds) => snap(Math.max(1, Math.round(seconds * FPS)));
 /** A visible fingertip so viewers see where the astronaut touches. */
 async function touchIndicator() {
   await page.evaluate(() => {
+    if (document.getElementById("finger")) return; // one marker per page, so hiding it hides it
     const d = document.createElement("div");
     d.id = "finger";
     d.style.cssText = "position:fixed;z-index:9999;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;border:4px solid rgba(255,255,255,.92);background:rgba(255,255,255,.2);pointer-events:none;left:-100px;top:-100px";

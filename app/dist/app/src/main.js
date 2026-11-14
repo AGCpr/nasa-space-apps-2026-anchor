@@ -157,7 +157,9 @@ async function act(kind, fields) {
                 await compare(e, table, true);
         app.busy = "";
         const seqs = new Set(app.events.filter((e) => e.seq >= evs[0].seq).map((e) => e.seq));
-        app.flash.push(...notesOf(seqs).filter((m) => !(kind === "checkin" && m.register === "info" && m.title === c.shareClass.safety)));
+        // Today lists every outcome of the day under Notes, so a check-in or a measurement adds no second copy on top.
+        if (kind !== "checkin" && kind !== "sample")
+            app.flash.push(...notesOf(seqs));
         if (kind === "day_close") {
             app.draft = {};
             app.screen = {};
